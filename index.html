@@ -1,499 +1,214 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🕊️ Голубь ТВ — голубиный стриминг</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300..700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-
-    :root {
-      --bg: #0a0a0c;
-      --bg-elevated: #121216;
-      --surface: rgba(25, 25, 32, 0.72);
-      --surface-border: rgba(255, 215, 0, 0.12);
-      --gold: #f5c542;
-      --gold-soft: #f7d96e;
-      --gold-dark: #b8860b;
-      --amber: #ffb347;
-      --text-primary: #f0ede8;
-      --text-secondary: #a8a49c;
-      --text-muted: #6b6860;
-      --danger: #e74c3c;
-      --success: #2ecc71;
-      --radius: 24px;
-      --radius-sm: 14px;
-      --shadow-glow: 0 0 40px rgba(245, 197, 66, 0.18);
-      --shadow-card: 0 20px 40px -10px rgba(0, 0, 0, 0.7);
-      --transition: 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-      --font-main: 'Inter', 'Manrope', system-ui, sans-serif;
-      --contain: layout paint style;
-    }
-
-    html { scroll-behavior: smooth; }
-
-    body {
-      background: var(--bg);
-      background-image:
-        radial-gradient(circle at 20% 10%, rgba(245, 197, 66, 0.06) 0%, transparent 50%),
-        radial-gradient(circle at 80% 90%, rgba(255, 179, 71, 0.05) 0%, transparent 50%);
-      color: var(--text-primary);
-      font-family: var(--font-main);
-      min-height: 100vh;
-      line-height: 1.5;
-      -webkit-font-smoothing: antialiased;
-      padding: 0 20px 60px;
-      /* Изоляция для уменьшения пересчёта */
-      isolation: isolate;
-    }
-
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: var(--gold-dark); border-radius: 20px; }
-
-    .app { max-width: 1280px; margin: 0 auto; }
-
-    h1, h2, h3, h4 { font-family: 'Manrope', var(--font-main); font-weight: 600; letter-spacing: -0.02em; }
-
-    .gold-text {
-      background: linear-gradient(135deg, var(--gold-soft), var(--gold), var(--amber));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    .glass {
-      background: var(--surface);
-      backdrop-filter: blur(20px) saturate(1.4);
-      -webkit-backdrop-filter: blur(20px) saturate(1.4);
-      border: 1px solid var(--surface-border);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow-card);
-      transition: border-color var(--transition), box-shadow var(--transition);
-      /* Оптимизация: не пересчитывать layout дочерних элементов */
-      contain: var(--contain);
-    }
-    .glass:hover { border-color: rgba(255,215,0,0.2); box-shadow: var(--shadow-card), var(--shadow-glow); }
-
-    .btn {
-      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-      padding: 12px 24px; border-radius: 60px; font-weight: 600; font-size: 0.95rem;
-      font-family: var(--font-main); border: none; cursor: pointer;
-      transition: transform var(--transition), box-shadow var(--transition), background var(--transition);
-      letter-spacing: 0.01em; white-space: nowrap;
-      /* GPU-ускорение */
-      will-change: transform;
-      transform: translateZ(0);
-    }
-    .btn-gold {
-      background: linear-gradient(135deg, var(--gold), var(--amber));
-      color: #0a0a0c; box-shadow: 0 4px 20px rgba(245,197,66,0.3);
-    }
-    .btn-gold:hover { transform: translateY(-2px) translateZ(0); box-shadow: 0 8px 30px rgba(245,197,66,0.45); }
-    .btn-gold:active { transform: translateY(0) translateZ(0); }
-    .btn-outline { background: transparent; border: 1.5px solid rgba(245,197,66,0.35); color: var(--gold-soft); }
-    .btn-outline:hover { background: rgba(245,197,66,0.1); border-color: var(--gold); }
-    .btn-ghost { background: rgba(255,255,255,0.04); color: var(--text-secondary); border: 1px solid rgba(255,255,255,0.06); }
-    .btn-ghost:hover { background: rgba(255,255,255,0.08); color: var(--text-primary); }
-    .btn-sm { padding: 8px 16px; font-size: 0.85rem; }
-    .btn-xs { padding: 4px 10px; font-size: 0.75rem; }
-    .btn-danger { background: rgba(231,76,60,0.15); color: #e74c3c; border: 1px solid rgba(231,76,60,0.25); }
-    .btn-danger:hover { background: rgba(231,76,60,0.25); }
-    .btn-success { background: rgba(46,204,113,0.15); color: #2ecc71; border: 1px solid rgba(46,204,113,0.25); }
-    .btn-success:hover { background: rgba(46,204,113,0.25); }
-
-    header {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 18px 0; flex-wrap: wrap; gap: 12px;
-      position: sticky; top: 0; z-index: 100;
-      background: rgba(10,10,12,0.85);
-      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-      border-bottom: 1px solid rgba(255,215,0,0.06);
-      margin-bottom: 28px;
-      /* Фиксируем слой */
-      transform: translateZ(0);
-    }
-    .logo { display: flex; align-items: center; gap: 10px; font-size: 1.6rem; font-weight: 700; font-family: 'Manrope',sans-serif; letter-spacing: -0.03em; }
-    .logo .dove { font-size: 2rem; filter: drop-shadow(0 0 12px rgba(245,197,66,0.5)); }
-
-    .header-right { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-
-    .user-chip {
-      display: flex; align-items: center; gap: 10px;
-      padding: 6px 16px 6px 10px; background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,215,0,0.15); border-radius: 60px;
-      cursor: pointer; transition: border-color var(--transition), background var(--transition);
-    }
-    .user-chip:hover { border-color: rgba(255,215,0,0.35); background: rgba(255,215,0,0.06); }
-    .user-avatar {
-      width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center;
-      justify-content: center; font-size: 1.2rem; background: rgba(245,197,66,0.15);
-      overflow: hidden; flex-shrink: 0;
-    }
-    .user-avatar img { width: 100%; height: 100%; object-fit: cover; }
-    .user-name { font-weight: 600; font-size: 0.9rem; color: var(--gold-soft); }
-
-    .stream-card { padding: 28px; margin-bottom: 24px; }
-    .stream-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 18px; }
-    .stream-title { font-size: 1.5rem; font-weight: 700; }
-    .live-badge {
-      display: inline-flex; align-items: center; gap: 6px; padding: 6px 16px;
-      border-radius: 60px; font-size: 0.85rem; font-weight: 600;
-      background: rgba(231,76,60,0.15); color: #ff6b5b;
-      border: 1px solid rgba(231,76,60,0.2);
-    }
-    .live-badge.online { background: rgba(46,204,113,0.15); color: #2ecc71; border-color: rgba(46,204,113,0.2); }
-
-    .player-wrapper {
-      position: relative; width: 100%; aspect-ratio: 16/9; border-radius: var(--radius-sm);
-      overflow: hidden; background: #000; border: 1px solid rgba(255,215,0,0.08);
-      box-shadow: 0 10px 40px -10px rgba(0,0,0,0.9);
-      contain: strict;
-    }
-    .player-wrapper iframe { width: 100%; height: 100%; border: none; display: block; }
-    .player-offline {
-      display: flex; align-items: center; justify-content: center; flex-direction: column;
-      gap: 12px; width: 100%; height: 100%; background: #0d0d10;
-      color: var(--text-muted); font-size: 3rem;
-    }
-    .player-offline span { font-size: 1rem; color: var(--text-secondary); }
-
-    .view-counter {
-      display: flex; align-items: center; gap: 8px; font-size: 0.9rem;
-      color: var(--text-secondary); margin-top: 12px;
-    }
-    .view-counter .num { font-weight: 700; color: var(--gold-soft); font-variant-numeric: tabular-nums; }
-
-    .events-bar {
-      margin-top: 18px; padding: 16px 20px; background: rgba(245,197,66,0.04);
-      border: 1px solid rgba(245,197,66,0.1); border-radius: var(--radius-sm);
-      display: flex; flex-direction: column; gap: 8px;
-      contain: content;
-    }
-    .event-row { display: flex; align-items: center; gap: 10px; font-size: 0.9rem; color: var(--text-secondary); flex-wrap: wrap; }
-    .event-row .prize { color: var(--gold-soft); font-weight: 600; }
-
-    .section-title {
-      font-size: 1.2rem; font-weight: 700; margin-bottom: 16px;
-      display: flex; align-items: center; gap: 8px;
-    }
-
-    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
-    @media (max-width: 900px) { .grid-2 { grid-template-columns: 1fr; } }
-
-    .feed-card { padding: 24px; }
-    .feed-buttons { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
-    .feed-buttons .btn { flex: 1; min-width: 80px; }
-
-    .custom-feed { display: flex; gap: 10px; margin-bottom: 20px; }
-    .custom-feed input {
-      flex: 1; padding: 12px 16px; border-radius: 60px; border: 1px solid rgba(255,215,0,0.15);
-      background: rgba(0,0,0,0.3); color: var(--text-primary); font-family: var(--font-main);
-      font-size: 0.95rem; outline: none; transition: border-color var(--transition);
-    }
-    .custom-feed input:focus { border-color: var(--gold); }
-
-    .donors-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
-    .donors-table th { text-align: left; padding: 8px 10px; color: var(--text-muted); font-weight: 500; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid rgba(255,215,0,0.08); }
-    .donors-table td { padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.03); }
-    .donors-table tr:last-child td { border-bottom: none; }
-    .donors-table .place { font-weight: 700; color: var(--gold-soft); width: 30px; }
-    .donors-table .donor-avatar { font-size: 1.2rem; margin-right: 6px; }
-    .donors-table .donor-sum { font-weight: 600; color: var(--gold-soft); text-align: right; }
-
-    .card-payment { padding: 24px; }
-    .bank-card {
-      background: linear-gradient(135deg, #1a1a22, #12121a);
-      border: 1px solid rgba(255,215,0,0.15);
-      border-radius: var(--radius-sm); padding: 24px;
-      position: relative; overflow: hidden;
-      margin-bottom: 16px;
-      contain: content;
-    }
-    .bank-card::before {
-      content: ''; position: absolute; top: -50%; right: -20%; width: 200px; height: 200px;
-      background: radial-gradient(circle, rgba(245,197,66,0.08) 0%, transparent 70%);
-      border-radius: 50%; pointer-events: none;
-    }
-    .bank-card .bank-logo { font-size: 2rem; margin-bottom: 8px; }
-    .bank-card .bank-name { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 4px; }
-    .bank-card .card-number {
-      font-size: 1.3rem; font-weight: 700; letter-spacing: 0.08em;
-      color: var(--gold-soft); font-variant-numeric: tabular-nums;
-      margin-bottom: 16px;
-    }
-    .bank-card .card-label { font-size: 0.8rem; color: var(--text-muted); }
-
-    .bet-card { padding: 22px; margin-bottom: 16px; contain: content; }
-    .bet-question { font-size: 1.05rem; font-weight: 600; margin-bottom: 14px; }
-    .bet-options { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 14px; }
-    .bet-option {
-      padding: 10px 20px; border-radius: 60px; border: 1.5px solid rgba(255,215,0,0.2);
-      background: rgba(255,215,0,0.04); cursor: pointer; transition: all var(--transition);
-      font-weight: 500; font-size: 0.9rem; color: var(--text-secondary);
-    }
-    .bet-option:hover { border-color: var(--gold); color: var(--gold-soft); }
-    .bet-option.selected { border-color: var(--gold); background: rgba(245,197,66,0.15); color: var(--gold-soft); }
-
-    .bet-pools { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 14px; font-size: 0.85rem; color: var(--text-secondary); }
-    .bet-pools span { background: rgba(255,255,255,0.04); padding: 4px 12px; border-radius: 60px; }
-
-    .bet-input-row { display: flex; gap: 10px; align-items: center; }
-    .bet-input-row input {
-      width: 100px; padding: 10px 14px; border-radius: 60px; border: 1px solid rgba(255,215,0,0.15);
-      background: rgba(0,0,0,0.3); color: var(--text-primary); font-family: var(--font-main);
-      font-size: 0.9rem; outline: none; text-align: center;
-    }
-    .bet-input-row input:focus { border-color: var(--gold); }
-
-    .modal-overlay {
-      position: fixed; inset: 0; background: rgba(0,0,0,0.7);
-      backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-      display: flex; align-items: center; justify-content: center;
-      z-index: 1000; opacity: 0; pointer-events: none;
-      transition: opacity 0.3s ease;
-      padding: 20px;
-      /* Изоляция */
-      isolation: isolate;
-    }
-    .modal-overlay.active { opacity: 1; pointer-events: all; }
-
-    .modal {
-      background: var(--bg-elevated); border: 1px solid rgba(255,215,0,0.15);
-      border-radius: var(--radius); padding: 32px; max-width: 560px; width: 100%;
-      max-height: 85vh; overflow-y: auto;
-      transform: translateY(20px) scale(0.97);
-      transition: transform 0.3s cubic-bezier(0.25,0.46,0.45,0.94);
-      box-shadow: 0 40px 80px -20px rgba(0,0,0,0.9);
-      contain: content;
-    }
-    .modal-overlay.active .modal { transform: translateY(0) scale(1); }
-    .modal-wide { max-width: 820px; }
-    .modal h2 { font-size: 1.4rem; margin-bottom: 20px; }
-
-    .modal-close {
-      position: absolute; top: 16px; right: 20px; background: none; border: none;
-      color: var(--text-muted); font-size: 1.6rem; cursor: pointer; transition: color var(--transition);
-    }
-    .modal-close:hover { color: var(--text-primary); }
-
-    .form-group { margin-bottom: 16px; }
-    .form-group label { display: block; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 6px; font-weight: 500; }
-    .form-group input, .form-group textarea, .form-group select {
-      width: 100%; padding: 12px 16px; border-radius: var(--radius-sm);
-      border: 1px solid rgba(255,215,0,0.12); background: rgba(0,0,0,0.3);
-      color: var(--text-primary); font-family: var(--font-main); font-size: 0.95rem;
-      outline: none; transition: border-color var(--transition);
-    }
-    .form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color: var(--gold); }
-    .form-group textarea { min-height: 80px; resize: vertical; }
-    .form-group select option { background: var(--bg-elevated); }
-
-    .admin-tabs { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
-    .admin-tab {
-      padding: 8px 18px; border-radius: 60px; border: 1px solid rgba(255,215,0,0.15);
-      background: transparent; color: var(--text-secondary); cursor: pointer;
-      font-family: var(--font-main); font-size: 0.85rem; font-weight: 500;
-      transition: all var(--transition);
-    }
-    .admin-tab.active { background: rgba(245,197,66,0.15); border-color: var(--gold); color: var(--gold-soft); }
-    .admin-tab:hover { border-color: rgba(245,197,66,0.4); }
-    .admin-panel { display: none; }
-    .admin-panel.active { display: block; }
-
-    .toast-container { position: fixed; bottom: 30px; right: 30px; z-index: 2000; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
-    .toast {
-      background: var(--bg-elevated); border: 1px solid rgba(255,215,0,0.2);
-      border-radius: var(--radius-sm); padding: 14px 22px; min-width: 260px;
-      box-shadow: 0 20px 40px -10px rgba(0,0,0,0.8);
-      animation: toastIn 0.35s cubic-bezier(0.25,0.46,0.45,0.94);
-      font-size: 0.9rem; display: flex; align-items: center; gap: 10px;
-      pointer-events: auto;
-      will-change: transform, opacity;
-    }
-    .toast.out { animation: toastOut 0.3s ease forwards; }
-    @keyframes toastIn { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
-    @keyframes toastOut { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(40px); } }
-
-    @keyframes floatUp {
-      0% { opacity: 1; transform: translateY(0) scale(1); }
-      100% { opacity: 0; transform: translateY(-120px) scale(0.6); }
-    }
-    @keyframes seedFall {
-      0% { opacity: 1; transform: translateY(0) rotate(0deg); }
-      100% { opacity: 0; transform: translateY(200px) rotate(360deg); }
-    }
-    .flying-dove {
-      position: fixed; font-size: 3rem; pointer-events: none; z-index: 3000;
-      animation: floatUp 1.2s ease-out forwards;
-      will-change: transform, opacity;
-      transform: translateZ(0);
-    }
-    .seed-particle {
-      position: fixed; font-size: 1.5rem; pointer-events: none; z-index: 3000;
-      animation: seedFall 1s ease-in forwards;
-      will-change: transform, opacity;
-      transform: translateZ(0);
-    }
-
-    .empty-state { text-align: center; color: var(--text-muted); padding: 30px 0; font-size: 0.9rem; }
-    .divider { border: none; border-top: 1px solid rgba(255,255,255,0.05); margin: 20px 0; }
-
-    .extra-block { margin-top: 24px; padding: 20px; background: rgba(0,0,0,0.2); border-radius: var(--radius-sm); border: 1px dashed rgba(255,215,0,0.15); }
-    .extra-block:empty { display: none; }
-
-    .avatar-picker { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
-    .avatar-option {
-      width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
-      font-size: 1.4rem; background: rgba(255,255,255,0.04); border: 2px solid transparent;
-      cursor: pointer; transition: all var(--transition);
-    }
-    .avatar-option:hover { background: rgba(255,215,0,0.1); }
-    .avatar-option.selected { border-color: var(--gold); background: rgba(245,197,66,0.15); }
-
-    .support-widget { position: fixed; bottom: 30px; left: 30px; z-index: 1500; }
-    .support-toggle {
-      width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, var(--gold), var(--amber));
-      border: none; cursor: pointer; font-size: 1.6rem; box-shadow: 0 8px 30px rgba(245,197,66,0.4);
-      transition: transform var(--transition); display: flex; align-items: center; justify-content: center;
-      will-change: transform;
-    }
-    .support-toggle:hover { transform: scale(1.1) translateZ(0); }
-    .support-panel {
-      position: absolute; bottom: 70px; left: 0; width: 320px; max-height: 420px;
-      background: var(--bg-elevated); border: 1px solid rgba(255,215,0,0.2);
-      border-radius: var(--radius-sm); box-shadow: 0 20px 60px -10px rgba(0,0,0,0.9);
-      display: none; flex-direction: column; overflow: hidden;
-      contain: content;
-    }
-    .support-panel.open { display: flex; }
-    .support-header {
-      padding: 14px 18px; background: rgba(245,197,66,0.08); border-bottom: 1px solid rgba(255,215,0,0.1);
-      font-weight: 600; font-size: 0.95rem; display: flex; justify-content: space-between; align-items: center;
-    }
-    .support-messages {
-      flex: 1; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 10px;
-      min-height: 180px; max-height: 260px;
-      contain: content;
-      overscroll-behavior: contain;
-    }
-    .support-msg {
-      padding: 8px 14px; border-radius: 14px; font-size: 0.85rem; max-width: 85%;
-      word-break: break-word;
-    }
-    .support-msg.user { background: rgba(245,197,66,0.15); color: var(--text-primary); align-self: flex-end; border-bottom-right-radius: 4px; }
-    .support-msg.support { background: rgba(255,255,255,0.06); color: var(--text-secondary); align-self: flex-start; border-bottom-left-radius: 4px; }
-    .support-input-row {
-      display: flex; gap: 8px; padding: 10px 14px; border-top: 1px solid rgba(255,215,0,0.1);
-    }
-    .support-input-row input {
-      flex: 1; padding: 10px 14px; border-radius: 60px; border: 1px solid rgba(255,215,0,0.15);
-      background: rgba(0,0,0,0.3); color: var(--text-primary); font-family: var(--font-main);
-      font-size: 0.85rem; outline: none;
-    }
-    .support-input-row input:focus { border-color: var(--gold); }
-
-    .bets-widget {
-      background: rgba(245,197,66,0.04); border: 1px solid rgba(245,197,66,0.12);
-      border-radius: var(--radius-sm); padding: 16px 20px; margin-bottom: 18px;
-      contain: content;
-    }
-    .bets-widget h4 { font-size: 0.95rem; margin-bottom: 10px; }
-    .bets-widget table { width: 100%; font-size: 0.85rem; border-collapse: collapse; }
-    .bets-widget td { padding: 6px 4px; }
-    .bets-widget .w-user { color: var(--text-secondary); }
-    .bets-widget .w-amount { color: var(--gold-soft); font-weight: 600; text-align: right; }
-
-    @media (max-width: 500px) {
-      .modal { padding: 24px 18px; }
-      .feed-buttons .btn { font-size: 0.8rem; padding: 10px 12px; }
-      .support-panel { width: 280px; }
-    }
-
-    /* Отключаем анимации для тех, кто предпочитает */
-    @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🕊️ Голубь ТВ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300..700&family=Manrope:wght@400..700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0a0a0c;--bg-elevated:#121216;--surface:rgba(25,25,32,.72);
+  --surface-border:rgba(255,215,0,.12);--gold:#f5c542;--gold-soft:#f7d96e;
+  --gold-dark:#b8860b;--amber:#ffb347;--text-primary:#f0ede8;
+  --text-secondary:#a8a49c;--text-muted:#6b6860;--danger:#e74c3c;--success:#2ecc71;
+  --radius:24px;--radius-sm:14px;
+  --transition:.25s cubic-bezier(.25,.46,.45,.94);
+  --font-main:'Inter','Manrope',system-ui,sans-serif;
+}
+body{
+  background:var(--bg);
+  background-image:radial-gradient(circle at 20% 10%,rgba(245,197,66,.06) 0,transparent 50%),
+                   radial-gradient(circle at 80% 90%,rgba(255,179,71,.05) 0,transparent 50%);
+  color:var(--text-primary);font-family:var(--font-main);min-height:100vh;line-height:1.5;
+  -webkit-font-smoothing:antialiased;padding:0 20px 60px;
+}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-thumb{background:var(--gold-dark);border-radius:20px}
+.app{max-width:1280px;margin:0 auto}
+h1,h2,h3,h4{font-family:'Manrope',var(--font-main);font-weight:600;letter-spacing:-.02em}
+.gold-text{background:linear-gradient(135deg,var(--gold-soft),var(--gold),var(--amber));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.glass{background:var(--surface);backdrop-filter:blur(20px) saturate(1.4);-webkit-backdrop-filter:blur(20px) saturate(1.4);border:1px solid var(--surface-border);border-radius:var(--radius);box-shadow:0 20px 40px -10px rgba(0,0,0,.7);transition:border-color var(--transition),box-shadow var(--transition)}
+.glass:hover{border-color:rgba(255,215,0,.2);box-shadow:0 20px 40px -10px rgba(0,0,0,.7),0 0 40px rgba(245,197,66,.18)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 24px;border-radius:60px;font-weight:600;font-size:.95rem;font-family:var(--font-main);border:none;cursor:pointer;transition:all var(--transition);white-space:nowrap}
+.btn-gold{background:linear-gradient(135deg,var(--gold),var(--amber));color:#0a0a0c;box-shadow:0 4px 20px rgba(245,197,66,.3)}
+.btn-gold:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(245,197,66,.45)}
+.btn-outline{background:transparent;border:1.5px solid rgba(245,197,66,.35);color:var(--gold-soft)}
+.btn-outline:hover{background:rgba(245,197,66,.1);border-color:var(--gold)}
+.btn-ghost{background:rgba(255,255,255,.04);color:var(--text-secondary);border:1px solid rgba(255,255,255,.06)}
+.btn-ghost:hover{background:rgba(255,255,255,.08);color:var(--text-primary)}
+.btn-sm{padding:8px 16px;font-size:.85rem}
+.btn-danger{background:rgba(231,76,60,.15);color:#e74c3c;border:1px solid rgba(231,76,60,.25)}
+.btn-success{background:rgba(46,204,113,.15);color:#2ecc71;border:1px solid rgba(46,204,113,.25)}
+header{display:flex;align-items:center;justify-content:space-between;padding:18px 0;flex-wrap:wrap;gap:12px;position:sticky;top:0;z-index:100;background:rgba(10,10,12,.85);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,215,0,.06);margin-bottom:28px}
+.logo{display:flex;align-items:center;gap:10px;font-size:1.6rem;font-weight:700;font-family:'Manrope',sans-serif}
+.logo .dove{font-size:2rem;filter:drop-shadow(0 0 12px rgba(245,197,66,.5))}
+.header-right{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.user-chip{display:flex;align-items:center;gap:10px;padding:6px 16px 6px 10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,215,0,.15);border-radius:60px;cursor:pointer;transition:all var(--transition)}
+.user-chip:hover{border-color:rgba(255,215,0,.35)}
+.user-avatar{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.2rem;background:rgba(245,197,66,.15);overflow:hidden;flex-shrink:0}
+.user-avatar img{width:100%;height:100%;object-fit:cover}
+.user-name{font-weight:600;font-size:.9rem;color:var(--gold-soft)}
+.stream-card{padding:28px;margin-bottom:24px}
+.stream-header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:18px}
+.stream-title{font-size:1.5rem;font-weight:700}
+.live-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 16px;border-radius:60px;font-size:.85rem;font-weight:600;background:rgba(231,76,60,.15);color:#ff6b5b;border:1px solid rgba(231,76,60,.2)}
+.live-badge.online{background:rgba(46,204,113,.15);color:#2ecc71;border-color:rgba(46,204,113,.2)}
+.player-wrapper{position:relative;width:100%;aspect-ratio:16/9;border-radius:var(--radius-sm);overflow:hidden;background:#000;border:1px solid rgba(255,215,0,.08)}
+.player-wrapper iframe{width:100%;height:100%;border:none;display:block}
+.player-offline{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;width:100%;height:100%;background:#0d0d10;color:var(--text-muted);font-size:3rem}
+.player-offline span{font-size:1rem;color:var(--text-secondary)}
+.view-counter{display:flex;align-items:center;gap:8px;font-size:.9rem;color:var(--text-secondary);margin-top:12px}
+.view-counter .num{font-weight:700;color:var(--gold-soft);font-variant-numeric:tabular-nums}
+.events-bar{margin-top:18px;padding:16px 20px;background:rgba(245,197,66,.04);border:1px solid rgba(245,197,66,.1);border-radius:var(--radius-sm);display:flex;flex-direction:column;gap:8px}
+.event-row{display:flex;align-items:center;gap:10px;font-size:.9rem;color:var(--text-secondary);flex-wrap:wrap}
+.event-row .prize{color:var(--gold-soft);font-weight:600}
+.section-title{font-size:1.2rem;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+@media(max-width:900px){.grid-2{grid-template-columns:1fr}}
+.feed-card{padding:24px}
+.feed-buttons{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:20px}
+.feed-buttons .btn{flex:1;min-width:80px}
+.custom-feed{display:flex;gap:10px;margin-bottom:20px}
+.custom-feed input{flex:1;padding:12px 16px;border-radius:60px;border:1px solid rgba(255,215,0,.15);background:rgba(0,0,0,.3);color:var(--text-primary);font-family:var(--font-main);font-size:.95rem;outline:none}
+.custom-feed input:focus{border-color:var(--gold)}
+.donors-table{width:100%;border-collapse:collapse;font-size:.9rem}
+.donors-table th{text-align:left;padding:8px 10px;color:var(--text-muted);font-weight:500;font-size:.8rem;text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid rgba(255,215,0,.08)}
+.donors-table td{padding:10px;border-bottom:1px solid rgba(255,255,255,.03)}
+.donors-table .place{font-weight:700;color:var(--gold-soft);width:30px}
+.donors-table .donor-sum{font-weight:600;color:var(--gold-soft);text-align:right}
+.card-payment{padding:24px}
+.bank-card{background:linear-gradient(135deg,#1a1a22,#12121a);border:1px solid rgba(255,215,0,.15);border-radius:var(--radius-sm);padding:24px;position:relative;overflow:hidden;margin-bottom:16px}
+.bank-card .bank-logo{font-size:2rem;margin-bottom:8px}
+.bank-card .bank-name{font-size:.85rem;color:var(--text-muted);margin-bottom:4px}
+.bank-card .card-number{font-size:1.3rem;font-weight:700;letter-spacing:.08em;color:var(--gold-soft);font-variant-numeric:tabular-nums;margin-bottom:16px}
+.bank-card .card-label{font-size:.8rem;color:var(--text-muted)}
+.bet-card{padding:22px;margin-bottom:16px}
+.bet-question{font-size:1.05rem;font-weight:600;margin-bottom:14px}
+.bet-options{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px}
+.bet-option{padding:10px 20px;border-radius:60px;border:1.5px solid rgba(255,215,0,.2);background:rgba(255,215,0,.04);cursor:pointer;transition:all var(--transition);font-weight:500;font-size:.9rem;color:var(--text-secondary)}
+.bet-option:hover{border-color:var(--gold);color:var(--gold-soft)}
+.bet-option.selected{border-color:var(--gold);background:rgba(245,197,66,.15);color:var(--gold-soft)}
+.bet-pools{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:14px;font-size:.85rem;color:var(--text-secondary)}
+.bet-pools span{background:rgba(255,255,255,.04);padding:4px 12px;border-radius:60px}
+.bet-input-row{display:flex;gap:10px;align-items:center}
+.bet-input-row input{width:100px;padding:10px 14px;border-radius:60px;border:1px solid rgba(255,215,0,.15);background:rgba(0,0,0,.3);color:var(--text-primary);font-family:var(--font-main);font-size:.9rem;outline:none;text-align:center}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;z-index:1000;opacity:0;pointer-events:none;transition:opacity .3s ease;padding:20px}
+.modal-overlay.active{opacity:1;pointer-events:all}
+.modal{background:var(--bg-elevated);border:1px solid rgba(255,215,0,.15);border-radius:var(--radius);padding:32px;max-width:560px;width:100%;max-height:85vh;overflow-y:auto;transform:translateY(20px) scale(.97);transition:transform .3s cubic-bezier(.25,.46,.45,.94)}
+.modal-overlay.active .modal{transform:translateY(0) scale(1)}
+.modal-wide{max-width:820px}
+.modal h2{font-size:1.4rem;margin-bottom:20px}
+.modal-close{position:absolute;top:16px;right:20px;background:none;border:none;color:var(--text-muted);font-size:1.6rem;cursor:pointer}
+.modal-close:hover{color:var(--text-primary)}
+.form-group{margin-bottom:16px}
+.form-group label{display:block;font-size:.85rem;color:var(--text-secondary);margin-bottom:6px;font-weight:500}
+.form-group input,.form-group textarea,.form-group select{width:100%;padding:12px 16px;border-radius:var(--radius-sm);border:1px solid rgba(255,215,0,.12);background:rgba(0,0,0,.3);color:var(--text-primary);font-family:var(--font-main);font-size:.95rem;outline:none}
+.form-group input:focus,.form-group textarea:focus,.form-group select:focus{border-color:var(--gold)}
+.form-group textarea{min-height:80px;resize:vertical}
+.form-group select option{background:var(--bg-elevated)}
+.admin-tabs{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+.admin-tab{padding:8px 18px;border-radius:60px;border:1px solid rgba(255,215,0,.15);background:transparent;color:var(--text-secondary);cursor:pointer;font-family:var(--font-main);font-size:.85rem;font-weight:500;transition:all var(--transition)}
+.admin-tab.active{background:rgba(245,197,66,.15);border-color:var(--gold);color:var(--gold-soft)}
+.admin-panel{display:none}
+.admin-panel.active{display:block}
+.toast-container{position:fixed;bottom:30px;right:30px;z-index:2000;display:flex;flex-direction:column;gap:10px}
+.toast{background:var(--bg-elevated);border:1px solid rgba(255,215,0,.2);border-radius:var(--radius-sm);padding:14px 22px;min-width:260px;box-shadow:0 20px 40px -10px rgba(0,0,0,.8);animation:toastIn .35s cubic-bezier(.25,.46,.45,.94);font-size:.9rem;display:flex;align-items:center;gap:10px}
+.toast.out{animation:toastOut .3s ease forwards}
+@keyframes toastIn{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:translateX(0)}}
+@keyframes toastOut{from{opacity:1;transform:translateX(0)}to{opacity:0;transform:translateX(40px)}}
+@keyframes floatUp{0%{opacity:1;transform:translateY(0) scale(1)}100%{opacity:0;transform:translateY(-120px) scale(.6)}}
+@keyframes seedFall{0%{opacity:1;transform:translateY(0) rotate(0)}100%{opacity:0;transform:translateY(200px) rotate(360deg)}}
+.flying-dove{position:fixed;font-size:3rem;pointer-events:none;z-index:3000;animation:floatUp 1.2s ease-out forwards}
+.seed-particle{position:fixed;font-size:1.5rem;pointer-events:none;z-index:3000;animation:seedFall 1s ease-in forwards}
+.empty-state{text-align:center;color:var(--text-muted);padding:30px 0;font-size:.9rem}
+.divider{border:none;border-top:1px solid rgba(255,255,255,.05);margin:20px 0}
+.extra-block{margin-top:24px;padding:20px;background:rgba(0,0,0,.2);border-radius:var(--radius-sm);border:1px dashed rgba(255,215,0,.15)}
+.avatar-picker{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.avatar-option{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.4rem;background:rgba(255,255,255,.04);border:2px solid transparent;cursor:pointer}
+.avatar-option.selected{border-color:var(--gold);background:rgba(245,197,66,.15)}
+.support-widget{position:fixed;bottom:30px;left:30px;z-index:1500}
+.support-toggle{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--amber));border:none;cursor:pointer;font-size:1.6rem;box-shadow:0 8px 30px rgba(245,197,66,.4);display:flex;align-items:center;justify-content:center}
+.support-panel{position:absolute;bottom:70px;left:0;width:320px;max-height:420px;background:var(--bg-elevated);border:1px solid rgba(255,215,0,.2);border-radius:var(--radius-sm);box-shadow:0 20px 60px -10px rgba(0,0,0,.9);display:none;flex-direction:column;overflow:hidden}
+.support-panel.open{display:flex}
+.support-header{padding:14px 18px;background:rgba(245,197,66,.08);border-bottom:1px solid rgba(255,215,0,.1);font-weight:600;font-size:.95rem;display:flex;justify-content:space-between;align-items:center}
+.support-messages{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;min-height:180px;max-height:260px}
+.support-msg{padding:8px 14px;border-radius:14px;font-size:.85rem;max-width:85%;word-break:break-word}
+.support-msg.user{background:rgba(245,197,66,.15);color:var(--text-primary);align-self:flex-end;border-bottom-right-radius:4px}
+.support-msg.support{background:rgba(255,255,255,.06);color:var(--text-secondary);align-self:flex-start;border-bottom-left-radius:4px}
+.support-input-row{display:flex;gap:8px;padding:10px 14px;border-top:1px solid rgba(255,215,0,.1)}
+.support-input-row input{flex:1;padding:10px 14px;border-radius:60px;border:1px solid rgba(255,215,0,.15);background:rgba(0,0,0,.3);color:var(--text-primary);font-family:var(--font-main);font-size:.85rem;outline:none}
+.bets-widget{background:rgba(245,197,66,.04);border:1px solid rgba(245,197,66,.12);border-radius:var(--radius-sm);padding:16px 20px;margin-bottom:18px}
+.bets-widget h4{font-size:.95rem;margin-bottom:10px}
+.bets-widget table{width:100%;font-size:.85rem;border-collapse:collapse}
+.bets-widget td{padding:6px 4px}
+.bets-widget .w-user{color:var(--text-secondary)}
+.bets-widget .w-amount{color:var(--gold-soft);font-weight:600;text-align:right}
+.connection-status{position:fixed;top:80px;right:20px;padding:6px 14px;border-radius:60px;font-size:.75rem;font-weight:600;z-index:999;transition:all .3s}
+.connection-status.online{background:rgba(46,204,113,.2);color:#2ecc71;border:1px solid rgba(46,204,113,.3)}
+.connection-status.offline{background:rgba(231,76,60,.2);color:#e74c3c;border:1px solid rgba(231,76,60,.3)}
+@media(max-width:500px){.modal{padding:24px 18px}.support-panel{width:280px}}
+</style>
 </head>
 <body>
 <div class="app">
-  <header>
-    <div class="logo">
-      <span class="dove">🕊️</span>
-      <span class="gold-text">Голубь ТВ</span>
+<header>
+  <div class="logo"><span class="dove">🕊️</span><span class="gold-text">Голубь ТВ</span></div>
+  <div class="header-right" id="headerRight"></div>
+</header>
+<main>
+  <section class="glass stream-card">
+    <div class="stream-header">
+      <h1 class="stream-title" id="streamTitle">Голубиный стрим</h1>
+      <span class="live-badge" id="streamStatus">⚫ Оффлайн</span>
     </div>
-    <div class="header-right" id="headerRight"></div>
-  </header>
-
-  <main>
-    <section class="glass stream-card">
-      <div class="stream-header">
-        <h1 class="stream-title" id="streamTitle">Голубиный стрим</h1>
-        <span class="live-badge" id="streamStatus">⚫ Оффлайн</span>
-      </div>
-      <div class="player-wrapper" id="playerWrapper">
-        <div class="player-offline">📺<span>Стрим скоро начнётся</span></div>
-      </div>
-      <div class="view-counter">
-        👁️ <span class="num" id="viewCount">0</span> просмотров
-      </div>
-      <div class="events-bar" id="eventsBar">
-        <div class="empty-state">Нет активных ивентов</div>
-      </div>
-    </section>
-
-    <div class="grid-2">
-      <section class="glass feed-card">
-        <div class="section-title">🌻 Покормить голубей</div>
-        <div class="feed-buttons" id="feedButtons">
-          <button class="btn btn-gold btn-sm" data-amount="10">+10 🌻</button>
-          <button class="btn btn-gold btn-sm" data-amount="50">+50 🌻</button>
-          <button class="btn btn-gold btn-sm" data-amount="100">+100 🌻</button>
-          <button class="btn btn-gold btn-sm" data-amount="500">+500 🌻</button>
-        </div>
-        <div class="custom-feed">
-          <input type="number" id="customFeedAmount" placeholder="Своя сумма" min="1">
-          <button class="btn btn-outline btn-sm" id="customFeedBtn">Покормить</button>
-        </div>
-        <h3 style="font-size:0.95rem;margin-bottom:12px;color:var(--text-secondary);">🏆 ТОП донатеров</h3>
-        <table class="donors-table" id="donorsTable">
-          <thead><tr><th>#</th><th>Донатер</th><th style="text-align:right;">Семечек</th></tr></thead>
-          <tbody id="donorsBody"><tr><td colspan="3" class="empty-state">Пока никто не кормил голубей</td></tr></tbody>
-        </table>
-      </section>
-
-      <section class="glass card-payment">
-        <div class="section-title">💳 Оплата</div>
-        <div id="cardsContainer">
-          <div class="empty-state">Карта не добавлена</div>
-        </div>
-      </section>
+    <div class="player-wrapper" id="playerWrapper">
+      <div class="player-offline">📺<span>Стрим скоро начнётся</span></div>
     </div>
-
-    <section style="margin-top:24px;">
-      <div class="section-title">🎰 Ставки</div>
-      <div id="betsWidget"></div>
-      <div id="betsContainer"></div>
+    <div class="view-counter">👁️ <span class="num" id="viewCount">0</span> просмотров</div>
+    <div class="events-bar" id="eventsBar"><div class="empty-state">Нет активных ивентов</div></div>
+  </section>
+  <div class="grid-2">
+    <section class="glass feed-card">
+      <div class="section-title">🌻 Покормить голубей</div>
+      <div class="feed-buttons" id="feedButtons">
+        <button class="btn btn-gold btn-sm" data-amount="10">+10 🌻</button>
+        <button class="btn btn-gold btn-sm" data-amount="50">+50 🌻</button>
+        <button class="btn btn-gold btn-sm" data-amount="100">+100 🌻</button>
+        <button class="btn btn-gold btn-sm" data-amount="500">+500 🌻</button>
+      </div>
+      <div class="custom-feed">
+        <input type="number" id="customFeedAmount" placeholder="Своя сумма" min="1">
+        <button class="btn btn-outline btn-sm" id="customFeedBtn">Покормить</button>
+      </div>
+      <h3 style="font-size:.95rem;margin-bottom:12px;color:var(--text-secondary)">🏆 ТОП донатеров</h3>
+      <table class="donors-table" id="donorsTable">
+        <thead><tr><th>#</th><th>Донатер</th><th style="text-align:right">Семечек</th></tr></thead>
+        <tbody id="donorsBody"><tr><td colspan="3" class="empty-state">Пока никто не кормил голубей</td></tr></tbody>
+      </table>
     </section>
-
-    <div class="extra-block" id="extraBlock"></div>
-  </main>
+    <section class="glass card-payment">
+      <div class="section-title">💳 Оплата</div>
+      <div id="cardsContainer"><div class="empty-state">Карта не добавлена</div></div>
+    </section>
+  </div>
+  <section style="margin-top:24px">
+    <div class="section-title">🎰 Ставки</div>
+    <div id="betsWidget"></div>
+    <div id="betsContainer"><div class="empty-state">Нет активных ставок</div></div>
+  </section>
+  <div class="extra-block" id="extraBlock"></div>
+</main>
 </div>
 
-<!-- Support chat -->
 <div class="support-widget">
   <div class="support-panel" id="supportPanel">
-    <div class="support-header">
-      <span>🕊️ Поддержка</span>
-      <button class="btn-ghost btn-xs" onclick="toggleSupport()">✕</button>
-    </div>
+    <div class="support-header"><span>🕊️ Поддержка</span><button class="btn-ghost btn-sm" onclick="toggleSupport()">✕</button></div>
     <div class="support-messages" id="supportMessages"></div>
     <div class="support-input-row">
-      <input type="text" id="supportInput" placeholder="Написать..." onkeydown="if(event.key==='Enter')sendSupport()">
+      <input type="text" id="supportInput" placeholder="Написать...">
       <button class="btn btn-gold btn-sm" onclick="sendSupport()">➤</button>
     </div>
   </div>
@@ -501,51 +216,40 @@
 </div>
 
 <div class="toast-container" id="toastContainer"></div>
+<div class="connection-status offline" id="connectionStatus">⚫ Подключение...</div>
 
-<!-- LOGIN MODAL -->
+<!-- LOGIN -->
 <div class="modal-overlay" id="loginModal">
-  <div class="modal" style="position:relative;">
+  <div class="modal" style="position:relative">
     <button class="modal-close" onclick="closeModal('loginModal')">&times;</button>
     <h2>🕊️ Вход</h2>
-    <div class="form-group">
-      <label>Никнейм</label>
-      <input type="text" id="loginNickname" placeholder="Введите ник" maxlength="20">
-    </div>
-    <button class="btn btn-gold" style="width:100%;" id="loginBtn">Войти</button>
+    <div class="form-group"><label>Никнейм</label><input type="text" id="loginNickname" maxlength="20" placeholder="Введите ник"></div>
+    <button class="btn btn-gold" style="width:100%" id="loginBtn">Войти</button>
   </div>
 </div>
 
-<!-- PROFILE MODAL -->
+<!-- PROFILE -->
 <div class="modal-overlay" id="profileModal">
-  <div class="modal" style="position:relative;">
+  <div class="modal" style="position:relative">
     <button class="modal-close" onclick="closeModal('profileModal')">&times;</button>
     <h2>👤 Профиль</h2>
+    <div class="form-group"><label>Никнейм</label><input type="text" id="profileNickname" maxlength="20"></div>
     <div class="form-group">
-      <label>Никнейм</label>
-      <input type="text" id="profileNickname" maxlength="20">
-    </div>
-    <div class="form-group">
-      <label>Аватар (эмодзи или ссылка)</label>
+      <label>Аватар</label>
       <div class="avatar-picker" id="avatarPicker"></div>
       <input type="text" id="profileAvatarUrl" placeholder="https://... или эмодзи">
     </div>
-    <div class="form-group">
-      <label>Баланс семечек</label>
-      <div style="font-size:1.5rem;font-weight:700;color:var(--gold-soft);" id="profileBalance">0 🌻</div>
-    </div>
-    <div style="display:flex;gap:10px;">
-      <button class="btn btn-gold" style="flex:1;" id="saveProfileBtn">Сохранить</button>
+    <div class="form-group"><label>Баланс семечек</label><div style="font-size:1.5rem;font-weight:700;color:var(--gold-soft)" id="profileBalance">0 🌻</div></div>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-gold" style="flex:1" id="saveProfileBtn">Сохранить</button>
       <button class="btn btn-danger" id="logoutBtn">Выйти</button>
     </div>
-    <hr class="divider">
-    <h3 style="font-size:1rem;margin-bottom:10px;">История</h3>
-    <div id="historyList" style="font-size:0.85rem;color:var(--text-secondary);max-height:150px;overflow-y:auto;contain:content;"></div>
   </div>
 </div>
 
-<!-- ADMIN MODAL -->
+<!-- ADMIN -->
 <div class="modal-overlay" id="adminModal">
-  <div class="modal modal-wide" style="position:relative;">
+  <div class="modal modal-wide" style="position:relative">
     <button class="modal-close" onclick="closeModal('adminModal')">&times;</button>
     <h2>⚙️ Админ-панель</h2>
     <div class="admin-tabs" id="adminTabs">
@@ -559,86 +263,61 @@
       <button class="admin-tab" data-tab="settings">⚙️ Настройки</button>
       <button class="admin-tab" data-tab="code">➕ Код</button>
     </div>
-
     <div class="admin-panel active" id="panel-stream">
-      <div class="form-group"><label>Ссылка RuTube</label><input type="text" id="adminStreamUrl" placeholder="https://rutube.ru/play/embed/..."></div>
-      <div class="form-group"><label>Название стрима</label><input type="text" id="adminStreamTitle" placeholder="Голубиный стрим"></div>
-      <div class="form-group"><label>Статус</label>
-        <select id="adminStreamStatus">
-          <option value="offline">⚫ Оффлайн</option>
-          <option value="online">🔴 В эфире</option>
-        </select>
-      </div>
+      <div class="form-group"><label>Ссылка RuTube</label><input type="text" id="adminStreamUrl"></div>
+      <div class="form-group"><label>Название стрима</label><input type="text" id="adminStreamTitle"></div>
+      <div class="form-group"><label>Статус</label><select id="adminStreamStatus"><option value="offline">⚫ Оффлайн</option><option value="online">🔴 В эфире</option></select></div>
       <button class="btn btn-gold" id="saveStreamBtn">Сохранить</button>
     </div>
-
     <div class="admin-panel" id="panel-events">
-      <div id="adminEventsList"></div>
-      <hr class="divider">
-      <h3 style="font-size:0.95rem;margin-bottom:10px;">Добавить ивент</h3>
+      <div id="adminEventsList"></div><hr class="divider">
+      <h3 style="font-size:.95rem;margin-bottom:10px">Добавить ивент</h3>
       <div class="form-group"><label>Название</label><input type="text" id="eventName"></div>
-      <div class="form-group"><label>Приз (семечек)</label><input type="number" id="eventPrize"></div>
+      <div class="form-group"><label>Приз</label><input type="number" id="eventPrize"></div>
       <div class="form-group"><label>Условие</label><input type="text" id="eventCondition"></div>
       <button class="btn btn-gold btn-sm" id="addEventBtn">Добавить</button>
     </div>
-
     <div class="admin-panel" id="panel-cards">
-      <div id="adminCardsList"></div>
-      <hr class="divider">
-      <h3 style="font-size:0.95rem;margin-bottom:10px;">Добавить карту</h3>
-      <div class="form-group"><label>Номер карты</label><input type="text" id="cardNumber" placeholder="0000 0000 0000 0000"></div>
-      <div class="form-group"><label>Банк</label>
-        <select id="cardBank">
-          <option value="sber">🟢 Сбер</option>
-          <option value="tinkoff">🟡 Тинькофф</option>
-          <option value="alfa">🔴 Альфа</option>
-          <option value="vtb">🔵 ВТБ</option>
-          <option value="yoomoney">🟣 ЮMoney</option>
-          <option value="other">🏦 Другой</option>
-        </select>
-      </div>
-      <div class="form-group"><label>Подпись</label><input type="text" id="cardLabel" placeholder="Иван И."></div>
+      <div id="adminCardsList"></div><hr class="divider">
+      <h3 style="font-size:.95rem;margin-bottom:10px">Добавить карту</h3>
+      <div class="form-group"><label>Номер</label><input type="text" id="cardNumber"></div>
+      <div class="form-group"><label>Банк</label><select id="cardBank">
+        <option value="sber">🟢 Сбер</option><option value="tinkoff">🟡 Тинькофф</option>
+        <option value="alfa">🔴 Альфа</option><option value="vtb">🔵 ВТБ</option>
+        <option value="yoomoney">🟣 ЮMoney</option><option value="other">🏦 Другой</option>
+      </select></div>
+      <div class="form-group"><label>Подпись</label><input type="text" id="cardLabel"></div>
       <button class="btn btn-gold btn-sm" id="addCardBtn">Добавить</button>
     </div>
-
     <div class="admin-panel" id="panel-bets">
-      <div id="adminBetsList"></div>
-      <hr class="divider">
-      <h3 style="font-size:0.95rem;margin-bottom:10px;">Создать ставку</h3>
+      <div id="adminBetsList"></div><hr class="divider">
+      <h3 style="font-size:.95rem;margin-bottom:10px">Создать ставку</h3>
       <div class="form-group"><label>Вопрос</label><input type="text" id="betQuestion"></div>
       <div class="form-group"><label>Варианты (через запятую)</label><input type="text" id="betOptions"></div>
       <div class="form-group"><label>Мин. сумма</label><input type="number" id="betMin" value="10"></div>
       <button class="btn btn-gold btn-sm" id="addBetBtn">Создать</button>
     </div>
-
     <div class="admin-panel" id="panel-views">
-      <div class="form-group"><label>Стартовое значение</label><input type="number" id="viewsStart" placeholder="1000"></div>
-      <div class="form-group"><label>Шаг увеличения</label><input type="number" id="viewsStep" placeholder="5"></div>
-      <div style="display:flex;gap:10px;">
+      <div class="form-group"><label>Стартовое значение</label><input type="number" id="viewsStart"></div>
+      <div class="form-group"><label>Шаг</label><input type="number" id="viewsStep" value="5"></div>
+      <div style="display:flex;gap:10px">
         <button class="btn btn-gold btn-sm" id="viewsStartBtn">Запустить</button>
         <button class="btn btn-danger btn-sm" id="viewsStopBtn">Остановить</button>
       </div>
-      <p style="font-size:0.8rem;color:var(--text-muted);margin-top:10px;">Текущее: <span id="currentViews">0</span></p>
+      <p style="font-size:.8rem;color:var(--text-muted);margin-top:10px">Текущее: <span id="currentViews">0</span></p>
     </div>
-
     <div class="admin-panel" id="panel-admins">
-      <div id="adminAdminsList"></div>
-      <hr class="divider">
-      <div class="form-group"><label>Никнейм нового админа</label><input type="text" id="newAdminNick"></div>
-      <button class="btn btn-gold btn-sm" id="addAdminBtn">Добавить админа</button>
+      <div id="adminAdminsList"></div><hr class="divider">
+      <div class="form-group"><label>Ник нового админа</label><input type="text" id="newAdminNick"></div>
+      <button class="btn btn-gold btn-sm" id="addAdminBtn">Добавить</button>
     </div>
-
-    <div class="admin-panel" id="panel-users">
-      <div id="adminUsersList"></div>
-    </div>
-
+    <div class="admin-panel" id="panel-users"><div id="adminUsersList"></div></div>
     <div class="admin-panel" id="panel-settings">
       <div class="form-group"><label>Новый пароль админа</label><input type="text" id="newAdminPass" placeholder="3131"></div>
       <button class="btn btn-gold btn-sm" id="saveAdminPassBtn">Сменить пароль</button>
       <hr class="divider">
-      <p style="font-size:0.85rem;color:var(--text-secondary);">Пароль SND: <b>7345787</b> (фиксированный, не меняется)</p>
+      <p style="font-size:.85rem;color:var(--text-secondary)">Пароль SND: <b>7345787</b></p>
     </div>
-
     <div class="admin-panel" id="panel-code">
       <div class="form-group"><label>HTML/JS код</label><textarea id="customCode" rows="6"></textarea></div>
       <button class="btn btn-gold btn-sm" id="saveCodeBtn">Сохранить</button>
@@ -646,863 +325,759 @@
   </div>
 </div>
 
+<!-- ═══ FIREBASE SDK ═══ -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getDatabase, ref, onValue, set, update, push, remove, get }
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAdbu4JrNb0RYzjMLad1pRn3oOSaPF1LKY",
+  authDomain: "golubtv-3e870.firebaseapp.com",
+  databaseURL: "https://golubtv-3e870-default-rtdb.firebaseio.com",
+  projectId: "golubtv-3e870",
+  storageBucket: "golubtv-3e870.firebasestorage.app",
+  messagingSenderId: "727939517632",
+  appId: "1:727939517632:web:260c51db542629ab847125"
+};
+
+const fbApp = initializeApp(firebaseConfig);
+const db = getDatabase(fbApp);
+
+// Экспорт в window для использования в основном скрипте
+window.FB = { db, ref, onValue, set, update, push, remove, get };
+
+// Статус подключения
+const connRef = ref(db, '.info/connected');
+onValue(connRef, (snap) => {
+  const el = document.getElementById('connectionStatus');
+  if (snap.val() === true) {
+    el.className = 'connection-status online';
+    el.textContent = '🟢 Online';
+    setTimeout(() => el.style.opacity = '0.4', 2000);
+  } else {
+    el.className = 'connection-status offline';
+    el.textContent = '🔴 Offline';
+    el.style.opacity = '1';
+  }
+});
+
+// Сообщаем основному скрипту, что Firebase готов
+window.dispatchEvent(new Event('firebase-ready'));
+</script>
+
+<!-- ═══ MAIN SCRIPT ═══ -->
 <script>
 'use strict';
 
-/* ============================================================
-   DATA LAYER — localStorage с кэшем в памяти
-   ============================================================ */
-const DB = {
-  _cache: {},
-  get(key, fallback) {
-    if (this._cache[key] !== undefined) return this._cache[key];
-    try {
-      const v = localStorage.getItem('goldtv_' + key);
-      const val = v ? JSON.parse(v) : fallback;
-      this._cache[key] = val;
-      return val;
-    } catch { return fallback; }
-  },
-  set(key, val) {
-    this._cache[key] = val;
-    // Дебаунсим запись в localStorage
-    if (this._writeTimer) clearTimeout(this._writeTimer);
-    this._writeTimer = setTimeout(() => {
-      try { localStorage.setItem('goldtv_' + key, JSON.stringify(val)); } catch (e) {}
-    }, 100);
-  },
-  flush() {
-    Object.keys(this._cache).forEach(k => {
-      try { localStorage.setItem('goldtv_' + k, JSON.stringify(this._cache[k])); } catch (e) {}
-    });
-  }
-};
-
-// State (одна ссылка на объект)
-const state = {
-  user: DB.get('user', null),
-  users: DB.get('users', []),
-  stream: DB.get('stream', { url: '', title: 'Голубиный стрим', status: 'offline' }),
-  events: DB.get('events', []),
-  cards: DB.get('cards', []),
-  bets: DB.get('bets', []),
-  admins: DB.get('admins', ['admin']),
-  views: DB.get('views', 0),
-  viewsConfig: DB.get('viewsConfig', { start: 0, step: 5, running: false }),
-  customCode: DB.get('customCode', ''),
-  history: DB.get('history', []),
-  supportMessages: DB.get('supportMessages', []),
-  adminPassword: DB.get('adminPassword', '3131'),
-  usersBets: DB.get('usersBets', []) // { user, bet, option, amount }
-};
-
-let viewsRafId = null;
-let supportOpen = false;
-let lastViewsTick = 0;
-
-/* ============================================================
-   SAVE — батчинг
-   ============================================================ */
-let saveTimer = null;
-function save() {
-  if (saveTimer) return;
-  saveTimer = requestAnimationFrame(() => {
-    saveTimer = null;
-    DB.set('user', state.user);
-    DB.set('users', state.users);
-    DB.set('stream', state.stream);
-    DB.set('events', state.events);
-    DB.set('cards', state.cards);
-    DB.set('bets', state.bets);
-    DB.set('admins', state.admins);
-    DB.set('views', state.views);
-    DB.set('viewsConfig', state.viewsConfig);
-    DB.set('customCode', state.customCode);
-    DB.set('history', state.history);
-    DB.set('supportMessages', state.supportMessages);
-    DB.set('adminPassword', state.adminPassword);
-    DB.set('usersBets', state.usersBets);
-  });
-}
-
-/* ============================================================
-   UTILS
-   ============================================================ */
 const $ = id => document.getElementById(id);
-const $$ = sel => document.querySelectorAll(sel);
+const $$ = s => document.querySelectorAll(s);
 
-function toast(msg, type = 'info') {
-  const container = $('toastContainer');
+let fbReady = false;
+let firebaseBets = [];
+let firebaseUsersBets = [];
+let firebaseUsers = [];
+let firebaseStream = null;
+let firebaseEvents = null;
+let firebaseCards = null;
+let firebaseViews = null;
+
+// Локальный state
+const state = {
+  user: JSON.parse(localStorage.getItem('goldtv_user') || 'null'),
+  adminPassword: localStorage.getItem('goldtv_adminPass') || '3131',
+  admins: JSON.parse(localStorage.getItem('goldtv_admins') || '["admin"]'),
+  views: 0,
+  viewsConfig: { running: false, step: 5 },
+  customCode: localStorage.getItem('goldtv_customCode') || '',
+  supportMessages: JSON.parse(localStorage.getItem('goldtv_support') || '[]'),
+  localBets: [],
+  localUsersBets: [],
+  localUsers: [],
+  localStream: { url: '', title: 'Голубиный стрим', status: 'offline' },
+  localEvents: [],
+  localCards: []
+};
+
+function toast(msg, type='info') {
+  const c = $('toastContainer');
   const el = document.createElement('div');
   el.className = 'toast';
-  const icons = { info: 'ℹ️', success: '✅', error: '❌', gold: '🕊️' };
-  el.innerHTML = `<span>${icons[type] || 'ℹ️'}</span><span>${msg}</span>`;
-  container.appendChild(el);
+  const icons = { info:'ℹ️', success:'✅', error:'❌', gold:'🕊️' };
+  el.innerHTML = `<span>${icons[type]||'ℹ️'}</span><span>${msg}</span>`;
+  c.appendChild(el);
   setTimeout(() => { el.classList.add('out'); setTimeout(() => el.remove(), 300); }, 3000);
 }
-
-function openModal(id) { $(id).classList.add('active'); }
-function closeModal(id) { $(id).classList.remove('active'); }
-
-function esc(s) { return String(s).replace(/[&<>"]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[m]); }
-function formatNumber(n) { return Number(n).toLocaleString('ru-RU'); }
-
-function isAdmin() {
-  if (!state.user) return false;
-  if (state.user.nickname === 'SND') return true;
-  return state.admins.includes(state.user.nickname);
-}
-function isSND() { return state.user && state.user.nickname === 'SND'; }
-
-function getUserByNick(nick) {
-  // Используем линейный поиск, но кэшируем в Map для больших списков
-  if (!state._userMap) {
-    state._userMap = new Map(state.users.map(u => [u.nickname, u]));
-  }
-  return state._userMap.get(nick);
-}
-function invalidateUserMap() { state._userMap = null; }
-
-function ensureUser(nick) {
-  let u = getUserByNick(nick);
-  if (!u) {
-    u = { nickname: nick, avatar: '🕊️', balance: 100, role: 'user', banned: false, donated: 0 };
-    state.users.push(u);
-    invalidateUserMap();
+function openModal(id){ $(id).classList.add('active'); }
+function closeModal(id){ $(id).classList.remove('active'); }
+function esc(s){ return String(s).replace(/[&<>"]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m])); }
+function formatNumber(n){ return Number(n).toLocaleString('ru-RU'); }
+function isAdmin(){ if(!state.user) return false; if(state.user.nickname==='SND') return true; return state.admins.includes(state.user.nickname); }
+function isSND(){ return state.user && state.user.nickname === 'SND'; }
+function findUser(nick){ return (firebaseUsers.length? firebaseUsers : state.localUsers).find(u => u.nickname === nick); }
+function getUser(nick){
+  let u = findUser(nick);
+  if(!u && firebaseUsers.length === 0){
+    u = { nickname: nick, avatar:'🕊️', balance:100, role:'user', banned:false, donated:0 };
+    state.localUsers.push(u);
   }
   return u;
 }
-
-function addHistory(text) {
-  if (!state.user) return;
-  state.history.unshift({ text, time: Date.now(), user: state.user.nickname });
-  if (state.history.length > 50) state.history.length = 50;
+function saveLocal(){
+  localStorage.setItem('goldtv_user', JSON.stringify(state.user));
+  localStorage.setItem('goldtv_admins', JSON.stringify(state.admins));
+  localStorage.setItem('goldtv_adminPass', state.adminPassword);
+  localStorage.setItem('goldtv_customCode', state.customCode);
+  localStorage.setItem('goldtv_support', JSON.stringify(state.supportMessages));
+  if(!fbReady){
+    localStorage.setItem('goldtv_localUsers', JSON.stringify(state.localUsers));
+    localStorage.setItem('goldtv_localBets', JSON.stringify(state.localBets));
+    localStorage.setItem('goldtv_localUsersBets', JSON.stringify(state.localUsersBets));
+  }
 }
 
-/* ============================================================
-   DEBOUNCE / THROTTLE
-   ============================================================ */
-function debounce(fn, ms) {
-  let t;
-  return (...args) => {
-    clearTimeout(t);
-    t = setTimeout(() => fn(...args), ms);
-  };
-}
-function throttle(fn, ms) {
-  let last = 0;
-  return (...args) => {
-    const now = Date.now();
-    if (now - last < ms) return;
-    last = now;
-    fn(...args);
-  };
-}
-
-/* ============================================================
-   RENDER HEADER
-   ============================================================ */
-function renderHeader() {
+/* ═══ RENDER ═══ */
+function renderHeader(){
   const right = $('headerRight');
-  if (state.user) {
-    const adminBtn = (isAdmin() || isSND())
-      ? `<button class="btn btn-ghost btn-sm" onclick="openAdminPanel()">⚙️ Админ</button>`
-      : '';
-    right.innerHTML = `${adminBtn}
-      <div class="user-chip" onclick="openProfile()">
-        <div class="user-avatar">${renderAvatar(state.user.avatar)}</div>
-        <span class="user-name">${esc(state.user.nickname)}</span>
-      </div>`;
+  if(state.user){
+    const adminBtn = (isAdmin()||isSND()) ? `<button class="btn btn-ghost btn-sm" onclick="openAdminPanel()">⚙️ Админ</button>` : '';
+    right.innerHTML = `${adminBtn}<div class="user-chip" onclick="openProfile()">
+      <div class="user-avatar">${renderAvatar(state.user.avatar)}</div>
+      <span class="user-name">${esc(state.user.nickname)}</span>
+    </div>`;
   } else {
     right.innerHTML = `<button class="btn btn-gold" onclick="openModal('loginModal')">Войти</button>`;
   }
 }
-
-function renderAvatar(av) {
-  if (!av) return '🕊️';
-  if (typeof av === 'string' && av.startsWith('http')) {
-    return `<img src="${esc(av)}" alt="" loading="lazy" onerror="this.style.display='none';this.parentNode.textContent='🕊️'">`;
-  }
+function renderAvatar(av){
+  if(!av) return '🕊️';
+  if(typeof av === 'string' && av.startsWith('http')) return `<img src="${esc(av)}" onerror="this.style.display='none';this.parentNode.textContent='🕊️'">`;
   return esc(av);
 }
 
-/* ============================================================
-   RENDER STREAM
-   ============================================================ */
-let lastStreamState = '';
-function renderStream() {
-  const s = state.stream;
+function renderStream(){
+  const s = firebaseStream || state.localStream;
   $('streamTitle').textContent = s.title || 'Голубиный стрим';
   const status = $('streamStatus');
-  const key = s.status + '|' + s.url;
-  if (key === lastStreamState) return; // не перерисовывать если не изменилось
-  lastStreamState = key;
-
-  if (s.status === 'online') {
-    status.className = 'live-badge online';
-    status.textContent = '🔴 В эфире';
-  } else {
-    status.className = 'live-badge';
-    status.textContent = '⚫ Оффлайн';
-  }
-  const wrapper = $('playerWrapper');
-  if (s.url && s.status === 'online') {
-    wrapper.innerHTML = `<iframe src="${esc(s.url)}" allowfullscreen loading="lazy"></iframe>`;
-  } else {
-    wrapper.innerHTML = `<div class="player-offline">📺<span>Стрим скоро начнётся</span></div>`;
-  }
+  if(s.status === 'online'){ status.className='live-badge online'; status.textContent='🔴 В эфире'; }
+  else { status.className='live-badge'; status.textContent='⚫ Оффлайн'; }
+  const w = $('playerWrapper');
+  if(s.url && s.status === 'online') w.innerHTML = `<iframe src="${esc(s.url)}" allowfullscreen></iframe>`;
+  else w.innerHTML = `<div class="player-offline">📺<span>Стрим скоро начнётся</span></div>`;
 }
 
-/* ============================================================
-   RENDER VIEW COUNT (оптимизированно)
-   ============================================================ */
-function renderViewCount() {
-  const el = $('viewCount');
-  const text = formatNumber(state.views);
-  if (el.textContent !== text) el.textContent = text;
+function renderViewCount(){
+  const v = firebaseViews || state.views;
+  $('viewCount').textContent = formatNumber(v);
+  const cv = $('currentViews'); if(cv) cv.textContent = v;
 }
 
-/* ============================================================
-   RENDER EVENTS
-   ============================================================ */
-function renderEvents() {
+function renderEvents(){
+  const events = firebaseEvents || state.localEvents;
   const bar = $('eventsBar');
-  if (!state.events.length) {
-    bar.innerHTML = '<div class="empty-state">Нет активных ивентов</div>';
-    return;
-  }
-  bar.innerHTML = state.events.map(e =>
-    `<div class="event-row">🎯 <strong>${esc(e.name)}</strong> | Приз: <span class="prize">${e.prize} 🌻</span> | Что сделать: ${esc(e.condition)}</div>`
-  ).join('');
+  if(!events.length){ bar.innerHTML = '<div class="empty-state">Нет активных ивентов</div>'; return; }
+  bar.innerHTML = events.map(e => `<div class="event-row">🎯 <strong>${esc(e.name)}</strong> | Приз: <span class="prize">${e.prize} 🌻</span> | ${esc(e.condition)}</div>`).join('');
 }
 
-/* ============================================================
-   RENDER DONORS
-   ============================================================ */
-function renderDonors() {
+function renderDonors(){
   const tbody = $('donorsBody');
-  const donors = state.users.filter(u => u.donated > 0).sort((a, b) => (b.donated || 0) - (a.donated || 0)).slice(0, 10);
-  if (!donors.length) {
-    tbody.innerHTML = '<tr><td colspan="3" class="empty-state">Пока никто не кормил голубей</td></tr>';
-    return;
-  }
-  tbody.innerHTML = donors.map((u, i) =>
-    `<tr>
-      <td class="place">${i + 1}</td>
-      <td><span class="donor-avatar">${renderAvatar(u.avatar)}</span> ${esc(u.nickname)}</td>
-      <td class="donor-sum">${u.donated} 🌻</td>
-    </tr>`
-  ).join('');
+  const users = firebaseUsers.length? firebaseUsers : state.localUsers;
+  const donors = users.filter(u => u.donated > 0).sort((a,b)=> (b.donated||0)-(a.donated||0)).slice(0,10);
+  if(!donors.length){ tbody.innerHTML = '<tr><td colspan="3" class="empty-state">Пока никто не кормил голубей</td></tr>'; return; }
+  tbody.innerHTML = donors.map((u,i)=>`<tr>
+    <td class="place">${i+1}</td>
+    <td>${renderAvatar(u.avatar)} ${esc(u.nickname)}</td>
+    <td class="donor-sum">${u.donated} 🌻</td>
+  </tr>`).join('');
 }
 
-/* ============================================================
-   RENDER CARDS
-   ============================================================ */
-const bankLogos = { sber: '🟢', tinkoff: '🟡', alfa: '🔴', vtb: '🔵', yoomoney: '🟣', other: '🏦' };
-const bankNames = { sber: 'Сбер', tinkoff: 'Тинькофф', alfa: 'Альфа', vtb: 'ВТБ', yoomoney: 'ЮMoney', other: 'Банк' };
-
-function renderCards() {
-  const container = $('cardsContainer');
-  if (!state.cards.length) {
-    container.innerHTML = '<div class="empty-state">Карта не добавлена</div>';
-    return;
-  }
-  container.innerHTML = state.cards.map(c =>
-    `<div class="bank-card">
-      <div class="bank-logo">${bankLogos[c.bank] || '🏦'}</div>
-      <div class="bank-name">${bankNames[c.bank] || 'Банк'}</div>
-      <div class="card-number">${esc(c.number)}</div>
-      <div class="card-label">${esc(c.label || '')}</div>
-      <button class="btn btn-outline btn-sm" style="margin-top:14px;" onclick="copyCard('${esc(c.number)}')">📋 Скопировать</button>
-    </div>`
-  ).join('');
+const bankLogos = { sber:'🟢', tinkoff:'🟡', alfa:'🔴', vtb:'🔵', yoomoney:'🟣', other:'🏦' };
+const bankNames = { sber:'Сбер', tinkoff:'Тинькофф', alfa:'Альфа', vtb:'ВТБ', yoomoney:'ЮMoney', other:'Банк' };
+function renderCards(){
+  const cards = firebaseCards || state.localCards;
+  const c = $('cardsContainer');
+  if(!cards.length){ c.innerHTML = '<div class="empty-state">Карта не добавлена</div>'; return; }
+  c.innerHTML = cards.map(card => `<div class="bank-card">
+    <div class="bank-logo">${bankLogos[card.bank]||'🏦'}</div>
+    <div class="bank-name">${bankNames[card.bank]||'Банк'}</div>
+    <div class="card-number">${esc(card.number)}</div>
+    <div class="card-label">${esc(card.label||'')}</div>
+    <button class="btn btn-outline btn-sm" style="margin-top:14px" onclick="copyCard('${esc(card.number)}')">📋 Скопировать</button>
+  </div>`).join('');
+}
+function copyCard(num){
+  navigator.clipboard.writeText(num.replace(/\s/g,'')).then(()=> toast('Номер скопирован!','success'));
 }
 
-function copyCard(num) {
-  const clean = num.replace(/\s/g, '');
-  if (navigator.clipboard) {
-    navigator.clipboard.writeText(clean).then(() => toast('Номер скопирован!', 'success'));
-  } else {
-    toast('Не удалось скопировать', 'error');
-  }
-}
-
-/* ============================================================
-   RENDER BETS — оптимизировано, не перестраиваем всё
-   ============================================================ */
-let lastBetsHash = '';
-function renderBets() {
+function renderBets(){
+  const bets = firebaseBets.length? firebaseBets : state.localBets;
+  const usersBets = firebaseUsersBets.length? firebaseUsersBets : state.localUsersBets;
   const container = $('betsContainer');
   const widget = $('betsWidget');
 
-  if (!state.bets.length) {
+  if(!bets.length){
     container.innerHTML = '<div class="empty-state">Нет активных ставок</div>';
-    widget.innerHTML = '';
-    return;
+    widget.innerHTML = ''; return;
   }
 
   // Виджет: кто сколько поставил
-  const allBets = state.usersBets || [];
-  if (allBets.length) {
+  if(usersBets.length){
     const grouped = {};
-    allBets.forEach(b => {
-      if (!grouped[b.user]) grouped[b.user] = 0;
-      grouped[b.user] += b.amount;
-    });
-    const sorted = Object.entries(grouped).sort((a, b) => b[1] - a[1]);
-    widget.innerHTML = `<div class="bets-widget">
-      <h4>📊 Кто сколько поставил</h4>
-      <table>${sorted.map(([user, amount]) =>
-        `<tr><td class="w-user">${esc(user)}</td><td class="w-amount">${amount} 🌻</td></tr>`
-      ).join('')}</table>
-    </div>`;
-  } else {
-    widget.innerHTML = '';
-  }
+    usersBets.forEach(b => { grouped[b.user] = (grouped[b.user]||0) + b.amount; });
+    const sorted = Object.entries(grouped).sort((a,b)=>b[1]-a[1]).slice(0,10);
+    widget.innerHTML = `<div class="bets-widget"><h4>📊 Кто сколько поставил</h4><table>
+      ${sorted.map(([u,a])=>`<tr><td class="w-user">${esc(u)}</td><td class="w-amount">${a} 🌻</td></tr>`).join('')}
+    </table></div>`;
+  } else widget.innerHTML = '';
 
-  // Кэшируем хэш, чтобы не перерисовывать без изменений
-  const hash = JSON.stringify(state.bets.map(b => [b.question, b.closed, b.options.map(o => o.pool)]));
-  if (hash === lastBetsHash) return;
-  lastBetsHash = hash;
-
-  const frag = document.createDocumentFragment();
-  state.bets.forEach((b, i) => {
-    const total = b.options.reduce((s, o) => s + (o.pool || 0), 0) || 1;
-    const opts = b.options.map(o => {
-      const odds = o.pool > 0 ? (total / o.pool).toFixed(2) : '—';
-      return `<span>${esc(o.label)}: ${o.pool || 0} 🌻 (x${odds})</span>`;
+  container.innerHTML = bets.map((b,i)=>{
+    const total = b.options.reduce((s,o)=>s+(o.pool||0),0)||1;
+    const opts = b.options.map(o=>{
+      const odds = o.pool>0 ? (total/o.pool).toFixed(2) : '—';
+      return `<span>${esc(o.label)}: ${o.pool||0} 🌻 (x${odds})</span>`;
     }).join('');
-    const optButtons = b.options.map((o, j) =>
-      `<div class="bet-option" data-bet="${i}" data-opt="${j}" onclick="selectBetOption(${i},${j})">${esc(o.label)}</div>`
-    ).join('');
-
-    const card = document.createElement('div');
-    card.className = 'glass bet-card';
-    card.innerHTML = `
+    const optBtns = b.options.map((o,j)=>`<div class="bet-option" data-bet="${i}" data-opt="${j}" onclick="selectBetOption(${i},${j})">${esc(o.label)}</div>`).join('');
+    return `<div class="glass bet-card">
       <div class="bet-question">🎰 ${esc(b.question)}</div>
-      <div class="bet-options">${optButtons}</div>
+      <div class="bet-options">${optBtns}</div>
       <div class="bet-pools">${opts}</div>
       <div class="bet-input-row">
-        <input type="number" id="betAmount${i}" placeholder="Сумма" min="${b.min || 10}" value="${b.min || 10}">
+        <input type="number" id="betAmount${i}" placeholder="Сумма" min="${b.min||10}" value="${b.min||10}">
         <button class="btn btn-gold btn-sm" onclick="placeBet(${i})">Поставить</button>
-        ${b.closed ? '<span style="color:var(--danger);font-size:0.8rem;">Закрыта</span>' : ''}
-      </div>`;
-    frag.appendChild(card);
-  });
-
-  container.innerHTML = '';
-  container.appendChild(frag);
+        ${b.closed?'<span style="color:var(--danger);font-size:.8rem">Закрыта</span>':''}
+      </div>
+    </div>`;
+  }).join('');
 }
-
-function selectBetOption(betIdx, optIdx) {
-  const parent = document.querySelector(`.bet-option[data-bet="${betIdx}"]`)?.parentElement;
-  if (!parent) return;
-  parent.querySelectorAll('.bet-option').forEach(el => el.classList.remove('selected'));
-  parent.querySelector(`.bet-option[data-opt="${optIdx}"]`).classList.add('selected');
+function selectBetOption(bi, oi){
+  document.querySelectorAll(`.bet-option[data-bet="${bi}"]`).forEach(el=>el.classList.remove('selected'));
+  document.querySelector(`.bet-option[data-bet="${bi}"][data-opt="${oi}"]`).classList.add('selected');
 }
-
-function placeBet(betIdx) {
-  if (!state.user) { toast('Войдите, чтобы ставить', 'error'); return; }
-  const bet = state.bets[betIdx];
-  if (bet.closed) { toast('Ставка закрыта', 'error'); return; }
-  const selected = document.querySelector(`.bet-option[data-bet="${betIdx}"].selected`);
-  if (!selected) { toast('Выберите вариант', 'error'); return; }
-  const optIdx = Number(selected.dataset.opt);
-  const amount = Number($(`betAmount${betIdx}`).value);
-  if (!amount || amount < (bet.min || 10)) { toast(`Минимум ${bet.min || 10} 🌻`, 'error'); return; }
-
-  const u = getUserByNick(state.user.nickname);
-  if (u.balance < amount) { toast('Недостаточно семечек', 'error'); return; }
-
+async function placeBet(i){
+  if(!state.user){ toast('Войдите','error'); return; }
+  const bets = firebaseBets.length? firebaseBets : state.localBets;
+  const bet = bets[i];
+  if(bet.closed){ toast('Ставка закрыта','error'); return; }
+  const sel = document.querySelector(`.bet-option[data-bet="${i}"].selected`);
+  if(!sel){ toast('Выберите вариант','error'); return; }
+  const oi = Number(sel.dataset.opt);
+  const amount = Number($(`betAmount${i}`).value);
+  if(!amount || amount < (bet.min||10)){ toast(`Минимум ${bet.min||10} 🌻`,'error'); return; }
+  const u = getUser(state.user.nickname);
+  if(u.balance < amount){ toast('Недостаточно семечек','error'); return; }
   u.balance -= amount;
   state.user = u;
-  bet.options[optIdx].pool = (bet.options[optIdx].pool || 0) + amount;
-  state.usersBets.push({ user: u.nickname, bet: bet.question, option: optIdx, amount });
-  addHistory(`Ставка "${bet.question}" → ${bet.options[optIdx].label} (${amount} 🌻)`);
-  save();
-  renderBets(); renderProfileBalance();
-  toast(`Ставка ${amount} 🌻 принята!`, 'success');
+
+  if(fbReady){
+    // Обновляем пул ставки
+    const newOptions = [...bet.options];
+    newOptions[oi] = { ...newOptions[oi], pool: (newOptions[oi].pool||0) + amount };
+    await window.FB.update(window.FB.ref(window.FB.db, `bets/${bet._key}`), { options: newOptions });
+    // Пишем ставку юзера
+    await window.FB.push(window.FB.ref(window.FB.db, 'usersBets'), {
+      user: u.nickname, bet: bet.question, option: oi, amount, time: Date.now()
+    });
+    // Обновляем баланс юзера
+    await window.FB.update(window.FB.ref(window.FB.db, `users/${encodeKey(u.nickname)}`), { balance: u.balance });
+  } else {
+    bet.options[oi].pool = (bet.options[oi].pool||0) + amount;
+    state.localUsersBets.push({ user:u.nickname, bet:bet.question, option:oi, amount });
+    saveLocal();
+  }
+  toast(`Ставка ${amount} 🌻 принята!`,'success');
 }
 
-/* ============================================================
-   FEED
-   ============================================================ */
-function feed(amount) {
-  if (!state.user) { toast('Войдите, чтобы кормить', 'error'); return; }
-  const u = getUserByNick(state.user.nickname);
-  if (u.balance < amount) { toast('Недостаточно семечек', 'error'); return; }
-
+function feed(amount){
+  if(!state.user){ toast('Войдите','error'); return; }
+  const u = getUser(state.user.nickname);
+  if(u.balance < amount){ toast('Недостаточно семечек','error'); return; }
   u.balance -= amount;
-  u.donated = (u.donated || 0) + amount;
+  u.donated = (u.donated||0) + amount;
   state.user = u;
-  state.views += 1;
-  addHistory(`Покормил голубей на ${amount} 🌻`);
-  save();
-  renderDonors(); renderProfileBalance(); renderViewCount();
-  spawnFeedAnimation();
 
-  toast(`+${amount} 🌻 голубям!`, 'gold');
+  if(fbReady){
+    window.FB.update(window.FB.ref(window.FB.db, `users/${encodeKey(u.nickname)}`), { balance: u.balance, donated: u.donated });
+    window.FB.set(window.FB.ref(window.FB.db, 'views'), (firebaseViews||0) + 1);
+  } else {
+    state.views += 1;
+    saveLocal();
+    renderViewCount();
+  }
+
+  // Анимация
+  const dove = document.createElement('div');
+  dove.className = 'flying-dove'; dove.textContent = '🕊️';
+  dove.style.left = (window.innerWidth/2-30)+'px';
+  dove.style.top = (window.innerHeight/2)+'px';
+  document.body.appendChild(dove);
+  setTimeout(()=>dove.remove(), 1200);
+  for(let i=0;i<5;i++){
+    setTimeout(()=>{
+      const s = document.createElement('div');
+      s.className='seed-particle'; s.textContent='🌻';
+      s.style.left = (window.innerWidth/2+(Math.random()-.5)*200)+'px';
+      s.style.top = (window.innerHeight/2-50)+'px';
+      document.body.appendChild(s);
+      setTimeout(()=>s.remove(),1000);
+    }, i*80);
+  }
+  toast(`+${amount} 🌻 голубям!`,'gold');
 }
 
-function spawnFeedAnimation() {
-  // Используем requestAnimationFrame для батчинга DOM-операций
-  requestAnimationFrame(() => {
-    const dove = document.createElement('div');
-    dove.className = 'flying-dove';
-    dove.textContent = '🕊️';
-    dove.style.left = (window.innerWidth / 2 - 30) + 'px';
-    dove.style.top = (window.innerHeight / 2) + 'px';
-    document.body.appendChild(dove);
-    setTimeout(() => dove.remove(), 1200);
-
-    for (let i = 0; i < 4; i++) {
-      setTimeout(() => {
-        const seed = document.createElement('div');
-        seed.className = 'seed-particle';
-        seed.textContent = '🌻';
-        seed.style.left = (window.innerWidth / 2 + (Math.random() - 0.5) * 200) + 'px';
-        seed.style.top = (window.innerHeight / 2 - 50) + 'px';
-        document.body.appendChild(seed);
-        setTimeout(() => seed.remove(), 1000);
-      }, i * 80);
-    }
-  });
-}
-
-/* ============================================================
-   PROFILE
-   ============================================================ */
 const EMOJI_AVATARS = ['🕊️','🌻','🎰','📺','🐦','🦅','🐤','🌟','👑','💎','🔥','🎯','⚡','🌈','🍀','🎲'];
-
-function openProfile() {
-  if (!state.user) return;
+function openProfile(){
+  if(!state.user) return;
   $('profileNickname').value = state.user.nickname;
-  $('profileAvatarUrl').value = (state.user.avatar && state.user.avatar.startsWith('http')) ? state.user.avatar : '';
-  renderAvatarPicker();
+  $('profileAvatarUrl').value = (state.user.avatar||'').startsWith('http') ? state.user.avatar : '';
+  const picker = $('avatarPicker');
+  picker.innerHTML = EMOJI_AVATARS.map(e=>`<div class="avatar-option ${state.user.avatar===e?'selected':''}" onclick="selectAvatar('${e}')">${e}</div>`).join('');
   renderProfileBalance();
-  renderHistory();
   openModal('profileModal');
 }
-
-function renderAvatarPicker() {
-  const picker = $('avatarPicker');
-  const frag = document.createDocumentFragment();
-  EMOJI_AVATARS.forEach(e => {
-    const div = document.createElement('div');
-    div.className = 'avatar-option' + (state.user.avatar === e ? ' selected' : '');
-    div.textContent = e;
-    div.onclick = () => { state.user.avatar = e; renderAvatarPicker(); };
-    frag.appendChild(div);
-  });
-  picker.innerHTML = '';
-  picker.appendChild(frag);
+function selectAvatar(e){ state.user.avatar = e; openProfile(); }
+function renderProfileBalance(){
+  if(!state.user) return;
+  const u = getUser(state.user.nickname);
+  if(u) $('profileBalance').textContent = u.balance + ' 🌻';
 }
 
-function renderProfileBalance() {
-  if (!state.user) return;
-  const u = getUserByNick(state.user.nickname);
-  if (u) $('profileBalance').textContent = u.balance + ' 🌻';
-}
-
-function renderHistory() {
-  const list = $('historyList');
-  if (!state.user) return;
-  const h = state.history.filter(x => x.user === state.user.nickname).slice(0, 20);
-  if (!h.length) { list.innerHTML = '<div class="empty-state">История пуста</div>'; return; }
-  list.innerHTML = h.map(x => `<div>${esc(x.text)}</div>`).join('');
-}
-
-/* ============================================================
-   ADMIN
-   ============================================================ */
-function openAdminPanel() {
-  if (!isAdmin() && !isSND()) { toast('Доступ запрещён', 'error'); return; }
+function openAdminPanel(){
+  if(!isAdmin() && !isSND()){ toast('Доступ запрещён','error'); return; }
   renderAdminAll();
   openModal('adminModal');
 }
-
-function renderAdminAll() {
+function renderAdminAll(){
   renderAdminEvents(); renderAdminCards(); renderAdminBets();
   renderAdminAdmins(); renderAdminUsers(); renderAdminStream();
   $('customCode').value = state.customCode;
-  $('currentViews').textContent = state.views;
-  $('viewsStart').value = state.viewsConfig.start || '';
-  $('viewsStep').value = state.viewsConfig.step || 5;
+  $('currentViews').textContent = firebaseViews || state.views;
+  const s = firebaseStream || state.localStream;
+  $('adminStreamUrl').value = s.url||'';
+  $('adminStreamTitle').value = s.title||'';
+  $('adminStreamStatus').value = s.status||'offline';
 }
-
-function renderAdminStream() {
-  $('adminStreamUrl').value = state.stream.url || '';
-  $('adminStreamTitle').value = state.stream.title || '';
-  $('adminStreamStatus').value = state.stream.status || 'offline';
+function renderAdminStream(){
+  const s = firebaseStream || state.localStream;
+  $('adminStreamUrl').value = s.url||'';
+  $('adminStreamTitle').value = s.title||'';
+  $('adminStreamStatus').value = s.status||'offline';
 }
-
-function renderAdminEvents() {
+function renderAdminEvents(){
+  const events = firebaseEvents || state.localEvents;
   const el = $('adminEventsList');
-  if (!state.events.length) { el.innerHTML = '<div class="empty-state">Нет ивентов</div>'; return; }
-  el.innerHTML = state.events.map((e, i) =>
-    `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
-      <span style="font-size:0.85rem;">🎯 ${esc(e.name)} — ${e.prize} 🌻</span>
-      <button class="btn btn-danger btn-sm" onclick="removeEvent(${i})">Удалить</button>
-    </div>`
-  ).join('');
+  if(!events.length){ el.innerHTML='<div class="empty-state">Нет ивентов</div>'; return; }
+  el.innerHTML = events.map((e,i)=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05)">
+    <span style="font-size:.85rem">🎯 ${esc(e.name)} — ${e.prize} 🌻</span>
+    <button class="btn btn-danger btn-sm" onclick="removeEvent(${i})">Удалить</button>
+  </div>`).join('');
 }
-function removeEvent(i) { state.events.splice(i, 1); save(); renderAdminEvents(); renderEvents(); }
-
-function renderAdminCards() {
+async function removeEvent(i){
+  if(fbReady){
+    const events = firebaseEvents || [];
+    const newEvents = events.filter((_,j)=>j!==i);
+    await window.FB.set(window.FB.ref(window.FB.db, 'events'), newEvents);
+  } else {
+    state.localEvents.splice(i,1); saveLocal(); renderAdminEvents(); renderEvents();
+  }
+}
+function renderAdminCards(){
+  const cards = firebaseCards || state.localCards;
   const el = $('adminCardsList');
-  if (!state.cards.length) { el.innerHTML = '<div class="empty-state">Нет карт</div>'; return; }
-  el.innerHTML = state.cards.map((c, i) =>
-    `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
-      <span style="font-size:0.85rem;">${bankLogos[c.bank]} ${esc(c.number)} (${esc(c.label)})</span>
-      <button class="btn btn-danger btn-sm" onclick="removeCard(${i})">Удалить</button>
-    </div>`
-  ).join('');
+  if(!cards.length){ el.innerHTML='<div class="empty-state">Нет карт</div>'; return; }
+  el.innerHTML = cards.map((c,i)=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05)">
+    <span style="font-size:.85rem">${bankLogos[c.bank]} ${esc(c.number)} (${esc(c.label)})</span>
+    <button class="btn btn-danger btn-sm" onclick="removeCard(${i})">Удалить</button>
+  </div>`).join('');
 }
-function removeCard(i) { state.cards.splice(i, 1); save(); renderAdminCards(); renderCards(); }
-
-function renderAdminBets() {
+async function removeCard(i){
+  if(fbReady){
+    const cards = firebaseCards || [];
+    await window.FB.set(window.FB.ref(window.FB.db, 'cards'), cards.filter((_,j)=>j!==i));
+  } else {
+    state.localCards.splice(i,1); saveLocal(); renderAdminCards(); renderCards();
+  }
+}
+function renderAdminBets(){
+  const bets = firebaseBets.length? firebaseBets : state.localBets;
   const el = $('adminBetsList');
-  if (!state.bets.length) { el.innerHTML = '<div class="empty-state">Нет ставок</div>'; return; }
-  el.innerHTML = state.bets.map((b, i) =>
-    `<div style="padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
-      <div style="font-weight:600;font-size:0.9rem;">${esc(b.question)}</div>
-      <div style="font-size:0.8rem;color:var(--text-muted);">${b.options.map(o => esc(o.label) + ': ' + (o.pool || 0) + ' 🌻').join(' | ')}</div>
-      <div style="margin-top:6px;display:flex;gap:6px;">
-        ${!b.closed ? `<button class="btn btn-sm btn-outline" onclick="closeBet(${i})">Закрыть</button>` : ''}
-        <select id="winnerSelect${i}" style="padding:4px 8px;border-radius:8px;background:rgba(0,0,0,0.3);color:var(--text-primary);border:1px solid rgba(255,215,0,0.15);font-size:0.8rem;">
-          ${b.options.map((o, j) => `<option value="${j}">${esc(o.label)}</option>`).join('')}
-        </select>
-        <button class="btn btn-sm btn-gold" onclick="resolveBet(${i})">Победитель</button>
-        <button class="btn btn-sm btn-danger" onclick="removeBet(${i})">Удалить</button>
-      </div>
-    </div>`
-  ).join('');
+  if(!bets.length){ el.innerHTML='<div class="empty-state">Нет ставок</div>'; return; }
+  el.innerHTML = bets.map((b,i)=>`<div style="padding:10px 0;border-bottom:1px solid rgba(255,255,255,.05)">
+    <div style="font-weight:600;font-size:.9rem">${esc(b.question)}</div>
+    <div style="font-size:.8rem;color:var(--text-muted)">${b.options.map(o=>esc(o.label)+': '+(o.pool||0)+' 🌻').join(' | ')}</div>
+    <div style="margin-top:6px;display:flex;gap:6px">
+      ${!b.closed?`<button class="btn btn-sm btn-outline" onclick="closeBet(${i})">Закрыть</button>`:''}
+      <select id="winnerSelect${i}" style="padding:4px 8px;border-radius:8px;background:rgba(0,0,0,.3);color:var(--text-primary);border:1px solid rgba(255,215,0,.15);font-size:.8rem">
+        ${b.options.map((o,j)=>`<option value="${j}">${esc(o.label)}</option>`).join('')}
+      </select>
+      <button class="btn btn-sm btn-gold" onclick="resolveBet(${i})">Победитель</button>
+      <button class="btn btn-sm btn-danger" onclick="removeBet(${i})">Удалить</button>
+    </div>
+  </div>`).join('');
 }
-function closeBet(i) { state.bets[i].closed = true; save(); renderAdminBets(); renderBets(); toast('Ставка закрыта', 'info'); }
-function removeBet(i) { state.bets.splice(i, 1); save(); renderAdminBets(); renderBets(); }
-
-function resolveBet(i) {
-  const bet = state.bets[i];
+async function closeBet(i){
+  if(fbReady){
+    const bets = firebaseBets;
+    await window.FB.update(window.FB.ref(window.FB.db, `bets/${bets[i]._key}`), { closed: true });
+  } else { state.localBets[i].closed = true; saveLocal(); renderAdminBets(); renderBets(); }
+  toast('Ставка закрыта','info');
+}
+async function removeBet(i){
+  if(fbReady){
+    const bets = firebaseBets;
+    await window.FB.remove(window.FB.ref(window.FB.db, `bets/${bets[i]._key}`));
+  } else { state.localBets.splice(i,1); saveLocal(); renderAdminBets(); renderBets(); }
+}
+async function resolveBet(i){
+  const bets = firebaseBets.length? firebaseBets : state.localBets;
+  const bet = bets[i];
   const winnerIdx = Number($(`winnerSelect${i}`).value);
-  const total = bet.options.reduce((s, o) => s + (o.pool || 0), 0);
-  const winnerPool = bet.options[winnerIdx].pool || 0;
+  const total = bet.options.reduce((s,o)=>s+(o.pool||0),0);
+  const winnerPool = bet.options[winnerIdx].pool||0;
+  const uBets = firebaseUsersBets.length? firebaseUsersBets : state.localUsersBets;
 
-  state.usersBets.forEach(b => {
-    if (b.bet === bet.question && b.option === winnerIdx) {
-      const u = getUserByNick(b.user);
-      if (u && winnerPool > 0) {
-        const winAmount = Math.floor(b.amount * (total / winnerPool));
-        u.balance += winAmount;
+  for(const b of uBets){
+    if(b.bet === bet.question && b.option === winnerIdx && winnerPool > 0){
+      const u = getUser(b.user);
+      if(u){
+        const win = Math.floor(b.amount * (total/winnerPool));
+        u.balance += win;
+        if(fbReady) await window.FB.update(window.FB.ref(window.FB.db, `users/${encodeKey(u.nickname)}`), { balance: u.balance });
       }
     }
-  });
-  invalidateUserMap();
-  toast(`Победитель: ${bet.options[winnerIdx].label}!`, 'success');
-  state.bets.splice(i, 1);
-  save(); renderAdminBets(); renderBets();
+  }
+  toast(`Победитель: ${bet.options[winnerIdx].label}!`,'success');
+  await removeBet(i);
 }
-
-function renderAdminAdmins() {
-  const el = $('adminAdminsList');
-  el.innerHTML = state.admins.map((a, i) =>
-    `<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;">
-      <span>👑 ${esc(a)}</span>
-      <button class="btn btn-danger btn-sm" onclick="removeAdmin(${i})">Удалить</button>
-    </div>`
-  ).join('') || '<div class="empty-state">Нет админов</div>';
+function renderAdminAdmins(){
+  $('adminAdminsList').innerHTML = state.admins.map((a,i)=>`<div style="display:flex;justify-content:space-between;padding:6px 0">
+    <span>👑 ${esc(a)}</span>
+    <button class="btn btn-danger btn-sm" onclick="removeAdmin(${i})">Удалить</button>
+  </div>`).join('') || '<div class="empty-state">Нет админов</div>';
 }
-function removeAdmin(i) { state.admins.splice(i, 1); save(); renderAdminAdmins(); }
+function removeAdmin(i){ state.admins.splice(i,1); saveLocal(); renderAdminAdmins(); }
 
-function renderAdminUsers() {
+function renderAdminUsers(){
+  const users = firebaseUsers.length? firebaseUsers : state.localUsers;
   const el = $('adminUsersList');
-  if (!state.users.length) { el.innerHTML = '<div class="empty-state">Нет пользователей</div>'; return; }
-  const frag = document.createDocumentFragment();
-  state.users.forEach((u, i) => {
-    const div = document.createElement('div');
-    div.style.cssText = 'display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);font-size:0.85rem;';
-    div.innerHTML = `
-      <span>${renderAvatar(u.avatar)} ${esc(u.nickname)} — ${u.balance} 🌻 ${u.banned ? '🚫' : ''}</span>
-      <span style="display:flex;gap:4px;">
-        <input type="number" id="giveAmount${i}" placeholder="+🌻" style="width:70px;padding:4px 8px;border-radius:8px;background:rgba(0,0,0,0.3);color:var(--text-primary);border:1px solid rgba(255,215,0,0.15);font-size:0.8rem;">
-        <button class="btn btn-sm btn-success" onclick="giveSeeds(${i})">Дать</button>
-        <button class="btn btn-sm btn-danger" onclick="toggleBan(${i})">${u.banned ? 'Разбанить' : 'Бан'}</button>
-      </span>`;
-    frag.appendChild(div);
-  });
-  el.innerHTML = '';
-  el.appendChild(frag);
+  if(!users.length){ el.innerHTML='<div class="empty-state">Нет юзеров</div>'; return; }
+  el.innerHTML = users.map((u,i)=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:.85rem">
+    <span>${renderAvatar(u.avatar)} ${esc(u.nickname)} — ${u.balance} 🌻 ${u.banned?'🚫':''}</span>
+    <span style="display:flex;gap:4px">
+      <input type="number" id="giveAmount${i}" placeholder="+🌻" style="width:70px;padding:4px 8px;border-radius:8px;background:rgba(0,0,0,.3);color:var(--text-primary);border:1px solid rgba(255,215,0,.15);font-size:.8rem">
+      <button class="btn btn-sm btn-success" onclick="giveSeeds(${i})">Дать</button>
+      <button class="btn btn-sm btn-danger" onclick="toggleBan(${i})">${u.banned?'Разбанить':'Бан'}</button>
+    </span>
+  </div>`).join('');
 }
-
-function giveSeeds(i) {
+async function giveSeeds(i){
   const amount = Number($(`giveAmount${i}`).value);
-  if (!amount) return;
-  state.users[i].balance += amount;
-  if (state.user && state.user.nickname === state.users[i].nickname) state.user = state.users[i];
-  invalidateUserMap();
-  save(); renderAdminUsers(); renderProfileBalance();
-  toast(`+${amount} 🌻 выдан ${state.users[i].nickname}`, 'success');
+  if(!amount) return;
+  const users = firebaseUsers.length? firebaseUsers : state.localUsers;
+  const u = users[i];
+  u.balance += amount;
+  if(fbReady) await window.FB.update(window.FB.ref(window.FB.db, `users/${encodeKey(u.nickname)}`), { balance: u.balance });
+  else saveLocal();
+  renderAdminUsers(); toast(`+${amount} 🌻 → ${u.nickname}`,'success');
 }
-function toggleBan(i) { state.users[i].banned = !state.users[i].banned; save(); renderAdminUsers(); }
+async function toggleBan(i){
+  const users = firebaseUsers.length? firebaseUsers : state.localUsers;
+  users[i].banned = !users[i].banned;
+  if(fbReady) await window.FB.update(window.FB.ref(window.FB.db, `users/${encodeKey(users[i].nickname)}`), { banned: users[i].banned });
+  else saveLocal();
+  renderAdminUsers();
+}
 
-/* ============================================================
-   VIEWS COUNTER — requestAnimationFrame-based (оптимизировано)
-   ============================================================ */
-function startViewsCounter() {
-  if (viewsRafId) return;
-  state.viewsConfig.running = true;
-  let lastUpdate = 0;
-  const loop = (ts) => {
-    if (!state.viewsConfig.running) { viewsRafId = null; return; }
-    if (ts - lastUpdate > 3000) {
-      lastUpdate = ts;
-      state.views += state.viewsConfig.step || 1;
-      renderViewCount();
-      const cv = $('currentViews');
-      if (cv) cv.textContent = state.views;
+/* Кодирование ключей (Firebase не любит . и # в ключах) */
+function encodeKey(s){ return s.replace(/[.#$/[\]]/g, '_'); }
+
+/* ═══ FIREBASE SYNC ═══ */
+window.addEventListener('firebase-ready', () => {
+  fbReady = true;
+  const { db, ref, onValue } = window.FB;
+
+  // Ставки
+  onValue(ref(db, 'bets'), snap => {
+    const val = snap.val() || {};
+    firebaseBets = Object.entries(val).map(([k,v]) => ({...v, _key:k}));
+    renderBets(); renderAdminBets();
+  });
+
+  // Ставки юзеров
+  onValue(ref(db, 'usersBets'), snap => {
+    const val = snap.val() || {};
+    firebaseUsersBets = Object.values(val);
+    renderBets();
+  });
+
+  // Юзеры
+  onValue(ref(db, 'users'), snap => {
+    const val = snap.val() || {};
+    firebaseUsers = Object.values(val);
+    renderDonors(); renderAdminUsers();
+    if(state.user){
+      const me = firebaseUsers.find(u => u.nickname === state.user.nickname);
+      if(me){ state.user = me; renderProfileBalance(); renderHeader(); }
     }
-    viewsRafId = requestAnimationFrame(loop);
+  });
+
+  // Стрим
+  onValue(ref(db, 'stream'), snap => {
+    firebaseStream = snap.val() || { url:'', title:'Голубиный стрим', status:'offline' };
+    renderStream();
+  });
+
+  // Ивенты
+  onValue(ref(db, 'events'), snap => {
+    const val = snap.val();
+    firebaseEvents = Array.isArray(val) ? val : Object.values(val || {});
+    renderEvents(); renderAdminEvents();
+  });
+
+  // Карты
+  onValue(ref(db, 'cards'), snap => {
+    const val = snap.val();
+    firebaseCards = Array.isArray(val) ? val : Object.values(val || {});
+    renderCards(); renderAdminCards();
+  });
+
+  // Просмотры
+  onValue(ref(db, 'views'), snap => {
+    firebaseViews = snap.val() || 0;
+    renderViewCount();
+  });
+
+  // Кастомный код
+  onValue(ref(db, 'customCode'), snap => {
+    state.customCode = snap.val() || '';
+    renderExtra();
+  });
+});
+
+/* ═══ INIT ═══ */
+function init(){
+  // Загрузка локального при отсутствии Firebase
+  state.localUsers = JSON.parse(localStorage.getItem('goldtv_localUsers') || '[]');
+  state.localBets = JSON.parse(localStorage.getItem('goldtv_localBets') || '[]');
+  state.localUsersBets = JSON.parse(localStorage.getItem('goldtv_localUsersBets') || '[]');
+  state.localStream = JSON.parse(localStorage.getItem('goldtv_localStream') || '{"url":"","title":"Голубиный стрим","status":"offline"}');
+  state.localEvents = JSON.parse(localStorage.getItem('goldtv_localEvents') || '[]');
+  state.localCards = JSON.parse(localStorage.getItem('goldtv_localCards') || '[]');
+
+  if(!state.localEvents.length) state.localEvents = [{ name:'Первый голубь', prize:100, condition:'Покорми голубей' }];
+  if(!state.localCards.length) state.localCards = [{ number:'2200 7000 1234 5678', bank:'sber', label:'Владелец' }];
+  if(!state.localBets.length) state.localBets = [{ question:'Юля vs Голубь: лидерство?', options:[{label:'Да',pool:0},{label:'Нет',pool:0}], min:10, closed:false }];
+
+  // SND всегда есть
+  if(!findUser('SND') && !firebaseUsers.length){
+    state.localUsers.push({ nickname:'SND', avatar:'👑', balance:99999, role:'owner', banned:false, donated:0 });
+  }
+
+  renderHeader(); renderStream(); renderEvents(); renderDonors();
+  renderCards(); renderBets(); renderExtra(); renderViewCount();
+
+  /* LOGIN */
+  $('loginBtn').onclick = async () => {
+    const nick = $('loginNickname').value.trim();
+    if(!nick){ toast('Введите ник','error'); return; }
+    if(nick === 'SND'){
+      const pass = prompt('🔐 Пароль SND:');
+      if(pass !== '7345787'){ toast('Неверный пароль','error'); return; }
+    }
+    let u = findUser(nick);
+    if(!u){
+      u = { nickname:nick, avatar:'🕊️', balance:100, role:nick==='SND'?'owner':'user', banned:false, donated:0 };
+      if(fbReady) await window.FB.set(window.FB.ref(window.FB.db, `users/${encodeKey(nick)}`), u);
+      else { state.localUsers.push(u); saveLocal(); }
+    }
+    if(u.banned){ toast('Вы забанены','error'); return; }
+    state.user = u; saveLocal(); renderHeader(); closeModal('loginModal');
+    toast(`Добро пожаловать, ${nick}!`,'success');
   };
-  viewsRafId = requestAnimationFrame(loop);
-}
-function stopViewsCounter() {
-  state.viewsConfig.running = false;
-  if (viewsRafId) { cancelAnimationFrame(viewsRafId); viewsRafId = null; }
+
+  /* PROFILE SAVE */
+  $('saveProfileBtn').onclick = async () => {
+    if(!state.user) return;
+    const newNick = $('profileNickname').value.trim();
+    const newAvatar = $('profileAvatarUrl').value.trim() || state.user.avatar;
+    if(!newNick){ toast('Ник не может быть пустым','error'); return; }
+    const oldNick = state.user.nickname;
+    state.user.nickname = newNick;
+    state.user.avatar = newAvatar;
+    if(fbReady){
+      if(oldNick !== newNick) await window.FB.remove(window.FB.ref(window.FB.db, `users/${encodeKey(oldNick)}`));
+      await window.FB.set(window.FB.ref(window.FB.db, `users/${encodeKey(newNick)}`), state.user);
+    } else saveLocal();
+    renderHeader(); closeModal('profileModal');
+    toast('Профиль сохранён','success');
+  };
+
+  $('logoutBtn').onclick = () => { state.user = null; saveLocal(); renderHeader(); closeModal('profileModal'); toast('Вы вышли','info'); };
+
+  /* FEED */
+  $('feedButtons').addEventListener('click', e => {
+    const b = e.target.closest('.feed-btn');
+    if(b) feed(Number(b.dataset.amount));
+  });
+  $('customFeedBtn').onclick = () => { const a = Number($('customFeedAmount').value); if(a>0) feed(a); };
+
+  /* ADMIN TABS */
+  $('adminTabs').addEventListener('click', e => {
+    const t = e.target.closest('.admin-tab');
+    if(!t) return;
+    $$('.admin-tab').forEach(x=>x.classList.remove('active'));
+    $$('.admin-panel').forEach(x=>x.classList.remove('active'));
+    t.classList.add('active');
+    $('panel-'+t.dataset.tab).classList.add('active');
+  });
+
+  /* ADMIN: STREAM */
+  $('saveStreamBtn').onclick = async () => {
+    const s = {
+      url: $('adminStreamUrl').value.trim(),
+      title: $('adminStreamTitle').value.trim() || 'Голубиный стрим',
+      status: $('adminStreamStatus').value
+    };
+    if(fbReady) await window.FB.set(window.FB.ref(window.FB.db, 'stream'), s);
+    else { state.localStream = s; saveLocal(); renderStream(); }
+    toast('Стрим обновлён','success');
+  };
+
+  /* ADMIN: EVENTS */
+  $('addEventBtn').onclick = async () => {
+    const name = $('eventName').value.trim();
+    const prize = Number($('eventPrize').value);
+    const condition = $('eventCondition').value.trim();
+    if(!name || !prize || !condition){ toast('Заполните поля','error'); return; }
+    const events = firebaseEvents || state.localEvents;
+    const newEvents = [...events, { name, prize, condition }];
+    if(fbReady) await window.FB.set(window.FB.ref(window.FB.db, 'events'), newEvents);
+    else { state.localEvents = newEvents; saveLocal(); renderEvents(); renderAdminEvents(); }
+    $('eventName').value=''; $('eventPrize').value=''; $('eventCondition').value='';
+    toast('Ивент добавлен','success');
+  };
+
+  /* ADMIN: CARDS */
+  $('addCardBtn').onclick = async () => {
+    const number = $('cardNumber').value.trim();
+    const bank = $('cardBank').value;
+    const label = $('cardLabel').value.trim();
+    if(!number){ toast('Введите номер','error'); return; }
+    const cards = firebaseCards || state.localCards;
+    const newCards = [...cards, { number, bank, label }];
+    if(fbReady) await window.FB.set(window.FB.ref(window.FB.db, 'cards'), newCards);
+    else { state.localCards = newCards; saveLocal(); renderCards(); renderAdminCards(); }
+    $('cardNumber').value=''; $('cardLabel').value='';
+    toast('Карта добавлена','success');
+  };
+
+  /* ADMIN: BETS */
+  $('addBetBtn').onclick = async () => {
+    const question = $('betQuestion').value.trim();
+    const optStr = $('betOptions').value.trim();
+    const min = Number($('betMin').value) || 10;
+    if(!question || !optStr){ toast('Заполните поля','error'); return; }
+    const options = optStr.split(',').map(s => ({ label: s.trim(), pool: 0 }));
+    const newBet = { question, options, min, closed: false };
+    if(fbReady) await window.FB.push(window.FB.ref(window.FB.db, 'bets'), newBet);
+    else { state.localBets.push(newBet); saveLocal(); renderBets(); renderAdminBets(); }
+    $('betQuestion').value=''; $('betOptions').value='';
+    toast('Ставка создана','success');
+  };
+
+  /* ADMIN: VIEWS */
+  $('viewsStartBtn').onclick = async () => {
+    const start = Number($('viewsStart').value);
+    const step = Number($('viewsStep').value) || 5;
+    state.viewsConfig = { running:true, step };
+    if(start && fbReady) await window.FB.set(window.FB.ref(window.FB.db, 'views'), start);
+    else if(start) { state.views = start; renderViewCount(); }
+    // Автоинкремент
+    if(window._viewsTimer) clearInterval(window._viewsTimer);
+    window._viewsTimer = setInterval(async () => {
+      if(!state.viewsConfig.running) return;
+      const cur = firebaseViews || state.views;
+      const next = cur + step;
+      if(fbReady) await window.FB.set(window.FB.ref(window.FB.db, 'views'), next);
+      else { state.views = next; renderViewCount(); }
+    }, 3000);
+    toast('Накрутка запущена','success');
+  };
+  $('viewsStopBtn').onclick = () => {
+    state.viewsConfig.running = false;
+    if(window._viewsTimer) clearInterval(window._viewsTimer);
+    toast('Накрутка остановлена','info');
+  };
+
+  /* ADMIN: ADMINS */
+  $('addAdminBtn').onclick = () => {
+    const nick = $('newAdminNick').value.trim();
+    if(!nick) return;
+    if(!state.admins.includes(nick)){ state.admins.push(nick); saveLocal(); renderAdminAdmins(); toast('Админ добавлен','success'); }
+    else toast('Уже админ','info');
+    $('newAdminNick').value='';
+  };
+
+  /* ADMIN: SETTINGS */
+  $('saveAdminPassBtn').onclick = () => {
+    const p = $('newAdminPass').value.trim();
+    if(!p) return;
+    state.adminPassword = p; saveLocal();
+    $('newAdminPass').value='';
+    toast('Пароль изменён','success');
+  };
+
+  /* ADMIN: CODE */
+  $('saveCodeBtn').onclick = async () => {
+    const code = $('customCode').value;
+    state.customCode = code;
+    if(fbReady) await window.FB.set(window.FB.ref(window.FB.db, 'customCode'), code);
+    else { saveLocal(); renderExtra(); }
+    toast('Код сохранён','success');
+  };
+
+  /* SUPPORT */
+  $('supportInput').addEventListener('keydown', e => { if(e.key==='Enter'){ e.preventDefault(); sendSupport(); }});
+
+  /* MODAL CLOSE */
+  $$('.modal-overlay').forEach(o => o.addEventListener('click', e => { if(e.target === o) o.classList.remove('active'); }));
+
+  window.addEventListener('beforeunload', saveLocal);
 }
 
-/* ============================================================
-   EXTRA CODE
-   ============================================================ */
-function renderExtra() {
+function toggleSupport(){
+  const p = $('supportPanel');
+  p.classList.toggle('open');
+  if(p.classList.contains('open')) renderSupportMessages();
+}
+function renderSupportMessages(){
+  const el = $('supportMessages');
+  el.innerHTML = state.supportMessages.slice(-30).map(m =>
+    `<div class="support-msg ${m.from==='user'?'user':'support'}">${esc(m.text)}</div>`
+  ).join('');
+  el.scrollTop = el.scrollHeight;
+}
+function sendSupport(){
+  const input = $('supportInput');
+  const text = input.value.trim();
+  if(!text) return;
+  if(!state.user){ toast('Войдите','error'); return; }
+  state.supportMessages.push({ from:'user', text:`${state.user.nickname}: ${text}`, time:Date.now() });
+  input.value=''; saveLocal(); renderSupportMessages();
+  setTimeout(() => {
+    state.supportMessages.push({ from:'support', text:'🕊️ Спасибо! Мы свяжемся с вами скоро.', time:Date.now() });
+    saveLocal(); if($('supportPanel').classList.contains('open')) renderSupportMessages();
+  }, 800);
+}
+
+function renderExtra(){
   const el = $('extraBlock');
-  if (!state.customCode) { el.innerHTML = ''; return; }
+  if(!state.customCode){ el.innerHTML=''; return; }
   el.innerHTML = state.customCode;
   el.querySelectorAll('script').forEach(old => {
     const s = document.createElement('script');
     s.textContent = old.textContent;
     old.replaceWith(s);
   });
-}
-
-/* ============================================================
-   SUPPORT
-   ============================================================ */
-function toggleSupport() {
-  supportOpen = !supportOpen;
-  $('supportPanel').classList.toggle('open', supportOpen);
-  if (supportOpen) renderSupportMessages();
-}
-
-function renderSupportMessages() {
-  const el = $('supportMessages');
-  const frag = document.createDocumentFragment();
-  state.supportMessages.slice(-30).forEach(m => {
-    const div = document.createElement('div');
-    div.className = 'support-msg ' + (m.from === 'user' ? 'user' : 'support');
-    div.textContent = m.text;
-    frag.appendChild(div);
-  });
-  el.innerHTML = '';
-  el.appendChild(frag);
-  el.scrollTop = el.scrollHeight;
-}
-
-function sendSupport() {
-  const input = $('supportInput');
-  const text = input.value.trim();
-  if (!text) return;
-  if (!state.user) { toast('Войдите, чтобы писать в поддержку', 'error'); return; }
-  state.supportMessages.push({ from: 'user', text: `${state.user.nickname}: ${text}`, time: Date.now() });
-  input.value = '';
-  save(); renderSupportMessages();
-  // Авто-ответ
-  setTimeout(() => {
-    state.supportMessages.push({ from: 'support', text: '🕊️ Спасибо! Мы свяжемся с вами скоро.', time: Date.now() });
-    save(); if (supportOpen) renderSupportMessages();
-  }, 800);
-}
-
-/* ============================================================
-   INIT
-   ============================================================ */
-function init() {
-  if (!state.admins.includes('admin')) state.admins.push('admin');
-  if (!state.events.length) state.events = [{ name: 'Первый голубь', prize: 100, condition: 'Покорми голубей' }];
-  if (!state.cards.length) state.cards = [{ number: '2200 7000 1234 5678', bank: 'sber', label: 'Владелец' }];
-  if (!state.bets.length) state.bets = [{ question: 'Юля vs Голубь: лидерство?', options: [{ label: 'Да', pool: 0 }, { label: 'Нет', pool: 0 }], min: 10, closed: false }];
-
-  // SND — особый юзер
-  const snd = ensureUser('SND');
-  snd.role = 'owner';
-  snd.avatar = '👑';
-  invalidateUserMap();
-
-  renderHeader();
-  renderStream();
-  renderEvents();
-  renderDonors();
-  renderCards();
-  renderBets();
-  renderExtra();
-  renderViewCount();
-
-  if (state.viewsConfig.running) startViewsCounter();
-
-  /* LOGIN */
-  $('loginBtn').onclick = () => {
-    const nick = $('loginNickname').value.trim();
-    if (!nick) { toast('Введите ник', 'error'); return; }
-    const u = ensureUser(nick);
-    if (u.banned) { toast('Вы забанены', 'error'); return; }
-    if (nick === 'SND') {
-      const pass = prompt('🔐 Введите пароль для SND:');
-      if (pass !== '7345787') { toast('Неверный пароль', 'error'); return; }
-      u.role = 'owner';
-    }
-    state.user = u;
-    save(); renderHeader(); closeModal('loginModal');
-    toast(`Добро пожаловать, ${nick}!`, 'success');
-  };
-
-  /* PROFILE */
-  $('saveProfileBtn').onclick = () => {
-    if (!state.user) return;
-    const newNick = $('profileNickname').value.trim();
-    const newAvatar = $('profileAvatarUrl').value.trim() || state.user.avatar;
-    if (!newNick) { toast('Ник не может быть пустым', 'error'); return; }
-    const oldNick = state.user.nickname;
-    const u = getUserByNick(oldNick);
-    if (u) { u.nickname = newNick; u.avatar = newAvatar; }
-    state.user = u;
-    invalidateUserMap();
-    save(); renderHeader(); renderDonors(); closeModal('profileModal');
-    toast('Профиль сохранён', 'success');
-  };
-
-  $('logoutBtn').onclick = () => {
-    state.user = null; save(); renderHeader(); closeModal('profileModal');
-    toast('Вы вышли', 'info');
-  };
-
-  /* FEED */
-  $('feedButtons').addEventListener('click', e => {
-    const btn = e.target.closest('.feed-btn');
-    if (btn) feed(Number(btn.dataset.amount));
-  });
-  $('customFeedBtn').onclick = () => {
-    const a = Number($('customFeedAmount').value);
-    if (a > 0) feed(a);
-  };
-
-  /* ADMIN TABS */
-  $('adminTabs').addEventListener('click', e => {
-    const tab = e.target.closest('.admin-tab');
-    if (!tab) return;
-    $$('.admin-tab').forEach(t => t.classList.remove('active'));
-    $$('.admin-panel').forEach(p => p.classList.remove('active'));
-    tab.classList.add('active');
-    $('panel-' + tab.dataset.tab).classList.add('active');
-  });
-
-  /* ADMIN: STREAM */
-  $('saveStreamBtn').onclick = () => {
-    state.stream.url = $('adminStreamUrl').value.trim();
-    state.stream.title = $('adminStreamTitle').value.trim() || 'Голубиный стрим';
-    state.stream.status = $('adminStreamStatus').value;
-    lastStreamState = ''; // сброс кэша
-    save(); renderStream(); toast('Стрим обновлён', 'success');
-  };
-
-  /* ADMIN: EVENTS */
-  $('addEventBtn').onclick = () => {
-    const name = $('eventName').value.trim();
-    const prize = Number($('eventPrize').value);
-    const condition = $('eventCondition').value.trim();
-    if (!name || !prize || !condition) { toast('Заполните все поля', 'error'); return; }
-    state.events.push({ name, prize, condition });
-    save(); renderAdminEvents(); renderEvents();
-    $('eventName').value = ''; $('eventPrize').value = ''; $('eventCondition').value = '';
-    toast('Ивент добавлен', 'success');
-  };
-
-  /* ADMIN: CARDS */
-  $('addCardBtn').onclick = () => {
-    const number = $('cardNumber').value.trim();
-    const bank = $('cardBank').value;
-    const label = $('cardLabel').value.trim();
-    if (!number) { toast('Введите номер', 'error'); return; }
-    state.cards.push({ number, bank, label });
-    save(); renderAdminCards(); renderCards();
-    $('cardNumber').value = ''; $('cardLabel').value = '';
-    toast('Карта добавлена', 'success');
-  };
-
-  /* ADMIN: BETS */
-  $('addBetBtn').onclick = () => {
-    const question = $('betQuestion').value.trim();
-    const optStr = $('betOptions').value.trim();
-    const min = Number($('betMin').value) || 10;
-    if (!question || !optStr) { toast('Заполните поля', 'error'); return; }
-    const options = optStr.split(',').map(s => ({ label: s.trim(), pool: 0 }));
-    state.bets.push({ question, options, min, closed: false });
-    lastBetsHash = '';
-    save(); renderAdminBets(); renderBets();
-    $('betQuestion').value = ''; $('betOptions').value = '';
-    toast('Ставка создана', 'success');
-  };
-
-  /* ADMIN: VIEWS */
-  $('viewsStartBtn').onclick = () => {
-    const start = Number($('viewsStart').value);
-    const step = Number($('viewsStep').value) || 5;
-    if (start) state.views = start;
-    state.viewsConfig.start = start;
-    state.viewsConfig.step = step;
-    save(); startViewsCounter(); renderViewCount();
-    toast('Накрутка запущена', 'success');
-  };
-  $('viewsStopBtn').onclick = () => {
-    stopViewsCounter(); save(); toast('Накрутка остановлена', 'info');
-  };
-
-  /* ADMIN: ADMINS */
-  $('addAdminBtn').onclick = () => {
-    const nick = $('newAdminNick').value.trim();
-    if (!nick) { toast('Введите ник', 'error'); return; }
-    if (!state.admins.includes(nick)) {
-      state.admins.push(nick); save(); renderAdminAdmins();
-      toast('Админ добавлен', 'success');
-    } else toast('Уже админ', 'info');
-    $('newAdminNick').value = '';
-  };
-
-  /* ADMIN: SETTINGS — смена пароля админа */
-  $('saveAdminPassBtn').onclick = () => {
-    const newPass = $('newAdminPass').value.trim();
-    if (!newPass) { toast('Введите пароль', 'error'); return; }
-    state.adminPassword = newPass;
-    save();
-    $('newAdminPass').value = '';
-    toast('Пароль админа изменён', 'success');
-  };
-
-  /* ADMIN: CODE */
-  $('saveCodeBtn').onclick = () => {
-    state.customCode = $('customCode').value;
-    save(); renderExtra(); toast('Код сохранён', 'success');
-  };
-
-  /* SUPPORT */
-  $('supportInput').addEventListener('keydown', e => {
-    if (e.key === 'Enter') { e.preventDefault(); sendSupport(); }
-  });
-
-  /* MODAL CLOSE ON OVERLAY */
-  $$('.modal-overlay').forEach(overlay => {
-    overlay.addEventListener('click', e => { if (e.target === overlay) overlay.classList.remove('active'); });
-  });
-
-  /* SAVE ON UNLOAD */
-  window.addEventListener('beforeunload', () => DB.flush());
 }
 
 document.addEventListener('DOMContentLoaded', init);
