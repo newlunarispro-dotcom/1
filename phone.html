@@ -1,0 +1,1077 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>📱 Bitva Phone Test</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: -apple-system, 'Segoe UI', Roboto, sans-serif;
+    background: #0a0a1a;
+    color: #fff;
+    min-height: 100vh;
+    overflow-x: hidden;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  .screen { display: none; min-height: 100vh; padding: 20px; }
+  .screen.active { display: block; }
+
+  /* ==== ГЛАВНОЕ МЕНЮ ==== */
+  #menu { text-align: center; padding-top: 40px; }
+  #menu h1 {
+    font-size: 42px; margin-bottom: 5px;
+    background: linear-gradient(90deg, #0af, #0f0, #ff0, #f0a);
+    background-size: 200% auto;
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shine 3s linear infinite;
+    letter-spacing: 2px;
+  }
+  @keyframes shine { to { background-position: 200% center; } }
+  #menu .sub { color: #888; margin-bottom: 30px; font-size: 14px; letter-spacing: 2px; }
+
+  .btn {
+    display: block; width: 100%; max-width: 340px; margin: 12px auto;
+    padding: 16px; font-size: 17px; font-weight: bold;
+    border: none; border-radius: 12px; cursor: pointer;
+    font-family: inherit; letter-spacing: 1px;
+    transition: transform 0.1s, box-shadow 0.2s;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn-primary {
+    background: linear-gradient(135deg, #0af, #06f);
+    color: #fff; box-shadow: 0 4px 15px rgba(0, 170, 255, 0.4);
+  }
+  .btn-success {
+    background: linear-gradient(135deg, #0f0, #090);
+    color: #000; box-shadow: 0 4px 15px rgba(0, 255, 0, 0.4);
+  }
+  .btn-warn {
+    background: linear-gradient(135deg, #fa0, #f60);
+    color: #000; box-shadow: 0 4px 15px rgba(255, 170, 0, 0.4);
+  }
+  .btn-secondary {
+    background: rgba(255,255,255,0.1); color: #fff;
+    border: 1px solid rgba(255,255,255,0.2);
+  }
+  .btn-danger {
+    background: linear-gradient(135deg, #f33, #a00); color: #fff;
+  }
+
+  input[type="text"] {
+    display: block; width: 100%; max-width: 340px; margin: 8px auto;
+    padding: 14px; font-size: 16px;
+    background: rgba(0,0,0,0.4); border: 1px solid #0af;
+    color: #fff; border-radius: 10px; text-align: center;
+    outline: none; font-family: inherit;
+  }
+  input.code { text-transform: uppercase; letter-spacing: 8px; font-weight: bold; font-size: 22px; }
+
+  /* ==== КОМНАТА ==== */
+  #room { padding-top: 20px; }
+  .room-header {
+    display: flex; justify-content: space-between; align-items: center;
+    background: rgba(0,0,0,0.5); padding: 12px 16px; border-radius: 10px;
+    margin-bottom: 15px; border-left: 4px solid #0af;
+  }
+  .room-code {
+    font-size: 20px; color: #0af; font-weight: bold; letter-spacing: 3px;
+    cursor: pointer;
+  }
+  .room-info { font-size: 12px; color: #888; }
+  .room-info b { color: #0f0; }
+
+  .players-list {
+    background: rgba(0,0,0,0.4); border-radius: 10px; padding: 10px;
+    max-height: 200px; overflow-y: auto; margin-bottom: 15px;
+  }
+  .player-item {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 12px; border-radius: 8px; margin-bottom: 6px;
+    background: rgba(255,255,255,0.05); font-size: 14px;
+    border-left: 3px solid #444;
+  }
+  .player-item.me { border-left-color: #ff0; background: rgba(255,255,0,0.1); }
+  .player-item .name { font-weight: bold; }
+  .player-item .score { color: #0af; font-weight: bold; font-size: 18px; }
+
+  /* ==== ТЕСТЫ ==== */
+  #test { padding-top: 20px; text-align: center; }
+  #test .title { font-size: 24px; margin-bottom: 10px; color: #0af; }
+  #test .desc { font-size: 13px; color: #888; margin-bottom: 20px; }
+
+  .test-area {
+    background: rgba(0,0,0,0.6); border-radius: 16px;
+    min-height: 300px; padding: 20px; margin-bottom: 20px;
+    display: flex; flex-direction: column;
+    justify-content: center; align-items: center;
+    position: relative; overflow: hidden;
+  }
+
+  .big-num {
+    font-size: 72px; font-weight: bold;
+    background: linear-gradient(135deg, #0af, #0f0);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 40px rgba(0,170,255,0.4);
+  }
+  .label { font-size: 14px; color: #888; margin-top: 8px; }
+
+  /* ==== ПРОГРЕСС-БАР ==== */
+  .progress-bar {
+    width: 100%; height: 8px; background: rgba(0,0,0,0.5);
+    border-radius: 4px; overflow: hidden; margin-bottom: 15px;
+    position: relative;
+  }
+  .progress-fill {
+    height: 100%; background: linear-gradient(90deg, #0af, #0f0);
+    transition: width 0.3s; border-radius: 4px;
+  }
+  .progress-text {
+    position: absolute; width: 100%; text-align: center;
+    top: 15px; font-size: 12px; color: #888;
+  }
+
+  /* ==== ТАП-ТЕСТ ==== */
+  #tap-zone {
+    width: 100%; height: 300px; background: linear-gradient(135deg, #0af, #06f);
+    border-radius: 16px; display: flex; align-items: center;
+    justify-content: center; font-size: 32px; font-weight: bold;
+    cursor: pointer; user-select: none; -webkit-user-select: none;
+    margin-bottom: 20px; touch-action: manipulation;
+    transition: background 0.1s;
+  }
+  #tap-zone:active { background: linear-gradient(135deg, #0f0, #0a0); }
+
+  /* ==== РЕАКЦИЯ ==== */
+  #reaction-zone {
+    width: 100%; height: 400px; background: #1a1a2e;
+    border-radius: 16px; display: flex; align-items: center;
+    justify-content: center; font-size: 60px;
+    cursor: pointer; user-select: none; -webkit-user-select: none;
+    margin-bottom: 20px; touch-action: manipulation;
+    transition: background 0.1s;
+    position: relative;
+  }
+  #reaction-zone.ready { background: #f33; }
+  #reaction-zone.go { background: #0f0; }
+
+  /* ==== РЕЗУЛЬТАТЫ ==== */
+  #results { text-align: center; padding-top: 20px; }
+  #results h2 {
+    font-size: 32px; margin-bottom: 10px;
+    background: linear-gradient(90deg, #ff0, #f80);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  #results .final-score {
+    font-size: 64px; font-weight: bold; margin: 15px 0;
+    color: #0af; text-shadow: 0 0 30px rgba(0,170,255,0.6);
+  }
+  .result-row {
+    display: flex; justify-content: space-between;
+    padding: 10px 15px; background: rgba(255,255,255,0.05);
+    border-radius: 8px; margin-bottom: 6px; font-size: 14px;
+  }
+  .result-row .label { color: #888; }
+  .result-row .val { color: #0af; font-weight: bold; font-size: 16px; }
+
+  /* ==== ЛИДЕРБОРД ==== */
+  #leaderboard { padding-top: 20px; }
+  #leaderboard h2 { text-align: center; margin-bottom: 20px; font-size: 26px; }
+  .lb-row {
+    display: flex; align-items: center; padding: 12px 15px;
+    background: rgba(255,255,255,0.05); border-radius: 8px;
+    margin-bottom: 6px; font-size: 14px;
+  }
+  .lb-row .place {
+    width: 30px; height: 30px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: bold; margin-right: 12px;
+    background: #333; color: #fff;
+  }
+  .lb-row.top1 .place { background: linear-gradient(135deg, #ff0, #fa0); color: #000; }
+  .lb-row.top2 .place { background: linear-gradient(135deg, #ccc, #888); color: #000; }
+  .lb-row.top3 .place { background: linear-gradient(135deg, #c96, #963); color: #fff; }
+  .lb-row .name { flex: 1; }
+  .lb-row .score { color: #0af; font-weight: bold; font-size: 16px; }
+  .lb-row.me { background: rgba(255,0,255,0.15); border-left: 3px solid #f0f; }
+
+  /* ==== УТИЛИТЫ ==== */
+  .hidden { display: none !important; }
+  .top-bar {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 15px;
+  }
+  .back-btn {
+    background: rgba(255,255,255,0.1); border: none; color: #fff;
+    padding: 8px 16px; border-radius: 8px; cursor: pointer;
+    font-family: inherit; font-size: 14px;
+  }
+
+  #loading-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.9);
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; z-index: 1000;
+    color: #0af; font-size: 18px;
+  }
+  #loading-overlay.hidden { display: none; }
+
+  .spinner {
+    width: 50px; height: 50px; border: 4px solid rgba(0,170,255,0.2);
+    border-top-color: #0af; border-radius: 50%;
+    animation: spin 1s linear infinite; margin-bottom: 20px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ==== CANVAS для 3D ==== */
+  #gpu-canvas {
+    width: 100%; height: 100%;
+    position: absolute; top: 0; left: 0;
+  }
+</style>
+</head>
+<body>
+
+<div id="loading-overlay">
+  <div class="spinner"></div>
+  <div>Загрузка...</div>
+</div>
+
+<!-- ========== ГЛАВНОЕ МЕНЮ ========== -->
+<div id="menu" class="screen active">
+  <h1>📱 BITVA PHONE</h1>
+  <div class="sub">ТЕСТ ТЕЛЕФОНА · ОНЛАЙН</div>
+
+  <input type="text" id="name-input" placeholder="Твоё имя" maxlength="16">
+
+  <button class="btn btn-success" onclick="startSoloTest()">🎯 ОДИНОЧНЫЙ ТЕСТ</button>
+  <button class="btn btn-primary" onclick="showCreateRoom()">🏠 СОЗДАТЬ КОМНАТУ</button>
+  <button class="btn btn-primary" onclick="showJoinRoom()">🔗 ВОЙТИ ПО КОДУ</button>
+  <button class="btn btn-warn" onclick="showLeaderboard()">🏆 ЛИДЕРБОРД</button>
+
+  <div style="margin-top: 30px; font-size: 11px; color: #666;">
+    <div id="device-info"></div>
+  </div>
+</div>
+
+<!-- ========== СОЗДАНИЕ КОМНАТЫ ========== -->
+<div id="create-room" class="screen">
+  <div class="top-bar">
+    <button class="back-btn" onclick="showScreen('menu')">← Назад</button>
+  </div>
+  <h2 style="text-align:center; margin-bottom:20px;">🏠 Создать комнату</h2>
+  <input type="text" id="room-name-input" placeholder="Название комнаты" maxlength="24">
+  <button class="btn btn-success" onclick="createRoom()">СОЗДАТЬ</button>
+</div>
+
+<!-- ========== ВХОД В КОМНАТУ ========== -->
+<div id="join-room" class="screen">
+  <div class="top-bar">
+    <button class="back-btn" onclick="showScreen('menu')">← Назад</button>
+  </div>
+  <h2 style="text-align:center; margin-bottom:20px;">🔗 Войти в комнату</h2>
+  <input type="text" id="join-code-input" class="code" placeholder="КОД" maxlength="6">
+  <button class="btn btn-primary" onclick="joinRoom()">ВОЙТИ</button>
+</div>
+
+<!-- ========== КОМНАТА (ЛОББИ) ========== -->
+<div id="room" class="screen">
+  <div class="top-bar">
+    <button class="back-btn" onclick="leaveRoom()">← Выйти</button>
+    <div class="room-code" id="room-code-display" onclick="copyRoomCode()">------</div>
+  </div>
+
+  <div style="text-align: center; font-size: 18px; margin-bottom: 20px;">
+    <div id="room-title">Комната</div>
+    <div style="font-size: 12px; color: #888; margin-top: 5px;">
+      Игроков: <span id="player-count" style="color:#0f0">1</span>/8
+    </div>
+  </div>
+
+  <div class="players-list" id="players-list"></div>
+
+  <button class="btn btn-success" onclick="startRoomTest()">🚀 НАЧАТЬ ТЕСТ</button>
+
+  <div style="text-align: center; font-size: 12px; color: #666; margin-top: 15px;">
+    Скинь код друзьям, чтобы они подключились
+  </div>
+</div>
+
+<!-- ========== ТЕСТ (ОБЩИЙ) ========== -->
+<div id="test" class="screen">
+  <div class="top-bar">
+    <button class="back-btn" onclick="cancelTest()">✕ Выйти</button>
+    <div style="font-size: 14px; color: #0af;">
+      <span id="test-progress">1/5</span>
+    </div>
+  </div>
+
+  <div class="progress-bar">
+    <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+  </div>
+
+  <div class="title" id="test-title">CPU ТЕСТ</div>
+  <div class="desc" id="test-desc">Математика · факториалы</div>
+
+  <div class="test-area" id="test-area"></div>
+
+  <div class="big-num" id="test-big-num">0</div>
+  <div class="label" id="test-label">подготовка...</div>
+
+  <button class="btn btn-success hidden" id="start-test-btn" onclick="runCurrentTest()">НАЧАТЬ</button>
+</div>
+
+<!-- ========== РЕЗУЛЬТАТЫ ========== -->
+<div id="results" class="screen">
+  <h2>✅ ГОТОВО!</h2>
+  <div style="color:#888; font-size: 14px;">Итоговый счёт</div>
+  <div class="final-score" id="final-score">0</div>
+
+  <div id="results-breakdown" style="margin-bottom: 20px;"></div>
+
+  <div id="result-place" style="font-size: 18px; margin-bottom: 20px;"></div>
+
+  <button class="btn btn-primary" onclick="showLeaderboard()">🏆 ЛИДЕРБОРД</button>
+  <button class="btn btn-secondary" onclick="backToRoomOrMenu()">← Назад</button>
+</div>
+
+<!-- ========== ЛИДЕРБОРД ========== -->
+<div id="leaderboard" class="screen">
+  <div class="top-bar">
+    <button class="back-btn" onclick="backToRoomOrMenu()">← Назад</button>
+  </div>
+  <h2 style="text-align: center; margin-bottom: 20px;">🏆 ТОП ТЕЛЕФОНОВ</h2>
+  <div id="lb-list"></div>
+  <div id="lb-empty" style="text-align:center; color:#666; margin-top: 30px;">
+    Пока никто не прошёл тест
+  </div>
+</div>
+
+<!-- Firebase SDK -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import {
+    getDatabase,
+    ref,
+    set,
+    get,
+    update,
+    onValue,
+    remove,
+    onDisconnect,
+    push,
+    query,
+    orderByChild,
+    limitToLast
+  } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+  // ==== Firebase ====
+  const firebaseConfig = {
+    apiKey: "AIzaSyBr65adGCtaBQGDaUZCNIXJVK7nqKOzHRY",
+    authDomain: "bitva-ab615.firebaseapp.com",
+    databaseURL: "https://bitva-ab615-default-rtdb.firebaseio.com",
+    projectId: "bitva-ab615",
+    storageBucket: "bitva-ab615.firebasestorage.app",
+    messagingSenderId: "363914814983",
+    appId: "1:363914814983:web:58d95ab4050e2cbd11aca2"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+  console.log('✅ Firebase подключен');
+
+  // ==== Глобальное состояние ====
+  window.db = db;
+  window.firebaseFns = { ref, set, get, update, onValue, remove, onDisconnect, push, query, orderByChild, limitToLast };
+
+  // ==== Определение устройства ====
+  function getDeviceInfo() {
+    const ua = navigator.userAgent;
+    let device = 'Неизвестное устройство';
+    let os = 'Unknown';
+    let cores = navigator.hardwareConcurrency || '?';
+    let mem = navigator.deviceMemory || '?';
+
+    if (/Android/i.test(ua)) {
+      os = 'Android';
+      const m = ua.match(/Android\s+([\d.]+)/);
+      const model = ua.match(/;\s*([^)]+)\s+Build/);
+      if (model) device = model[1];
+      else device = 'Android устройство';
+    } else if (/iPhone|iPad|iPod/i.test(ua)) {
+      os = 'iOS';
+      device = 'iPhone / iPad';
+    } else if (/Windows/i.test(ua)) {
+      os = 'Windows';
+      device = 'Windows PC';
+    } else if (/Mac/i.test(ua)) {
+      os = 'macOS';
+      device = 'Mac';
+    } else if (/Linux/i.test(ua)) {
+      os = 'Linux';
+      device = 'Linux';
+    }
+
+    return {
+      name: device,
+      os: os,
+      cores: cores,
+      memory: mem,
+      ua: ua
+    };
+  }
+
+  const deviceInfo = getDeviceInfo();
+  window.deviceInfo = deviceInfo;
+  document.getElementById('device-info').innerHTML =
+    `<div>${deviceInfo.name}</div>` +
+    `<div style="margin-top:4px; color:#444;">${deviceInfo.os} · ${deviceInfo.cores} ядер · ${deviceInfo.memory}GB RAM</div>`;
+
+  // ==== Восстанавливаем имя ====
+  const savedName = localStorage.getItem('bitva_name');
+  if (savedName) document.getElementById('name-input').value = savedName;
+
+  console.log('📱 Устройство:', deviceInfo);
+</script>
+
+<script>
+  // ==== Глобальные переменные ====
+  let myName = '';
+  let myId = 'p_' + Math.random().toString(36).substr(2, 9);
+  let currentRoom = null;      // код комнаты
+  let isHost = false;
+  let roomRef = null;
+  let roomUnsub = null;
+  let lbUnsub = null;
+  let testResults = {};
+  let currentTestIdx = 0;
+  let inRoomMode = false;
+
+  // ==== Утилиты ====
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    window.scrollTo(0, 0);
+  }
+
+  function getMyName() {
+    const input = document.getElementById('name-input');
+    let n = input ? input.value.trim() : '';
+    if (!n) n = 'Телефон' + Math.floor(Math.random() * 9000 + 1000);
+    localStorage.setItem('bitva_name', n);
+    return n;
+  }
+
+  // ==== Одиночный тест ====
+  function startSoloTest() {
+    myName = getMyName();
+    isHost = false;
+    inRoomMode = false;
+    currentRoom = null;
+    testResults = {};
+    currentTestIdx = 0;
+    showScreen('test');
+    prepareTest(0);
+  }
+
+  // ==== Комнаты ====
+  function showCreateRoom() {
+    myName = getMyName();
+    showScreen('create-room');
+  }
+
+  function showJoinRoom() {
+    myName = getMyName();
+    showScreen('join-room');
+  }
+
+  async function createRoom() {
+    const roomName = (document.getElementById('room-name-input').value.trim() || (myName + 'а комната')).slice(0, 24);
+    const code = Math.random().toString(36).substr(2, 6).toUpperCase();
+
+    myName = getMyName();
+    isHost = true;
+    inRoomMode = true;
+    currentRoom = code;
+
+    const { ref, set, onDisconnect } = window.firebaseFns;
+    const roomR = ref(window.db, `rooms/${code}`);
+    const playerR = ref(window.db, `rooms/${code}/players/${myId}`);
+
+    try {
+      await set(roomR, {
+        name: roomName,
+        host: myId,
+        createdAt: Date.now(),
+        state: 'lobby'
+      });
+
+      await set(playerR, {
+        name: myName,
+        device: window.deviceInfo.name,
+        os: window.deviceInfo.os,
+        joinedAt: Date.now(),
+        score: 0,
+        status: 'ready'
+      });
+
+      onDisconnect(playerR).remove();
+
+      setupRoomListener();
+      showScreen('room');
+    } catch (e) {
+      console.error(e);
+      alert('Ошибка создания комнаты: ' + e.message);
+    }
+  }
+
+  async function joinRoom() {
+    const code = document.getElementById('join-code-input').value.trim().toUpperCase();
+    if (code.length !== 6) { alert('Код должен быть 6 символов'); return; }
+
+    myName = getMyName();
+    isHost = false;
+    inRoomMode = true;
+    currentRoom = code;
+
+    const { ref, get, set, onDisconnect } = window.firebaseFns;
+    const roomR = ref(window.db, `rooms/${code}`);
+
+    try {
+      const snap = await get(roomR);
+      if (!snap.exists()) {
+        alert('Комната не найдена');
+        return;
+      }
+
+      const data = snap.val();
+      const playersCount = data.players ? Object.keys(data.players).length : 0;
+      if (playersCount >= 8) {
+        alert('Комната заполнена (макс 8)');
+        return;
+      }
+
+      const playerR = ref(window.db, `rooms/${code}/players/${myId}`);
+      await set(playerR, {
+        name: myName,
+        device: window.deviceInfo.name,
+        os: window.deviceInfo.os,
+        joinedAt: Date.now(),
+        score: 0,
+        status: 'ready'
+      });
+
+      onDisconnect(playerR).remove();
+
+      setupRoomListener();
+      showScreen('room');
+    } catch (e) {
+      console.error(e);
+      alert('Ошибка подключения: ' + e.message);
+    }
+  }
+
+  function setupRoomListener() {
+    const { ref, onValue } = window.firebaseFns;
+    if (roomUnsub) roomUnsub();
+    roomRef = ref(window.db, `rooms/${currentRoom}`);
+
+    roomUnsub = onValue(roomRef, (snap) => {
+      if (!snap.exists()) {
+        alert('Комната закрыта');
+        showScreen('menu');
+        return;
+      }
+      const data = snap.val();
+      document.getElementById('room-code-display').textContent = currentRoom;
+      document.getElementById('room-title').textContent = data.name || 'Комната';
+
+      const players = data.players || {};
+      const list = document.getElementById('players-list');
+      list.innerHTML = '';
+      const ids = Object.keys(players);
+
+      document.getElementById('player-count').textContent = ids.length;
+
+      // Сортируем: я первый, потом по score
+      ids.sort((a, b) => {
+        if (a === myId) return -1;
+        if (b === myId) return 1;
+        return (players[b].score || 0) - (players[a].score || 0);
+      });
+
+      ids.forEach(id => {
+        const p = players[id];
+        const div = document.createElement('div');
+        div.className = 'player-item' + (id === myId ? ' me' : '');
+        div.innerHTML = `
+          <div>
+            <div class="name">${id === myId ? '⭐ ' : ''}${escapeHtml(p.name)}</div>
+            <div style="font-size:11px; color:#666;">${p.device || '?'} · ${p.os || '?'}</div>
+          </div>
+          <div class="score">${p.score || 0}</div>
+        `;
+        list.appendChild(div);
+      });
+    });
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  function copyRoomCode() {
+    if (!currentRoom) return;
+    navigator.clipboard.writeText(currentRoom).then(() => {
+      alert('Код скопирован: ' + currentRoom);
+    });
+  }
+
+  async function leaveRoom() {
+    if (roomUnsub) { roomUnsub(); roomUnsub = null; }
+    if (currentRoom) {
+      const { ref, remove } = window.firebaseFns;
+      try { await remove(ref(window.db, `rooms/${currentRoom}/players/${myId}`)); } catch(e) {}
+    }
+    currentRoom = null;
+    inRoomMode = false;
+    showScreen('menu');
+  }
+
+  function startRoomTest() {
+    testResults = {};
+    currentTestIdx = 0;
+    showScreen('test');
+    prepareTest(0);
+  }
+
+  function cancelTest() {
+    if (inRoomMode && currentRoom) showScreen('room');
+    else showScreen('menu');
+  }
+
+  function backToRoomOrMenu() {
+    if (inRoomMode && currentRoom) showScreen('room');
+    else showScreen('menu');
+  }
+
+  // ==== ЛИДЕРБОРД ====
+  function showLeaderboard() {
+    showScreen('leaderboard');
+    loadLeaderboard();
+  }
+
+  async function loadLeaderboard() {
+    const { ref, get } = window.firebaseFns;
+    const list = document.getElementById('lb-list');
+    const empty = document.getElementById('lb-empty');
+    list.innerHTML = '<div style="text-align:center;color:#888;">Загрузка...</div>';
+
+    try {
+      const snap = await get(ref(window.db, 'leaderboard'));
+      if (!snap.exists()) {
+        list.innerHTML = '';
+        empty.style.display = 'block';
+        return;
+      }
+
+      const data = snap.val();
+      const arr = Object.entries(data).map(([id, v]) => ({ id, ...v }));
+      arr.sort((a, b) => (b.score || 0) - (a.score || 0));
+
+      empty.style.display = arr.length === 0 ? 'block' : 'none';
+      list.innerHTML = '';
+
+      arr.slice(0, 50).forEach((entry, i) => {
+        const div = document.createElement('div');
+        div.className = 'lb-row' + (i === 0 ? ' top1' : i === 1 ? ' top2' : i === 2 ? ' top3' : '') + (entry.id === myId ? ' me' : '');
+        div.innerHTML = `
+          <div class="place">${i + 1}</div>
+          <div class="name">
+            <div>${escapeHtml(entry.name)}</div>
+            <div style="font-size:11px; color:#666;">${entry.device || '?'} · ${entry.os || '?'}</div>
+          </div>
+          <div class="score">${entry.score || 0}</div>
+        `;
+        list.appendChild(div);
+      });
+    } catch (e) {
+      console.error(e);
+      list.innerHTML = '<div style="text-align:center;color:#f55;">Ошибка загрузки</div>';
+    }
+  }
+
+  // ============================================================
+  //  ТЕСТЫ
+  // ============================================================
+  const TESTS = [
+    { name: 'CPU ТЕСТ', desc: 'Математика · факториалы', weight: 1 },
+    { name: 'GPU ТЕСТ', desc: 'Мини-3D сцена · FPS', weight: 1 },
+    { name: 'ПАМЯТЬ', desc: 'Создание/удаление объектов', weight: 1 },
+    { name: 'РЕАКЦИЯ', desc: 'Тап по цели', weight: 1 },
+    { name: 'ТАПЫ', desc: 'Сколько тапов за 10 сек', weight: 1 }
+  ];
+
+  function prepareTest(idx) {
+    currentTestIdx = idx;
+    const t = TESTS[idx];
+    document.getElementById('test-title').textContent = t.name;
+    document.getElementById('test-desc').textContent = t.desc;
+    document.getElementById('test-area').innerHTML = '';
+    document.getElementById('test-big-num').textContent = '0';
+    document.getElementById('test-label').textContent = 'нажми "Начать"';
+    document.getElementById('test-progress').textContent = (idx + 1) + '/5';
+    document.getElementById('progress-fill').style.width = (idx / 5 * 100) + '%';
+
+    const btn = document.getElementById('start-test-btn');
+    btn.classList.remove('hidden');
+    btn.textContent = 'НАЧАТЬ';
+    btn.onclick = runCurrentTest;
+  }
+
+  function setBigNum(n) {
+    document.getElementById('test-big-num').textContent = n;
+  }
+
+  function setLabel(s) {
+    document.getElementById('test-label').textContent = s;
+  }
+
+  async function runCurrentTest() {
+    document.getElementById('start-test-btn').classList.add('hidden');
+    const idx = currentTestIdx;
+
+    if (idx === 0) await testCPU();
+    else if (idx === 1) await testGPU();
+    else if (idx === 2) await testMemory();
+    else if (idx === 3) await testReaction();
+    else if (idx === 4) await testTaps();
+
+    // Завершаем тест
+    testResults[TESTS[idx].name] = testResults[TESTS[idx].name] || 0;
+    nextTest();
+  }
+
+  function nextTest() {
+    if (currentTestIdx < TESTS.length - 1) {
+      prepareTest(currentTestIdx + 1);
+    } else {
+      finishTest();
+    }
+  }
+
+  // ==== 1. CPU — факториалы ====
+  async function testCPU() {
+    setLabel('Вычисляю факториалы...');
+
+    // Разогрев
+    await new Promise(r => setTimeout(r, 500));
+
+    let totalOps = 0;
+    const start = performance.now();
+    const duration = 3000;
+
+    function factorial(n) {
+      let r = 1n;
+      for (let i = 2n; i <= BigInt(n); i++) r *= i;
+      return r;
+    }
+
+    while (performance.now() - start < duration) {
+      for (let i = 0; i < 100; i++) {
+        factorial(200);
+        totalOps++;
+      }
+      setBigNum(totalOps);
+      setLabel('итераций: ' + totalOps);
+      await new Promise(r => setTimeout(r, 0));
+    }
+
+    const elapsed = performance.now() - start;
+    const score = Math.floor(totalOps / elapsed * 100000);
+    testResults['CPU'] = score;
+    setBigNum(score);
+    setLabel('CPU: ' + score);
+    await new Promise(r => setTimeout(r, 800));
+  }
+
+  // ==== 2. GPU — мини-3D FPS ====
+  async function testGPU() {
+    setLabel('Запускаю 3D сцену...');
+
+    const area = document.getElementById('test-area');
+    area.innerHTML = '';
+    const canvas = document.createElement('canvas');
+    canvas.id = 'gpu-canvas';
+    canvas.width = area.clientWidth;
+    canvas.height = area.clientHeight;
+    area.appendChild(canvas);
+
+    const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+    if (!gl) {
+      setLabel('WebGL не поддерживается');
+      testResults['GPU'] = 0;
+      await new Promise(r => setTimeout(r, 1000));
+      return;
+    }
+
+    // Простой шейдер
+    const vs = `attribute vec2 p; void main() { gl_Position = vec4(p, 0.0, 1.0); }`;
+    const fs = `
+      precision mediump float;
+      uniform float t;
+      void main() {
+        vec2 uv = gl_FragCoord.xy / 400.0;
+        float r = sin(uv.x * 10.0 + t) * 0.5 + 0.5;
+        float g = sin(uv.y * 10.0 + t * 1.3) * 0.5 + 0.5;
+        float b = sin((uv.x + uv.y) * 10.0 + t * 0.7) * 0.5 + 0.5;
+        gl_FragColor = vec4(r, g, b, 1.0);
+      }
+    `;
+
+    function createShader(type, src) {
+      const s = gl.createShader(type);
+      gl.shaderSource(s, src);
+      gl.compileShader(s);
+      return s;
+    }
+
+    const program = gl.createProgram();
+    gl.attachShader(program, createShader(gl.VERTEX_SHADER, vs));
+    gl.attachShader(program, createShader(gl.FRAGMENT_SHADER, fs));
+    gl.linkProgram(program);
+    gl.useProgram(program);
+
+    const buf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+
+    const loc = gl.getAttribLocation(program, 'p');
+    gl.enableVertexAttribArray(loc);
+    gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+
+    const tLoc = gl.getUniformLocation(program, 't');
+
+    let frames = 0;
+    const start = performance.now();
+    const duration = 3000;
+
+    function render(now) {
+      if (now - start < duration) {
+        gl.uniform1f(tLoc, now * 0.001);
+        gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+        frames++;
+        if (frames % 5 === 0) setBigNum(Math.round(frames / ((now - start) / 1000)));
+        requestAnimationFrame(render);
+      } else {
+        const elapsed = now - start;
+        const fps = frames / elapsed * 1000;
+        const score = Math.floor(fps * 1000);
+        testResults['GPU'] = score;
+        setBigNum(score);
+        setLabel('FPS: ' + fps.toFixed(1));
+        setTimeout(() => nextTestAfterTest(), 800);
+      }
+    }
+    requestAnimationFrame(render);
+  }
+
+  function nextTestAfterTest() {
+    // Заглушка, чтобы GPU-тест завершился через setTimeout
+  }
+
+  // ==== 3. Память ====
+  async function testMemory() {
+    setLabel('Тестирую память...');
+    await new Promise(r => setTimeout(r, 500));
+
+    const start = performance.now();
+    const duration = 2000;
+    let iterations = 0;
+
+    while (performance.now() - start < duration) {
+      // Создаём массив объектов
+      const arr = [];
+      for (let i = 0; i < 5000; i++) {
+        arr.push({ id: i, val: Math.random(), str: 'test_' + i });
+      }
+      // "Читаем"
+      let sum = 0;
+      for (let i = 0; i < arr.length; i++) sum += arr[i].val;
+      // Удаляем
+      arr.length = 0;
+      iterations++;
+      setBigNum(iterations * 5000);
+      setLabel('объектов: ' + (iterations * 5000));
+      await new Promise(r => setTimeout(r, 0));
+    }
+
+    const elapsed = performance.now() - start;
+    const score = Math.floor(iterations * 5000 / elapsed * 100);
+    testResults['MEMORY'] = score;
+    setBigNum(score);
+    setLabel('MEMORY: ' + score);
+    await new Promise(r => setTimeout(r, 800));
+  }
+
+  // ==== 4. Реакция ====
+  async function testReaction() {
+    setLabel('Приготовься...');
+
+    const area = document.getElementById('test-area');
+    area.innerHTML = '';
+    const zone = document.createElement('div');
+    zone.id = 'reaction-zone';
+    zone.style.position = 'relative';
+    zone.textContent = '⏳';
+    zone.style.fontSize = '80px';
+    area.appendChild(zone);
+
+    setBigNum('0');
+    setLabel('Жди зелёного...');
+
+    const times = [];
+    const total = 3;
+
+    for (let i = 0; i < total; i++) {
+      zone.classList.remove('ready', 'go');
+      zone.textContent = '⏳ ЖДИ...';
+      await new Promise(r => setTimeout(r, 1000 + Math.random() * 2000));
+
+      zone.classList.add('go');
+      zone.textContent = '👇 ТАПАЙ!';
+      const start = performance.now();
+
+      const time = await new Promise(resolve => {
+        const handler = () => {
+          zone.removeEventListener('pointerdown', handler);
+          resolve(performance.now() - start);
+        };
+        zone.addEventListener('pointerdown', handler);
+      });
+
+      times.push(time);
+      zone.classList.remove('go');
+      zone.textContent = `${Math.round(time)} мс`;
+      setBigNum(Math.round(time));
+      setLabel(`Попытка ${i+1}/${total}`);
+      await new Promise(r => setTimeout(r, 800));
+    }
+
+    const avg = times.reduce((a, b) => a + b, 0) / times.length;
+    const score = Math.max(0, Math.floor(100000 - avg * 100));
+    testResults['REACTION'] = score;
+    setBigNum(score);
+    setLabel('Средняя: ' + avg.toFixed(0) + ' мс');
+    await new Promise(r => setTimeout(r, 800));
+  }
+
+  // ==== 5. Тапы ====
+  async function testTaps() {
+    const area = document.getElementById('test-area');
+    area.innerHTML = '';
+
+    const zone = document.createElement('div');
+    zone.id = 'tap-zone';
+    zone.textContent = '👆 ТАПАЙ!';
+    area.appendChild(zone);
+
+    let taps = 0;
+    setBigNum(0);
+    setLabel('10 секунд — тапай как можно быстрее!');
+
+    zone.addEventListener('pointerdown', () => {
+      taps++;
+      setBigNum(taps);
+    });
+
+    await new Promise(r => setTimeout(r, 10000));
+
+    zone.textContent = '⏱ ВРЕМЯ!';
+    zone.style.background = '#333';
+    zone.style.pointerEvents = 'none';
+
+    const score = taps * 100;
+    testResults['TAPS'] = score;
+    setBigNum(score);
+    setLabel('Тапов: ' + taps);
+    await new Promise(r => setTimeout(r, 800));
+  }
+
+  // ==== Завершение ====
+  async function finishTest() {
+    // Считаем итоговый счёт
+    let total = 0;
+    for (const k in testResults) total += testResults[k];
+    total = Math.floor(total);
+
+    document.getElementById('final-score').textContent = total;
+
+    // Разбивка
+    const breakdown = document.getElementById('results-breakdown');
+    breakdown.innerHTML = '';
+    const labels = {
+      'CPU': '⚡ CPU',
+      'GPU': '🎮 GPU',
+      'MEMORY': '💾 Память',
+      'REACTION': '⚡ Реакция',
+      'TAPS': '👆 Тапы'
+    };
+    for (const k in testResults) {
+      const div = document.createElement('div');
+      div.className = 'result-row';
+      div.innerHTML = `<span class="label">${labels[k] || k}</span><span class="val">${testResults[k]}</span>`;
+      breakdown.appendChild(div);
+    }
+
+    // Отправка в Firebase
+    const { ref, set, get } = window.firebaseFns;
+    try {
+      // Глобальный лидерборд
+      await set(ref(window.db, `leaderboard/${myId}`), {
+        name: myName,
+        score: total,
+        device: window.deviceInfo.name,
+        os: window.deviceInfo.os,
+        cores: window.deviceInfo.cores,
+        timestamp: Date.now()
+      });
+
+      // Если в комнате — обновить счёт
+      if (inRoomMode && currentRoom) {
+        await set(ref(window.db, `rooms/${currentRoom}/players/${myId}`), {
+          name: myName,
+          device: window.deviceInfo.name,
+          os: window.deviceInfo.os,
+          joinedAt: Date.now(),
+          score: total,
+          status: 'done'
+        });
+      }
+
+      // Считаем место
+      const snap = await get(ref(window.db, 'leaderboard'));
+      if (snap.exists()) {
+        const arr = Object.entries(snap.val()).map(([id, v]) => ({ id, ...v }));
+        arr.sort((a, b) => (b.score || 0) - (a.score || 0));
+        const place = arr.findIndex(x => x.id === myId) + 1;
+        document.getElementById('result-place').innerHTML =
+          `🏆 Место в мире: <b style="color:#0af;">#${place}</b> из ${arr.length}`;
+      }
+    } catch (e) {
+      console.error('Ошибка отправки:', e);
+    }
+
+    showScreen('results');
+  }
+
+  // ==== Запуск ====
+  console.log('📱 Bitva Phone Test загружен');
+</script>
+
+</body>
+</html>
