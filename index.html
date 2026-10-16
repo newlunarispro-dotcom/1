@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Гусь VPN</title>
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  :root {
+    --bg: #0a0f0b;
+    --bg-2: #0d140f;
+    --panel: #0f1811;
+    --panel-2: #121c14;
+    --stroke: rgba(74, 222, 128, 0.10);
+    --stroke-2: rgba(74, 222, 128, 0.18);
+    --text: #ffffff;
+    --muted: rgba(180, 220, 190, 0.45);
+    --muted-2: rgba(160, 210, 175, 0.30);
+    --green-1: #4ade80;
+    --green-2: #22c55e;
+    --green-3: #16a34a;
+    --green-glow: rgba(74, 222, 128, 0.5);
+  }
+
+  html, body {
+    height: 100%;
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    overflow: hidden;
+    user-select: none;
+  }
+
+  body {
+    display: flex;
+    justify-content: center;
+    background: #050806;
+  }
+
+  .phone {
+    width: 100%;
+    max-width: 420px;
+    height: 100vh;
+    max-height: 900px;
+    background: radial-gradient(circle at 50% 30%, #102015 0%, #0a0f0b 60%, #050806 100%);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 0 80px rgba(0,0,0,0.9);
+  }
+
+  .top {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    position: relative;
+  }
+
+  /* Большая круглая кнопка */
+  .big-btn {
+    width: 240px;
+    height: 240px;
+    border-radius: 50%;
+    border: 2px solid rgba(74, 222, 128, 0.75);
+    background: radial-gradient(circle at 50% 50%, rgba(74, 222, 128, 0.06), transparent 70%);
+    color: #fff;
+    font-size: 22px;
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow:
+      0 0 0 1px rgba(74, 222, 128, 0.15),
+      0 0 40px rgba(74, 222, 128, 0.25),
+      inset 0 0 40px rgba(74, 222, 128, 0.08);
+  }
+
+  .big-btn::before {
+    content: '';
+    position: absolute;
+    inset: -12px;
+    border-radius: 50%;
+    border: 1px solid rgba(74, 222, 128, 0.2);
+    opacity: 0;
+    transition: opacity 0.4s;
+  }
+
+  .big-btn:hover::before { opacity: 1; }
+
+  .big-btn:active {
+    transform: scale(0.96);
+  }
+
+  /* Подключено — сильнее светится */
+  .big-btn.on {
+    border-color: var(--green-1);
+    animation: glowPulse 2.4s ease-in-out infinite;
+  }
+
+  .big-btn.on::before {
+    opacity: 1;
+    animation: ringPulse 2.4s ease-in-out infinite;
+  }
+
+  @keyframes glowPulse {
+    0%, 100% {
+      box-shadow:
+        0 0 0 1px rgba(74, 222, 128, 0.2),
+        0 0 40px rgba(74, 222, 128, 0.35),
+        inset 0 0 40px rgba(74, 222, 128, 0.10);
+    }
+    50% {
+      box-shadow:
+        0 0 0 1px rgba(74, 222, 128, 0.4),
+        0 0 90px rgba(74, 222, 128, 0.6),
+        0 0 140px rgba(74, 222, 128, 0.25),
+        inset 0 0 60px rgba(74, 222, 128, 0.18);
+    }
+  }
+
+  @keyframes ringPulse {
+    0%, 100% { transform: scale(1); opacity: 0.6; }
+    50% { transform: scale(1.08); opacity: 0.15; }
+  }
+
+  /* Инфо о соединении */
+  .conn-info {
+    margin-top: 40px;
+    text-align: center;
+    min-height: 40px;
+  }
+
+  .conn-time {
+    font-size: 26px;
+    font-weight: 300;
+    letter-spacing: 2px;
+    color: var(--green-1);
+    font-variant-numeric: tabular-nums;
+    text-shadow: 0 0 20px rgba(74, 222, 128, 0.5);
+    opacity: 0;
+    transition: opacity 0.4s;
+  }
+
+  .conn-time.show { opacity: 1; }
+
+  .conn-hint {
+    font-size: 13px;
+    color: var(--muted);
+    font-weight: 400;
+  }
+
+  /* Раздельное туннелирование */
+  .tunnel-row {
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: var(--muted);
+    font-size: 14px;
+    cursor: pointer;
+    transition: color 0.2s;
+  }
+
+  .tunnel-row:hover { color: rgba(180, 240, 200, 0.8); }
+
+  .tunnel-row .chev {
+    font-size: 10px;
+    opacity: 0.6;
+    transition: transform 0.3s;
+  }
+
+  .tunnel-row.open .chev { transform: rotate(180deg); }
+
+  /* Нижняя панель */
+  .bottom-panel {
+    background: var(--panel);
+    border-radius: 28px 28px 0 0;
+    padding: 12px 0 0 0;
+    border-top: 1px solid var(--stroke-2);
+    position: relative;
+    box-shadow: 0 -20px 40px rgba(0,0,0,0.4);
+  }
+
+  .drag-handle {
+    width: 40px;
+    height: 4px;
+    background: rgba(74, 222, 128, 0.25);
+    border-radius: 2px;
+    margin: 0 auto 18px;
+  }
+
+  /* Выбор сервера */
+  .server-row {
+    padding: 0 24px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    cursor: pointer;
+  }
+
+  .server-name {
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    background: linear-gradient(135deg, #86efac, #4ade80, #22c55e);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .server-row .chev {
+    font-size: 14px;
+    color: var(--green-1);
+    opacity: 0.7;
+    margin-top: 6px;
+    transition: transform 0.3s;
+  }
+
+  .server-row.open .chev { transform: rotate(180deg); }
+
+  .server-sub {
+    text-align: center;
+    font-size: 12px;
+    color: var(--muted);
+    padding-bottom: 16px;
+    font-family: 'SF Mono', Menlo, Consolas, monospace;
+    letter-spacing: -0.2px;
+  }
+
+  /* Нижнее меню */
+  .nav {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 12px 0 18px;
+    border-top: 1px solid var(--stroke);
+    background: var(--bg-2);
+  }
+
+  .nav-btn {
+    background: none;
+    border: none;
+    color: var(--muted-2);
+    font-size: 22px;
+    cursor: pointer;
+    padding: 6px 20px;
+    transition: color 0.2s, transform 0.2s, text-shadow 0.3s;
+    font-family: inherit;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .nav-btn:hover { color: rgba(180, 240, 200, 0.7); }
+  .nav-btn:active { transform: scale(0.9); }
+
+  .nav-btn.active {
+    color: var(--green-1);
+    text-shadow: 0 0 20px var(--green-glow);
+  }
+
+  /* Тост */
+  .toast {
+    position: absolute;
+    bottom: 200px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: rgba(20, 35, 25, 0.95);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--stroke-2);
+    color: #fff;
+    padding: 12px 20px;
+    border-radius: 16px;
+    font-size: 13px;
+    font-weight: 500;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    z-index: 100;
+    white-space: nowrap;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5), 0 0 40px rgba(74, 222, 128, 0.15);
+  }
+
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+</style>
+</head>
+<body>
+
+<div class="phone">
+
+  <div class="top">
+    <button class="big-btn" id="btn" onclick="toggle()">
+      <span class="label" id="btnLabel">Подключиться</span>
+    </button>
+
+    <div class="conn-info">
+      <div class="conn-time" id="time">00:00:00</div>
+      <div class="conn-hint" id="hint">Нажмите для подключения</div>
+    </div>
+  </div>
+
+  <div class="tunnel-row" onclick="this.classList.toggle('open')">
+    <span>Раздельное туннелирование выключено</span>
+    <span class="chev">▼</span>
+  </div>
+
+  <div class="bottom-panel">
+    <div class="drag-handle"></div>
+
+    <div class="server-row" onclick="this.classList.toggle('open')">
+      <span class="server-name">Сервер 2</span>
+      <span class="chev">▼</span>
+    </div>
+
+    <div class="server-sub">AmneziaWG (version 1.5) | engage.cloudflareclient.com</div>
+
+    <div class="nav">
+      <button class="nav-btn active">⌂</button>
+      <button class="nav-btn">⚙</button>
+      <button class="nav-btn">+</button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+</div>
+
+<script>
+  let connected = false;
+  let timer = null;
+  let seconds = 0;
+
+  const btn = document.getElementById('btn');
+  const btnLabel = document.getElementById('btnLabel');
+  const time = document.getElementById('time');
+  const hint = document.getElementById('hint');
+  const toast = document.getElementById('toast');
+
+  function showToast(msg) {
+    toast.textContent = msg;
+    toast.classList.add('show');
+    clearTimeout(toast._t);
+    toast._t = setTimeout(() => toast.classList.remove('show'), 2000);
+  }
+
+  function formatTime(s) {
+    const h = String(Math.floor(s / 3600)).padStart(2, '0');
+    const m = String(Math.floor((s % 3600) / 60)).padStart(2, '0');
+    const sec = String(s % 60).padStart(2, '0');
+    return `${h}:${m}:${sec}`;
+  }
+
+  function toggle() {
+    connected = !connected;
+
+    if (connected) {
+      btn.classList.add('on');
+      btnLabel.textContent = 'Отключиться';
+      hint.textContent = 'Соединение установлено';
+      time.classList.add('show');
+      showToast('🦢 Подключено к Сервер 2');
+
+      seconds = 0;
+      time.textContent = '00:00:00';
+      timer = setInterval(() => {
+        seconds++;
+        time.textContent = formatTime(seconds);
+      }, 1000);
+    } else {
+      btn.classList.remove('on');
+      btnLabel.textContent = 'Подключиться';
+      hint.textContent = 'Нажмите для подключения';
+      time.classList.remove('show');
+      showToast('Отключено');
+      clearInterval(timer);
+      seconds = 0;
+    }
+  }
+</script>
+
+</body>
+</html>
