@@ -18,13 +18,7 @@
   --transition:.25s cubic-bezier(.25,.46,.45,.94);
   --font-main:'Inter','Manrope',system-ui,sans-serif;
 }
-body{
-  background:var(--bg);
-  background-image:radial-gradient(circle at 20% 10%,rgba(245,197,66,.06) 0,transparent 50%),
-                   radial-gradient(circle at 80% 90%,rgba(255,179,71,.05) 0,transparent 50%);
-  color:var(--text-primary);font-family:var(--font-main);min-height:100vh;line-height:1.5;
-  -webkit-font-smoothing:antialiased;padding:0 20px 60px;
-}
+body{background:var(--bg);background-image:radial-gradient(circle at 20% 10%,rgba(245,197,66,.06) 0,transparent 50%),radial-gradient(circle at 80% 90%,rgba(255,179,71,.05) 0,transparent 50%);color:var(--text-primary);font-family:var(--font-main);min-height:100vh;line-height:1.5;-webkit-font-smoothing:antialiased;padding:0 20px 60px}
 ::-webkit-scrollbar{width:6px;height:6px}
 ::-webkit-scrollbar-thumb{background:var(--gold-dark);border-radius:20px}
 .app{max-width:1280px;margin:0 auto}
@@ -97,7 +91,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:18p
 .bet-input-row input{width:100px;padding:10px 14px;border-radius:60px;border:1px solid rgba(255,215,0,.15);background:rgba(0,0,0,.3);color:var(--text-primary);font-family:var(--font-main);font-size:.9rem;outline:none;text-align:center}
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;z-index:1000;opacity:0;pointer-events:none;transition:opacity .3s ease;padding:20px}
 .modal-overlay.active{opacity:1;pointer-events:all}
-.modal{background:var(--bg-elevated);border:1px solid rgba(255,215,0,.15);border-radius:var(--radius);padding:32px;max-width:560px;width:100%;max-height:85vh;overflow-y:auto;transform:translateY(20px) scale(.97);transition:transform .3s cubic-bezier(.25,.46,.45,.94)}
+.modal{background:var(--bg-elevated);border:1px solid rgba(255,215,0,.15);border-radius:var(--radius);padding:32px;max-width:560px;width:100%;max-height:85vh;overflow-y:auto;transform:translateY(20px) scale(.97);transition:transform .3s cubic-bezier(.25,.46,.45,.94);position:relative}
 .modal-overlay.active .modal{transform:translateY(0) scale(1)}
 .modal-wide{max-width:820px}
 .modal h2{font-size:1.4rem;margin-bottom:20px}
@@ -109,6 +103,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:18p
 .form-group input:focus,.form-group textarea:focus,.form-group select:focus{border-color:var(--gold)}
 .form-group textarea{min-height:80px;resize:vertical}
 .form-group select option{background:var(--bg-elevated)}
+.form-group small{color:var(--text-muted);font-size:.75rem;display:block;margin-top:4px}
 .admin-tabs{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
 .admin-tab{padding:8px 18px;border-radius:60px;border:1px solid rgba(255,215,0,.15);background:transparent;color:var(--text-secondary);cursor:pointer;font-family:var(--font-main);font-size:.85rem;font-weight:500;transition:all var(--transition)}
 .admin-tab.active{background:rgba(245,197,66,.15);border-color:var(--gold);color:var(--gold-soft)}
@@ -126,6 +121,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:18p
 .empty-state{text-align:center;color:var(--text-muted);padding:30px 0;font-size:.9rem}
 .divider{border:none;border-top:1px solid rgba(255,255,255,.05);margin:20px 0}
 .extra-block{margin-top:24px;padding:20px;background:rgba(0,0,0,.2);border-radius:var(--radius-sm);border:1px dashed rgba(255,215,0,.15)}
+.extra-block:empty{display:none}
 .avatar-picker{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
 .avatar-option{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.4rem;background:rgba(255,255,255,.04);border:2px solid transparent;cursor:pointer}
 .avatar-option.selected{border-color:var(--gold);background:rgba(245,197,66,.15)}
@@ -174,17 +170,17 @@ header{display:flex;align-items:center;justify-content:space-between;padding:18p
     <section class="glass feed-card">
       <div class="section-title">🌻 Покормить голубей</div>
       <div class="feed-buttons" id="feedButtons">
-        <button class="btn btn-gold btn-sm" data-amount="10">+10 🌻</button>
-        <button class="btn btn-gold btn-sm" data-amount="50">+50 🌻</button>
-        <button class="btn btn-gold btn-sm" data-amount="100">+100 🌻</button>
-        <button class="btn btn-gold btn-sm" data-amount="500">+500 🌻</button>
+        <button class="btn btn-gold btn-sm feed-btn" data-amount="10">+10 🌻</button>
+        <button class="btn btn-gold btn-sm feed-btn" data-amount="50">+50 🌻</button>
+        <button class="btn btn-gold btn-sm feed-btn" data-amount="100">+100 🌻</button>
+        <button class="btn btn-gold btn-sm feed-btn" data-amount="500">+500 🌻</button>
       </div>
       <div class="custom-feed">
         <input type="number" id="customFeedAmount" placeholder="Своя сумма" min="1">
         <button class="btn btn-outline btn-sm" id="customFeedBtn">Покормить</button>
       </div>
       <h3 style="font-size:.95rem;margin-bottom:12px;color:var(--text-secondary)">🏆 ТОП донатеров</h3>
-      <table class="donors-table" id="donorsTable">
+      <table class="donors-table">
         <thead><tr><th>#</th><th>Донатер</th><th style="text-align:right">Семечек</th></tr></thead>
         <tbody id="donorsBody"><tr><td colspan="3" class="empty-state">Пока никто не кормил голубей</td></tr></tbody>
       </table>
@@ -218,19 +214,24 @@ header{display:flex;align-items:center;justify-content:space-between;padding:18p
 <div class="toast-container" id="toastContainer"></div>
 <div class="connection-status offline" id="connectionStatus">⚫ Подключение...</div>
 
-<!-- LOGIN -->
+<!-- LOGIN / REGISTER -->
 <div class="modal-overlay" id="loginModal">
-  <div class="modal" style="position:relative">
+  <div class="modal">
     <button class="modal-close" onclick="closeModal('loginModal')">&times;</button>
-    <h2>🕊️ Вход</h2>
+    <h2>🕊️ Вход / Регистрация</h2>
     <div class="form-group"><label>Никнейм</label><input type="text" id="loginNickname" maxlength="20" placeholder="Введите ник"></div>
-    <button class="btn btn-gold" style="width:100%" id="loginBtn">Войти</button>
+    <div class="form-group"><label>Пароль</label><input type="password" id="loginPassword" placeholder="Только для зарегистрированных"></div>
+    <div id="loginError" style="color:var(--danger);font-size:.85rem;margin-bottom:12px;display:none"></div>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-gold" style="flex:1" id="loginBtn">Войти</button>
+      <button class="btn btn-outline" style="flex:1" id="registerBtn">Регистрация</button>
+    </div>
   </div>
 </div>
 
 <!-- PROFILE -->
 <div class="modal-overlay" id="profileModal">
-  <div class="modal" style="position:relative">
+  <div class="modal">
     <button class="modal-close" onclick="closeModal('profileModal')">&times;</button>
     <h2>👤 Профиль</h2>
     <div class="form-group"><label>Никнейм</label><input type="text" id="profileNickname" maxlength="20"></div>
@@ -249,7 +250,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:18p
 
 <!-- ADMIN -->
 <div class="modal-overlay" id="adminModal">
-  <div class="modal modal-wide" style="position:relative">
+  <div class="modal modal-wide">
     <button class="modal-close" onclick="closeModal('adminModal')">&times;</button>
     <h2>⚙️ Админ-панель</h2>
     <div class="admin-tabs" id="adminTabs">
@@ -264,7 +265,11 @@ header{display:flex;align-items:center;justify-content:space-between;padding:18p
       <button class="admin-tab" data-tab="code">➕ Код</button>
     </div>
     <div class="admin-panel active" id="panel-stream">
-      <div class="form-group"><label>Ссылка RuTube</label><input type="text" id="adminStreamUrl"></div>
+      <div class="form-group">
+        <label>Ссылка RuTube</label>
+        <input type="text" id="adminStreamUrl" placeholder="https://rutube.ru/video/... или /play/embed/...">
+        <small>💡 Вставь любую ссылку RuTube — я сам сделаю embed</small>
+      </div>
       <div class="form-group"><label>Название стрима</label><input type="text" id="adminStreamTitle"></div>
       <div class="form-group"><label>Статус</label><select id="adminStreamStatus"><option value="offline">⚫ Оффлайн</option><option value="online">🔴 В эфире</option></select></div>
       <button class="btn btn-gold" id="saveStreamBtn">Сохранить</button>
@@ -280,25 +285,25 @@ header{display:flex;align-items:center;justify-content:space-between;padding:18p
     <div class="admin-panel" id="panel-cards">
       <div id="adminCardsList"></div><hr class="divider">
       <h3 style="font-size:.95rem;margin-bottom:10px">Добавить карту</h3>
-      <div class="form-group"><label>Номер</label><input type="text" id="cardNumber"></div>
+      <div class="form-group"><label>Номер</label><input type="text" id="cardNumber" placeholder="0000 0000 0000 0000"></div>
       <div class="form-group"><label>Банк</label><select id="cardBank">
         <option value="sber">🟢 Сбер</option><option value="tinkoff">🟡 Тинькофф</option>
         <option value="alfa">🔴 Альфа</option><option value="vtb">🔵 ВТБ</option>
         <option value="yoomoney">🟣 ЮMoney</option><option value="other">🏦 Другой</option>
       </select></div>
-      <div class="form-group"><label>Подпись</label><input type="text" id="cardLabel"></div>
+      <div class="form-group"><label>Подпись</label><input type="text" id="cardLabel" placeholder="Иван И."></div>
       <button class="btn btn-gold btn-sm" id="addCardBtn">Добавить</button>
     </div>
     <div class="admin-panel" id="panel-bets">
       <div id="adminBetsList"></div><hr class="divider">
       <h3 style="font-size:.95rem;margin-bottom:10px">Создать ставку</h3>
       <div class="form-group"><label>Вопрос</label><input type="text" id="betQuestion"></div>
-      <div class="form-group"><label>Варианты (через запятую)</label><input type="text" id="betOptions"></div>
+      <div class="form-group"><label>Варианты (через запятую)</label><input type="text" id="betOptions" placeholder="Да, Нет"></div>
       <div class="form-group"><label>Мин. сумма</label><input type="number" id="betMin" value="10"></div>
       <button class="btn btn-gold btn-sm" id="addBetBtn">Создать</button>
     </div>
     <div class="admin-panel" id="panel-views">
-      <div class="form-group"><label>Стартовое значение</label><input type="number" id="viewsStart"></div>
+      <div class="form-group"><label>Стартовое значение</label><input type="number" id="viewsStart" placeholder="1000"></div>
       <div class="form-group"><label>Шаг</label><input type="number" id="viewsStep" value="5"></div>
       <div style="display:flex;gap:10px">
         <button class="btn btn-gold btn-sm" id="viewsStartBtn">Запустить</button>
@@ -325,7 +330,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:18p
   </div>
 </div>
 
-<!-- ═══ FIREBASE SDK ═══ -->
+<!-- FIREBASE SDK -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getDatabase, ref, onValue, set, update, push, remove, get }
@@ -343,11 +348,8 @@ const firebaseConfig = {
 
 const fbApp = initializeApp(firebaseConfig);
 const db = getDatabase(fbApp);
-
-// Экспорт в window для использования в основном скрипте
 window.FB = { db, ref, onValue, set, update, push, remove, get };
 
-// Статус подключения
 const connRef = ref(db, '.info/connected');
 onValue(connRef, (snap) => {
   const el = document.getElementById('connectionStatus');
@@ -362,11 +364,10 @@ onValue(connRef, (snap) => {
   }
 });
 
-// Сообщаем основному скрипту, что Firebase готов
 window.dispatchEvent(new Event('firebase-ready'));
 </script>
 
-<!-- ═══ MAIN SCRIPT ═══ -->
+<!-- MAIN SCRIPT -->
 <script>
 'use strict';
 
@@ -380,9 +381,8 @@ let firebaseUsers = [];
 let firebaseStream = null;
 let firebaseEvents = null;
 let firebaseCards = null;
-let firebaseViews = null;
+let firebaseViews = 0;
 
-// Локальный state
 const state = {
   user: JSON.parse(localStorage.getItem('goldtv_user') || 'null'),
   adminPassword: localStorage.getItem('goldtv_adminPass') || '3131',
@@ -391,12 +391,13 @@ const state = {
   viewsConfig: { running: false, step: 5 },
   customCode: localStorage.getItem('goldtv_customCode') || '',
   supportMessages: JSON.parse(localStorage.getItem('goldtv_support') || '[]'),
-  localBets: [],
-  localUsersBets: [],
-  localUsers: [],
-  localStream: { url: '', title: 'Голубиный стрим', status: 'offline' },
-  localEvents: [],
-  localCards: []
+  localUsers: JSON.parse(localStorage.getItem('goldtv_localUsers') || '[]'),
+  localBets: JSON.parse(localStorage.getItem('goldtv_localBets') || '[]'),
+  localUsersBets: JSON.parse(localStorage.getItem('goldtv_localUsersBets') || '[]'),
+  localStream: JSON.parse(localStorage.getItem('goldtv_localStream') || '{"url":"","title":"Голубиный стрим","status":"offline"}'),
+  localEvents: JSON.parse(localStorage.getItem('goldtv_localEvents') || '[]'),
+  localCards: JSON.parse(localStorage.getItem('goldtv_localCards') || '[]'),
+  passwords: JSON.parse(localStorage.getItem('goldtv_passwords') || '{}')
 };
 
 function toast(msg, type='info') {
@@ -412,16 +413,15 @@ function openModal(id){ $(id).classList.add('active'); }
 function closeModal(id){ $(id).classList.remove('active'); }
 function esc(s){ return String(s).replace(/[&<>"]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m])); }
 function formatNumber(n){ return Number(n).toLocaleString('ru-RU'); }
-function isAdmin(){ if(!state.user) return false; if(state.user.nickname==='SND') return true; return state.admins.includes(state.user.nickname); }
+function isAdmin(){ if(!state.user) return false; if(state.user.nickname==='SND') return true; if(state.user.role==='admin'||state.user.role==='owner') return true; return state.admins.includes(state.user.nickname); }
 function isSND(){ return state.user && state.user.nickname === 'SND'; }
-function findUser(nick){ return (firebaseUsers.length? firebaseUsers : state.localUsers).find(u => u.nickname === nick); }
-function getUser(nick){
-  let u = findUser(nick);
-  if(!u && firebaseUsers.length === 0){
-    u = { nickname: nick, avatar:'🕊️', balance:100, role:'user', banned:false, donated:0 };
-    state.localUsers.push(u);
-  }
-  return u;
+function encodeKey(s){ return String(s).replace(/[.#$/[\]]/g, '_'); }
+
+function getAllUsers(){
+  return firebaseUsers.length ? firebaseUsers : state.localUsers;
+}
+function findUser(nick){
+  return getAllUsers().find(u => u.nickname === nick);
 }
 function saveLocal(){
   localStorage.setItem('goldtv_user', JSON.stringify(state.user));
@@ -429,14 +429,18 @@ function saveLocal(){
   localStorage.setItem('goldtv_adminPass', state.adminPassword);
   localStorage.setItem('goldtv_customCode', state.customCode);
   localStorage.setItem('goldtv_support', JSON.stringify(state.supportMessages));
+  localStorage.setItem('goldtv_passwords', JSON.stringify(state.passwords));
   if(!fbReady){
     localStorage.setItem('goldtv_localUsers', JSON.stringify(state.localUsers));
     localStorage.setItem('goldtv_localBets', JSON.stringify(state.localBets));
     localStorage.setItem('goldtv_localUsersBets', JSON.stringify(state.localUsersBets));
+    localStorage.setItem('goldtv_localStream', JSON.stringify(state.localStream));
+    localStorage.setItem('goldtv_localEvents', JSON.stringify(state.localEvents));
+    localStorage.setItem('goldtv_localCards', JSON.stringify(state.localCards));
   }
 }
 
-/* ═══ RENDER ═══ */
+/* RENDER */
 function renderHeader(){
   const right = $('headerRight');
   if(state.user){
@@ -455,15 +459,38 @@ function renderAvatar(av){
   return esc(av);
 }
 
+function convertRutubeUrl(url){
+  if(!url) return '';
+  url = url.trim();
+  // Уже embed
+  if(url.includes('/play/embed/')) return url;
+  // rutube.ru/video/ID/ или rutube.ru/live/ID/
+  const m = url.match(/rutube\.ru\/(?:video|live)\/([a-f0-9]+)/i);
+  if(m) return `https://rutube.ru/play/embed/${m[1]}/?autoStart=true`;
+  // rutube.ru/play/embed/ID без слэша
+  const m2 = url.match(/rutube\.ru\/play\/embed\/([a-f0-9]+)/i);
+  if(m2) return `https://rutube.ru/play/embed/${m2[1]}/?autoStart=true`;
+  return url;
+}
+
 function renderStream(){
   const s = firebaseStream || state.localStream;
   $('streamTitle').textContent = s.title || 'Голубиный стрим';
   const status = $('streamStatus');
-  if(s.status === 'online'){ status.className='live-badge online'; status.textContent='🔴 В эфире'; }
-  else { status.className='live-badge'; status.textContent='⚫ Оффлайн'; }
+  if(s.status === 'online'){
+    status.className = 'live-badge online';
+    status.textContent = '🔴 В эфире';
+  } else {
+    status.className = 'live-badge';
+    status.textContent = '⚫ Оффлайн';
+  }
   const w = $('playerWrapper');
-  if(s.url && s.status === 'online') w.innerHTML = `<iframe src="${esc(s.url)}" allowfullscreen></iframe>`;
-  else w.innerHTML = `<div class="player-offline">📺<span>Стрим скоро начнётся</span></div>`;
+  if(s.url && s.status === 'online'){
+    const url = convertRutubeUrl(s.url);
+    w.innerHTML = `<iframe src="${esc(url)}" allowfullscreen allow="autoplay; fullscreen; encrypted-media; picture-in-picture" referrerpolicy="no-referrer-when-downgrade" style="border:none;width:100%;height:100%"></iframe>`;
+  } else {
+    w.innerHTML = `<div class="player-offline">📺<span>Стрим скоро начнётся</span></div>`;
+  }
 }
 
 function renderViewCount(){
@@ -481,8 +508,8 @@ function renderEvents(){
 
 function renderDonors(){
   const tbody = $('donorsBody');
-  const users = firebaseUsers.length? firebaseUsers : state.localUsers;
-  const donors = users.filter(u => u.donated > 0).sort((a,b)=> (b.donated||0)-(a.donated||0)).slice(0,10);
+  const users = getAllUsers();
+  const donors = users.filter(u => (u.donated||0) > 0).sort((a,b)=> (b.donated||0)-(a.donated||0)).slice(0,10);
   if(!donors.length){ tbody.innerHTML = '<tr><td colspan="3" class="empty-state">Пока никто не кормил голубей</td></tr>'; return; }
   tbody.innerHTML = donors.map((u,i)=>`<tr>
     <td class="place">${i+1}</td>
@@ -520,7 +547,6 @@ function renderBets(){
     widget.innerHTML = ''; return;
   }
 
-  // Виджет: кто сколько поставил
   if(usersBets.length){
     const grouped = {};
     usersBets.forEach(b => { grouped[b.user] = (grouped[b.user]||0) + b.amount; });
@@ -563,48 +589,48 @@ async function placeBet(i){
   const oi = Number(sel.dataset.opt);
   const amount = Number($(`betAmount${i}`).value);
   if(!amount || amount < (bet.min||10)){ toast(`Минимум ${bet.min||10} 🌻`,'error'); return; }
-  const u = getUser(state.user.nickname);
+  const u = findUser(state.user.nickname);
+  if(!u){ toast('Юзер не найден','error'); return; }
   if(u.balance < amount){ toast('Недостаточно семечек','error'); return; }
   u.balance -= amount;
   state.user = u;
 
   if(fbReady){
-    // Обновляем пул ставки
     const newOptions = [...bet.options];
     newOptions[oi] = { ...newOptions[oi], pool: (newOptions[oi].pool||0) + amount };
     await window.FB.update(window.FB.ref(window.FB.db, `bets/${bet._key}`), { options: newOptions });
-    // Пишем ставку юзера
     await window.FB.push(window.FB.ref(window.FB.db, 'usersBets'), {
       user: u.nickname, bet: bet.question, option: oi, amount, time: Date.now()
     });
-    // Обновляем баланс юзера
     await window.FB.update(window.FB.ref(window.FB.db, `users/${encodeKey(u.nickname)}`), { balance: u.balance });
   } else {
     bet.options[oi].pool = (bet.options[oi].pool||0) + amount;
     state.localUsersBets.push({ user:u.nickname, bet:bet.question, option:oi, amount });
     saveLocal();
   }
+  renderProfileBalance();
   toast(`Ставка ${amount} 🌻 принята!`,'success');
 }
 
-function feed(amount){
+async function feed(amount){
   if(!state.user){ toast('Войдите','error'); return; }
-  const u = getUser(state.user.nickname);
+  const u = findUser(state.user.nickname);
+  if(!u){ toast('Юзер не найден','error'); return; }
   if(u.balance < amount){ toast('Недостаточно семечек','error'); return; }
   u.balance -= amount;
   u.donated = (u.donated||0) + amount;
   state.user = u;
 
   if(fbReady){
-    window.FB.update(window.FB.ref(window.FB.db, `users/${encodeKey(u.nickname)}`), { balance: u.balance, donated: u.donated });
-    window.FB.set(window.FB.ref(window.FB.db, 'views'), (firebaseViews||0) + 1);
+    await window.FB.update(window.FB.ref(window.FB.db, `users/${encodeKey(u.nickname)}`), { balance: u.balance, donated: u.donated });
+    const newViews = (firebaseViews||0) + 1;
+    await window.FB.set(window.FB.ref(window.FB.db, 'views'), newViews);
   } else {
     state.views += 1;
     saveLocal();
     renderViewCount();
   }
 
-  // Анимация
   const dove = document.createElement('div');
   dove.className = 'flying-dove'; dove.textContent = '🕊️';
   dove.style.left = (window.innerWidth/2-30)+'px';
@@ -621,6 +647,7 @@ function feed(amount){
       setTimeout(()=>s.remove(),1000);
     }, i*80);
   }
+  renderProfileBalance();
   toast(`+${amount} 🌻 голубям!`,'gold');
 }
 
@@ -629,15 +656,14 @@ function openProfile(){
   if(!state.user) return;
   $('profileNickname').value = state.user.nickname;
   $('profileAvatarUrl').value = (state.user.avatar||'').startsWith('http') ? state.user.avatar : '';
-  const picker = $('avatarPicker');
-  picker.innerHTML = EMOJI_AVATARS.map(e=>`<div class="avatar-option ${state.user.avatar===e?'selected':''}" onclick="selectAvatar('${e}')">${e}</div>`).join('');
+  $('avatarPicker').innerHTML = EMOJI_AVATARS.map(e=>`<div class="avatar-option ${state.user.avatar===e?'selected':''}" onclick="selectAvatar('${e}')">${e}</div>`).join('');
   renderProfileBalance();
   openModal('profileModal');
 }
 function selectAvatar(e){ state.user.avatar = e; openProfile(); }
 function renderProfileBalance(){
   if(!state.user) return;
-  const u = getUser(state.user.nickname);
+  const u = findUser(state.user.nickname);
   if(u) $('profileBalance').textContent = u.balance + ' 🌻';
 }
 
@@ -648,19 +674,13 @@ function openAdminPanel(){
 }
 function renderAdminAll(){
   renderAdminEvents(); renderAdminCards(); renderAdminBets();
-  renderAdminAdmins(); renderAdminUsers(); renderAdminStream();
+  renderAdminAdmins(); renderAdminUsers();
+  const s = firebaseStream || state.localStream;
+  $('adminStreamUrl').value = s.url||'';
+  $('adminStreamTitle').value = s.title||'';
+  $('adminStreamStatus').value = s.status||'offline';
   $('customCode').value = state.customCode;
   $('currentViews').textContent = firebaseViews || state.views;
-  const s = firebaseStream || state.localStream;
-  $('adminStreamUrl').value = s.url||'';
-  $('adminStreamTitle').value = s.title||'';
-  $('adminStreamStatus').value = s.status||'offline';
-}
-function renderAdminStream(){
-  const s = firebaseStream || state.localStream;
-  $('adminStreamUrl').value = s.url||'';
-  $('adminStreamTitle').value = s.title||'';
-  $('adminStreamStatus').value = s.status||'offline';
 }
 function renderAdminEvents(){
   const events = firebaseEvents || state.localEvents;
@@ -674,8 +694,7 @@ function renderAdminEvents(){
 async function removeEvent(i){
   if(fbReady){
     const events = firebaseEvents || [];
-    const newEvents = events.filter((_,j)=>j!==i);
-    await window.FB.set(window.FB.ref(window.FB.db, 'events'), newEvents);
+    await window.FB.set(window.FB.ref(window.FB.db, 'events'), events.filter((_,j)=>j!==i));
   } else {
     state.localEvents.splice(i,1); saveLocal(); renderAdminEvents(); renderEvents();
   }
@@ -704,7 +723,7 @@ function renderAdminBets(){
   el.innerHTML = bets.map((b,i)=>`<div style="padding:10px 0;border-bottom:1px solid rgba(255,255,255,.05)">
     <div style="font-weight:600;font-size:.9rem">${esc(b.question)}</div>
     <div style="font-size:.8rem;color:var(--text-muted)">${b.options.map(o=>esc(o.label)+': '+(o.pool||0)+' 🌻').join(' | ')}</div>
-    <div style="margin-top:6px;display:flex;gap:6px">
+    <div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap">
       ${!b.closed?`<button class="btn btn-sm btn-outline" onclick="closeBet(${i})">Закрыть</button>`:''}
       <select id="winnerSelect${i}" style="padding:4px 8px;border-radius:8px;background:rgba(0,0,0,.3);color:var(--text-primary);border:1px solid rgba(255,215,0,.15);font-size:.8rem">
         ${b.options.map((o,j)=>`<option value="${j}">${esc(o.label)}</option>`).join('')}
@@ -716,15 +735,13 @@ function renderAdminBets(){
 }
 async function closeBet(i){
   if(fbReady){
-    const bets = firebaseBets;
-    await window.FB.update(window.FB.ref(window.FB.db, `bets/${bets[i]._key}`), { closed: true });
+    await window.FB.update(window.FB.ref(window.FB.db, `bets/${firebaseBets[i]._key}`), { closed: true });
   } else { state.localBets[i].closed = true; saveLocal(); renderAdminBets(); renderBets(); }
   toast('Ставка закрыта','info');
 }
 async function removeBet(i){
   if(fbReady){
-    const bets = firebaseBets;
-    await window.FB.remove(window.FB.ref(window.FB.db, `bets/${bets[i]._key}`));
+    await window.FB.remove(window.FB.ref(window.FB.db, `bets/${firebaseBets[i]._key}`));
   } else { state.localBets.splice(i,1); saveLocal(); renderAdminBets(); renderBets(); }
 }
 async function resolveBet(i){
@@ -737,7 +754,7 @@ async function resolveBet(i){
 
   for(const b of uBets){
     if(b.bet === bet.question && b.option === winnerIdx && winnerPool > 0){
-      const u = getUser(b.user);
+      const u = findUser(b.user);
       if(u){
         const win = Math.floor(b.amount * (total/winnerPool));
         u.balance += win;
@@ -757,22 +774,22 @@ function renderAdminAdmins(){
 function removeAdmin(i){ state.admins.splice(i,1); saveLocal(); renderAdminAdmins(); }
 
 function renderAdminUsers(){
-  const users = firebaseUsers.length? firebaseUsers : state.localUsers;
+  const users = getAllUsers();
   const el = $('adminUsersList');
   if(!users.length){ el.innerHTML='<div class="empty-state">Нет юзеров</div>'; return; }
-  el.innerHTML = users.map((u,i)=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:.85rem">
+  el.innerHTML = users.map((u,i)=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:.85rem;gap:8px;flex-wrap:wrap">
     <span>${renderAvatar(u.avatar)} ${esc(u.nickname)} — ${u.balance} 🌻 ${u.banned?'🚫':''}</span>
     <span style="display:flex;gap:4px">
       <input type="number" id="giveAmount${i}" placeholder="+🌻" style="width:70px;padding:4px 8px;border-radius:8px;background:rgba(0,0,0,.3);color:var(--text-primary);border:1px solid rgba(255,215,0,.15);font-size:.8rem">
       <button class="btn btn-sm btn-success" onclick="giveSeeds(${i})">Дать</button>
-      <button class="btn btn-sm btn-danger" onclick="toggleBan(${i})">${u.banned?'Разбанить':'Бан'}</button>
+      <button class="btn btn-sm btn-danger" onclick="toggleBan(${i})">${u.banned?'Разбан':'Бан'}</button>
     </span>
   </div>`).join('');
 }
 async function giveSeeds(i){
   const amount = Number($(`giveAmount${i}`).value);
   if(!amount) return;
-  const users = firebaseUsers.length? firebaseUsers : state.localUsers;
+  const users = getAllUsers();
   const u = users[i];
   u.balance += amount;
   if(fbReady) await window.FB.update(window.FB.ref(window.FB.db, `users/${encodeKey(u.nickname)}`), { balance: u.balance });
@@ -780,36 +797,28 @@ async function giveSeeds(i){
   renderAdminUsers(); toast(`+${amount} 🌻 → ${u.nickname}`,'success');
 }
 async function toggleBan(i){
-  const users = firebaseUsers.length? firebaseUsers : state.localUsers;
+  const users = getAllUsers();
   users[i].banned = !users[i].banned;
   if(fbReady) await window.FB.update(window.FB.ref(window.FB.db, `users/${encodeKey(users[i].nickname)}`), { banned: users[i].banned });
   else saveLocal();
   renderAdminUsers();
 }
 
-/* Кодирование ключей (Firebase не любит . и # в ключах) */
-function encodeKey(s){ return s.replace(/[.#$/[\]]/g, '_'); }
-
-/* ═══ FIREBASE SYNC ═══ */
+/* FIREBASE SYNC */
 window.addEventListener('firebase-ready', () => {
   fbReady = true;
   const { db, ref, onValue } = window.FB;
 
-  // Ставки
   onValue(ref(db, 'bets'), snap => {
     const val = snap.val() || {};
     firebaseBets = Object.entries(val).map(([k,v]) => ({...v, _key:k}));
     renderBets(); renderAdminBets();
   });
-
-  // Ставки юзеров
   onValue(ref(db, 'usersBets'), snap => {
     const val = snap.val() || {};
     firebaseUsersBets = Object.values(val);
     renderBets();
   });
-
-  // Юзеры
   onValue(ref(db, 'users'), snap => {
     const val = snap.val() || {};
     firebaseUsers = Object.values(val);
@@ -819,55 +828,35 @@ window.addEventListener('firebase-ready', () => {
       if(me){ state.user = me; renderProfileBalance(); renderHeader(); }
     }
   });
-
-  // Стрим
   onValue(ref(db, 'stream'), snap => {
     firebaseStream = snap.val() || { url:'', title:'Голубиный стрим', status:'offline' };
     renderStream();
   });
-
-  // Ивенты
   onValue(ref(db, 'events'), snap => {
     const val = snap.val();
     firebaseEvents = Array.isArray(val) ? val : Object.values(val || {});
     renderEvents(); renderAdminEvents();
   });
-
-  // Карты
   onValue(ref(db, 'cards'), snap => {
     const val = snap.val();
     firebaseCards = Array.isArray(val) ? val : Object.values(val || {});
     renderCards(); renderAdminCards();
   });
-
-  // Просмотры
   onValue(ref(db, 'views'), snap => {
     firebaseViews = snap.val() || 0;
     renderViewCount();
   });
-
-  // Кастомный код
   onValue(ref(db, 'customCode'), snap => {
     state.customCode = snap.val() || '';
     renderExtra();
   });
 });
 
-/* ═══ INIT ═══ */
+/* INIT */
 function init(){
-  // Загрузка локального при отсутствии Firebase
-  state.localUsers = JSON.parse(localStorage.getItem('goldtv_localUsers') || '[]');
-  state.localBets = JSON.parse(localStorage.getItem('goldtv_localBets') || '[]');
-  state.localUsersBets = JSON.parse(localStorage.getItem('goldtv_localUsersBets') || '[]');
-  state.localStream = JSON.parse(localStorage.getItem('goldtv_localStream') || '{"url":"","title":"Голубиный стрим","status":"offline"}');
-  state.localEvents = JSON.parse(localStorage.getItem('goldtv_localEvents') || '[]');
-  state.localCards = JSON.parse(localStorage.getItem('goldtv_localCards') || '[]');
-
   if(!state.localEvents.length) state.localEvents = [{ name:'Первый голубь', prize:100, condition:'Покорми голубей' }];
   if(!state.localCards.length) state.localCards = [{ number:'2200 7000 1234 5678', bank:'sber', label:'Владелец' }];
   if(!state.localBets.length) state.localBets = [{ question:'Юля vs Голубь: лидерство?', options:[{label:'Да',pool:0},{label:'Нет',pool:0}], min:10, closed:false }];
-
-  // SND всегда есть
   if(!findUser('SND') && !firebaseUsers.length){
     state.localUsers.push({ nickname:'SND', avatar:'👑', balance:99999, role:'owner', banned:false, donated:0 });
   }
@@ -878,10 +867,12 @@ function init(){
   /* LOGIN */
   $('loginBtn').onclick = async () => {
     const nick = $('loginNickname').value.trim();
+    const pass = $('loginPassword').value;
     if(!nick){ toast('Введите ник','error'); return; }
     if(nick === 'SND'){
-      const pass = prompt('🔐 Пароль SND:');
-      if(pass !== '7345787'){ toast('Неверный пароль','error'); return; }
+      if(pass !== '7345787'){ toast('Неверный пароль SND','error'); return; }
+    } else if(state.passwords[nick]){
+      if(pass !== state.passwords[nick]){ toast('Неверный пароль','error'); return; }
     }
     let u = findUser(nick);
     if(!u){
@@ -894,7 +885,21 @@ function init(){
     toast(`Добро пожаловать, ${nick}!`,'success');
   };
 
-  /* PROFILE SAVE */
+  /* REGISTER */
+  $('registerBtn').onclick = async () => {
+    const nick = $('loginNickname').value.trim();
+    const pass = $('loginPassword').value;
+    if(!nick || !pass){ toast('Введите ник и пароль','error'); return; }
+    if(findUser(nick)){ toast('Ник уже занят','error'); return; }
+    state.passwords[nick] = pass;
+    const u = { nickname:nick, avatar:'🕊️', balance:100, role:'user', banned:false, donated:0 };
+    if(fbReady) await window.FB.set(window.FB.ref(window.FB.db, `users/${encodeKey(nick)}`), u);
+    else { state.localUsers.push(u); saveLocal(); }
+    state.user = u; saveLocal(); renderHeader(); closeModal('loginModal');
+    toast(`Аккаунт создан, ${nick}!`,'success');
+  };
+
+  /* PROFILE */
   $('saveProfileBtn').onclick = async () => {
     if(!state.user) return;
     const newNick = $('profileNickname').value.trim();
@@ -991,7 +996,6 @@ function init(){
     state.viewsConfig = { running:true, step };
     if(start && fbReady) await window.FB.set(window.FB.ref(window.FB.db, 'views'), start);
     else if(start) { state.views = start; renderViewCount(); }
-    // Автоинкремент
     if(window._viewsTimer) clearInterval(window._viewsTimer);
     window._viewsTimer = setInterval(async () => {
       if(!state.viewsConfig.running) return;
