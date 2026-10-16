@@ -289,6 +289,7 @@
     console.error('❌ Firebase error:', e);
   }
 
+  // Передаём наружу (в обычный script)
   window.db = db;
   window.fb = { ref, set, get, update, onValue, remove, onDisconnect, push, off };
 
@@ -301,8 +302,8 @@
       { urls: 'turn:openrelay.metered.ca:443', username: 'openrelayproject', credential: 'openrelayproject' }
     ]
   };
+  window.ICE_SERVERS = ICE_SERVERS;
 
-  // Устройство
   function getDeviceInfo() {
     const ua = navigator.userAgent;
     let name = 'Устройство', os = '?';
@@ -318,18 +319,23 @@
   }
 
   const deviceInfo = getDeviceInfo();
+  window.deviceInfo = deviceInfo; // ⚡ ВАЖНО: передаём наружу
+
   const devEl = document.getElementById('device-info');
   if (devEl) devEl.innerHTML = `<div>${deviceInfo.name} · ${deviceInfo.os}</div>`;
 
   const savedName = localStorage.getItem('voice_name');
-  if (savedName) document.getElementById('name-input').value = savedName;
+  if (savedName) {
+    const el = document.getElementById('name-input');
+    if (el) el.value = savedName;
+  }
 
   setTimeout(() => {
     const o = document.getElementById('loading-overlay');
     if (o) o.classList.add('hidden');
   }, 300);
 
-  console.log('🎤 Voice Room загружен');
+  console.log('🎤 Voice Room загружен, устройство:', deviceInfo);
 </script>
 
 <script>
@@ -345,18 +351,16 @@
   // WebRTC
   let localStream = null;
   let micMuted = false;
-  const peers = new Map(); // peerId -> { pc, audioEl, stream, gainNode, analyser }
+  const peers = new Map();
 
   // Firebase
-  let roomRef = null;
   let playersRef = null;
   let signalsRef = null;
-  let roomUnsub = null;
   let playersUnsub = null;
   let signalsUnsub = null;
 
-  // Аудио-контекст для анализа громкости
   let audioCtx = null;
+  let selfAnalyser = null;
 
   // ============================================================
   //  УТИЛИТЫ
@@ -403,13 +407,11 @@
         video: false
       });
 
-      // Аудио-контекст для измерения громкости
       audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       const source = audioCtx.createMediaStreamSource(localStream);
-      const analyser = audioCtx.createAnalyser();
-      analyser.fftSize = 512;
-      source.connect(analyser);
-      selfAnalyser = analyser;
+      selfAnalyser = audioCtx.createAnalyser();
+      selfAnalyser.fftSize = 512;
+      source.connect(selfAnalyser);
 
       console.log('🎤 Микрофон получен');
       return true;
@@ -419,8 +421,6 @@
       return false;
     }
   }
-
-  let selfAnalyser = null;
 
   function toggleMute() {
     micMuted = !micMuted;
@@ -479,8 +479,8 @@
       const playerR = window.fb.ref(window.db, `voice_rooms/${code}/players/${myId}`);
       await window.fb.set(playerR, {
         name: myName,
-        device: deviceInfo.name,
-        os: deviceInfo.os,
+        device: window.deviceInfo.name,
+        os: window.deviceInfo.os,
         joinedAt: Date.now(),
         muted: false,
         speaking: false
@@ -513,8 +513,8 @@
       const playerR = window.fb.ref(window.db, `voice_rooms/${code}/players/${myId}`);
       await window.fb.set(playerR, {
         name: myName,
-        device: deviceInfo.name,
-        os: deviceInfo.os,
+        device: window.deviceInfo.name,
+        os: window.deviceInfo.os,
         joinedAt: Date.now(),
         muted: false,
         speaking: false
@@ -533,11 +533,9 @@
     showScreen('room');
     document.getElementById('room-code-display').textContent = currentRoom;
 
-    roomRef = window.fb.ref(window.db, `voice_rooms/${currentRoom}`);
     playersRef = window.fb.ref(window.db, `voice_rooms/${currentRoom}/players`);
     signalsRef = window.fb.ref(window.db, `voice_rooms/${currentRoom}/signals`);
 
-    // Следим за игроками
     playersUnsub = window.fb.onValue(playersRef, (snap) => {
       if (!snap.exists()) return;
       const players = snap.val();
@@ -545,14 +543,12 @@
       handlePlayerChanges(players);
     });
 
-    // Следим за сигналами (WebRTC offer/answer/ICE)
     signalsUnsub = window.fb.onValue(signalsRef, (snap) => {
       if (!snap.exists()) return;
       const signals = snap.val();
       handleSignals(signals);
     });
 
-    // Обновляем свою "speaking" метку
     setInterval(updateSpeakingStatus, 200);
   }
 
@@ -589,27 +585,24 @@
     });
   }
 
-  // Изменения игроков: подключение / отключение
   let knownPlayerIds = new Set();
 
   async function handlePlayerChanges(players) {
     const currentIds = new Set(Object.keys(players));
 
-    // Новые игроки
     for (const id of currentIds) {
       if (id === myId) continue;
       if (!knownPlayerIds.has(id)) {
         console.log('👤 Новый игрок:', id);
         knownPlayerIds.add(id);
 
-        // Кто создаёт offer? Тот у кого ID меньше (детерминированно)
+        // Кто создаёт offer — детерминированно по ID
         if (myId < id) {
           await createOffer(id);
         }
       }
     }
 
-    // Ушедшие
     for (const id of knownPlayerIds) {
       if (!currentIds.has(id)) {
         console.log('👋 Игрок ушёл:', id);
@@ -623,21 +616,18 @@
   //  WEBRTC
   // ============================================================
   function createPC(peerId) {
-    const pc = new RTCPeerConnection(ICE_SERVERS);
+    const pc = new RTCPeerConnection(window.ICE_SERVERS);
 
-    // Добавляем свои треки
     if (localStream) {
       localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
     }
 
-    // Принимаем чужие треки
     const remoteStream = new MediaStream();
     pc.ontrack = (event) => {
       event.streams[0].getTracks().forEach(t => remoteStream.addTrack(t));
       attachAudio(peerId, remoteStream);
     };
 
-    // ICE candidates
     pc.onicecandidate = (event) => {
       if (event.candidate) {
         window.fb.push(window.fb.ref(window.db, `voice_rooms/${currentRoom}/signals/${peerId}/ice`), {
@@ -679,23 +669,25 @@
     for (const [peerId, sig] of Object.entries(signals)) {
       if (peerId === myId) continue;
 
-      // Offer для меня
       if (sig.offer && sig.offer.from !== myId) {
         if (!peers.has(peerId)) {
           const pc = createPC(peerId);
-          await pc.setRemoteDescription(new RTCSessionDescription(sig.offer.offer));
-          const answer = await pc.createAnswer();
-          await pc.setLocalDescription(answer);
+          try {
+            await pc.setRemoteDescription(new RTCSessionDescription(sig.offer.offer));
+            const answer = await pc.createAnswer();
+            await pc.setLocalDescription(answer);
 
-          await window.fb.set(window.fb.ref(window.db, `voice_rooms/${currentRoom}/signals/${peerId}/answer`), {
-            from: myId,
-            answer: { type: answer.type, sdp: answer.sdp },
-            ts: Date.now()
-          });
+            await window.fb.set(window.fb.ref(window.db, `voice_rooms/${currentRoom}/signals/${peerId}/answer`), {
+              from: myId,
+              answer: { type: answer.type, sdp: answer.sdp },
+              ts: Date.now()
+            });
+          } catch (e) {
+            console.warn('Answer error:', e);
+          }
         }
       }
 
-      // Answer для меня
       if (sig.answer && sig.answer.from !== myId) {
         const peer = peers.get(peerId);
         if (peer && peer.pc.signalingState !== 'stable') {
@@ -707,7 +699,6 @@
         }
       }
 
-      // ICE candidates
       if (sig.ice) {
         const peer = peers.get(peerId);
         if (peer) {
@@ -715,9 +706,7 @@
             if (ice.from !== myId) {
               try {
                 await peer.pc.addIceCandidate(new RTCIceCandidate(ice.candidate));
-              } catch (e) {
-                // silent
-              }
+              } catch (e) {}
             }
           }
         }
@@ -738,7 +727,6 @@
       document.getElementById('audio-container').appendChild(audioEl);
       peer.audioEl = audioEl;
 
-      // Анализатор громкости
       if (audioCtx) {
         try {
           const src = audioCtx.createMediaStreamSource(stream);
@@ -761,7 +749,6 @@
     }
     if (peer.audioEl) peer.audioEl.remove();
     peers.delete(peerId);
-    // Удаляем signals
     try {
       window.fb.remove(window.fb.ref(window.db, `voice_rooms/${currentRoom}/signals/${peerId}`));
     } catch(e) {}
@@ -773,7 +760,6 @@
   async function updateSpeakingStatus() {
     if (!inRoom) return;
 
-    // Свой статус
     let selfSpeaking = false;
     if (selfAnalyser && !micMuted) {
       const data = new Uint8Array(selfAnalyser.frequencyBinCount);
@@ -784,7 +770,6 @@
       selfSpeaking = avg > 15;
     }
 
-    // Обновляем в Firebase
     try {
       await window.fb.update(window.fb.ref(window.db, `voice_rooms/${currentRoom}/players/${myId}`), {
         muted: micMuted,
@@ -792,7 +777,6 @@
       });
     } catch(e) {}
 
-    // Обновляем визуально чужих
     for (const [peerId, peer] of peers) {
       if (!peer.analyser) continue;
       const data = new Uint8Array(peer.analyser.frequencyBinCount);
@@ -803,12 +787,9 @@
       const isSpeaking = avg > 15;
 
       const el = document.getElementById('player-' + peerId);
-      if (el) {
-        el.classList.toggle('speaking', isSpeaking);
-      }
+      if (el) el.classList.toggle('speaking', isSpeaking);
     }
 
-    // Свой индикатор
     const myEl = document.getElementById('player-' + myId);
     if (myEl) myEl.classList.toggle('speaking', selfSpeaking);
   }
@@ -820,25 +801,19 @@
     if (!currentRoom) return;
     inRoom = false;
 
-    // Отписки
     if (playersUnsub) { playersUnsub(); playersUnsub = null; }
     if (signalsUnsub) { signalsUnsub(); signalsUnsub = null; }
-    if (roomUnsub) { roomUnsub(); roomUnsub = null; }
 
-    // Закрываем всех пиров
-    for (const id of peers.keys()) closePeer(id);
+    for (const id of Array.from(peers.keys())) closePeer(id);
 
-    // Удаляем себя
     try {
       await window.fb.remove(window.fb.ref(window.db, `voice_rooms/${currentRoom}/players/${myId}`));
-      // Если мы хост и больше никого нет — удаляем комнату
       const snap = await window.fb.get(window.fb.ref(window.db, `voice_rooms/${currentRoom}/players`));
       if (!snap.exists() || Object.keys(snap.val() || {}).length === 0) {
         await window.fb.remove(window.fb.ref(window.db, `voice_rooms/${currentRoom}`));
       }
     } catch (e) {}
 
-    // Отключаем микрофон
     if (localStream) {
       localStream.getTracks().forEach(t => t.stop());
       localStream = null;
@@ -856,7 +831,6 @@
     });
   }
 
-  // При закрытии страницы — выходим
   window.addEventListener('beforeunload', () => {
     if (currentRoom) {
       try {
