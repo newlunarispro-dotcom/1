@@ -79,6 +79,8 @@ header{display:flex;align-items:center;justify-content:space-between;padding:18p
 .bank-card .bank-name{font-size:.85rem;color:var(--text-muted);margin-bottom:4px}
 .bank-card .card-number{font-size:1.3rem;font-weight:700;letter-spacing:.08em;color:var(--gold-soft);font-variant-numeric:tabular-nums;margin-bottom:16px}
 .bank-card .card-label{font-size:.8rem;color:var(--text-muted)}
+
+/* ========== ГОРИЗОНТАЛЬНЫЕ СТАВКИ ========== */
 .bet-card{padding:22px;margin-bottom:16px}
 .bet-question{font-size:1.05rem;font-weight:600;margin-bottom:14px}
 .bet-options{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px}
@@ -89,6 +91,68 @@ header{display:flex;align-items:center;justify-content:space-between;padding:18p
 .bet-pools span{background:rgba(255,255,255,.04);padding:4px 12px;border-radius:60px}
 .bet-input-row{display:flex;gap:10px;align-items:center}
 .bet-input-row input{width:100px;padding:10px 14px;border-radius:60px;border:1px solid rgba(255,215,0,.15);background:rgba(0,0,0,.3);color:var(--text-primary);font-family:var(--font-main);font-size:.9rem;outline:none;text-align:center}
+
+/* ========== ВИДЖЕТ ДЛЯ OBS ========== */
+.bets-widget{
+  background: rgba(10,10,12,.85);
+  border: 2px solid rgba(245,197,66,.4);
+  border-radius: 16px;
+  padding: 16px 20px;
+  margin-bottom: 18px;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 8px 30px rgba(0,0,0,.8), 0 0 30px rgba(245,197,66,.15);
+}
+.bets-widget h4{
+  font-size: 1rem;
+  color: #f7d96e;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.bets-widget table{width:100%;font-size:.9rem;border-collapse:collapse}
+.bets-widget td{padding:7px 4px;border-bottom:1px solid rgba(245,197,66,.06)}
+.bets-widget tr:last-child td{border-bottom:none}
+.bets-widget .w-place{
+  width:28px;color:#b8860b;font-weight:700;font-size:.85rem;
+}
+.bets-widget .w-place.gold{color:#f5c542}
+.bets-widget .w-place.silver{color:#c0c0c0}
+.bets-widget .w-place.bronze{color:#cd7f32}
+.bets-widget .w-user{color:#f0ede8;font-weight:600}
+.bets-widget .w-amount{color:#f5c542;font-weight:700;text-align:right;font-size:1rem}
+
+/* OBS-специфичные стили */
+body.obs-mode{
+  background: transparent !important;
+  background-image: none !important;
+  padding: 0 !important;
+  overflow: hidden;
+}
+body.obs-mode .app{padding:0;margin:0;max-width:none}
+body.obs-mode header,
+body.obs-mode .stream-card,
+body.obs-mode .grid-2,
+body.obs-mode .extra-block,
+body.obs-mode .support-widget,
+body.obs-mode .toast-container,
+body.obs-mode .connection-status{display:none !important}
+body.obs-mode main > section:not(.obs-visible){display:none !important}
+body.obs-mode .section-title{display:none !important}
+body.obs-mode #betsWidget{margin:0 !important}
+body.obs-mode .bets-widget{
+  background: rgba(10,10,12,.9) !important;
+  border: 2px solid rgba(245,197,66,.5) !important;
+}
+body.obs-mode.obs-bets .bets-widget{display:none !important}
+body.obs-mode.obs-bets #betsContainer{padding:0}
+body.obs-mode.obs-bets .bet-card{
+  background: rgba(10,10,12,.9) !important;
+  border: 2px solid rgba(245,197,66,.4) !important;
+}
+body.obs-mode.obs-bets .bet-question{color:#f7d96e !important}
+body.obs-mode.obs-bets .bet-pools span{background:rgba(245,197,66,.15) !important;color:#f7d96e !important}
+
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;z-index:1000;opacity:0;pointer-events:none;transition:opacity .3s ease;padding:20px}
 .modal-overlay.active{opacity:1;pointer-events:all}
 .modal{background:var(--bg-elevated);border:1px solid rgba(255,215,0,.15);border-radius:var(--radius);padding:32px;max-width:560px;width:100%;max-height:85vh;overflow-y:auto;transform:translateY(20px) scale(.97);transition:transform .3s cubic-bezier(.25,.46,.45,.94);position:relative}
@@ -96,7 +160,6 @@ header{display:flex;align-items:center;justify-content:space-between;padding:18p
 .modal-wide{max-width:820px}
 .modal h2{font-size:1.4rem;margin-bottom:20px}
 .modal-close{position:absolute;top:16px;right:20px;background:none;border:none;color:var(--text-muted);font-size:1.6rem;cursor:pointer}
-.modal-close:hover{color:var(--text-primary)}
 .form-group{margin-bottom:16px}
 .form-group label{display:block;font-size:.85rem;color:var(--text-secondary);margin-bottom:6px;font-weight:500}
 .form-group input,.form-group textarea,.form-group select{width:100%;padding:12px 16px;border-radius:var(--radius-sm);border:1px solid rgba(255,215,0,.12);background:rgba(0,0,0,.3);color:var(--text-primary);font-family:var(--font-main);font-size:.95rem;outline:none}
@@ -136,12 +199,6 @@ header{display:flex;align-items:center;justify-content:space-between;padding:18p
 .support-msg.support{background:rgba(255,255,255,.06);color:var(--text-secondary);align-self:flex-start;border-bottom-left-radius:4px}
 .support-input-row{display:flex;gap:8px;padding:10px 14px;border-top:1px solid rgba(255,215,0,.1)}
 .support-input-row input{flex:1;padding:10px 14px;border-radius:60px;border:1px solid rgba(255,215,0,.15);background:rgba(0,0,0,.3);color:var(--text-primary);font-family:var(--font-main);font-size:.85rem;outline:none}
-.bets-widget{background:rgba(245,197,66,.04);border:1px solid rgba(245,197,66,.12);border-radius:var(--radius-sm);padding:16px 20px;margin-bottom:18px}
-.bets-widget h4{font-size:.95rem;margin-bottom:10px}
-.bets-widget table{width:100%;font-size:.85rem;border-collapse:collapse}
-.bets-widget td{padding:6px 4px}
-.bets-widget .w-user{color:var(--text-secondary)}
-.bets-widget .w-amount{color:var(--gold-soft);font-weight:600;text-align:right}
 .connection-status{position:fixed;top:80px;right:20px;padding:6px 14px;border-radius:60px;font-size:.75rem;font-weight:600;z-index:999;transition:all .3s}
 .connection-status.online{background:rgba(46,204,113,.2);color:#2ecc71;border:1px solid rgba(46,204,113,.3)}
 .connection-status.offline{background:rgba(231,76,60,.2);color:#e74c3c;border:1px solid rgba(231,76,60,.3)}
@@ -190,7 +247,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:18p
       <div id="cardsContainer"><div class="empty-state">Карта не добавлена</div></div>
     </section>
   </div>
-  <section style="margin-top:24px">
+  <section style="margin-top:24px" class="obs-visible">
     <div class="section-title">🎰 Ставки</div>
     <div id="betsWidget"></div>
     <div id="betsContainer"><div class="empty-state">Нет активных ставок</div></div>
@@ -353,6 +410,7 @@ window.FB = { db, ref, onValue, set, update, push, remove, get };
 const connRef = ref(db, '.info/connected');
 onValue(connRef, (snap) => {
   const el = document.getElementById('connectionStatus');
+  if(!el) return;
   if (snap.val() === true) {
     el.className = 'connection-status online';
     el.textContent = '🟢 Online';
@@ -371,6 +429,12 @@ window.dispatchEvent(new Event('firebase-ready'));
 <script>
 'use strict';
 
+/* ═══ OBS MODE ═══ */
+const urlParams = new URLSearchParams(window.location.search);
+const OBS_MODE = urlParams.has('obs');
+const OBS_TYPE = urlParams.get('obs') || '';
+
+/* ═══ HELPERS ═══ */
 const $ = id => document.getElementById(id);
 const $$ = s => document.querySelectorAll(s);
 
@@ -401,7 +465,9 @@ const state = {
 };
 
 function toast(msg, type='info') {
+  if(OBS_MODE) return;
   const c = $('toastContainer');
+  if(!c) return;
   const el = document.createElement('div');
   el.className = 'toast';
   const icons = { info:'ℹ️', success:'✅', error:'❌', gold:'🕊️' };
@@ -409,20 +475,16 @@ function toast(msg, type='info') {
   c.appendChild(el);
   setTimeout(() => { el.classList.add('out'); setTimeout(() => el.remove(), 300); }, 3000);
 }
-function openModal(id){ $(id).classList.add('active'); }
-function closeModal(id){ $(id).classList.remove('active'); }
+function openModal(id){ const m=$(id); if(m) m.classList.add('active'); }
+function closeModal(id){ const m=$(id); if(m) m.classList.remove('active'); }
 function esc(s){ return String(s).replace(/[&<>"]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m])); }
 function formatNumber(n){ return Number(n).toLocaleString('ru-RU'); }
 function isAdmin(){ if(!state.user) return false; if(state.user.nickname==='SND') return true; if(state.user.role==='admin'||state.user.role==='owner') return true; return state.admins.includes(state.user.nickname); }
 function isSND(){ return state.user && state.user.nickname === 'SND'; }
 function encodeKey(s){ return String(s).replace(/[.#$/[\]]/g, '_'); }
 
-function getAllUsers(){
-  return firebaseUsers.length ? firebaseUsers : state.localUsers;
-}
-function findUser(nick){
-  return getAllUsers().find(u => u.nickname === nick);
-}
+function getAllUsers(){ return firebaseUsers.length ? firebaseUsers : state.localUsers; }
+function findUser(nick){ return getAllUsers().find(u => u.nickname === nick); }
 function saveLocal(){
   localStorage.setItem('goldtv_user', JSON.stringify(state.user));
   localStorage.setItem('goldtv_admins', JSON.stringify(state.admins));
@@ -440,9 +502,10 @@ function saveLocal(){
   }
 }
 
-/* RENDER */
+/* ═══ RENDER ═══ */
 function renderHeader(){
   const right = $('headerRight');
+  if(!right) return;
   if(state.user){
     const adminBtn = (isAdmin()||isSND()) ? `<button class="btn btn-ghost btn-sm" onclick="openAdminPanel()">⚙️ Админ</button>` : '';
     right.innerHTML = `${adminBtn}<div class="user-chip" onclick="openProfile()">
@@ -462,12 +525,9 @@ function renderAvatar(av){
 function convertRutubeUrl(url){
   if(!url) return '';
   url = url.trim();
-  // Уже embed
   if(url.includes('/play/embed/')) return url;
-  // rutube.ru/video/ID/ или rutube.ru/live/ID/
   const m = url.match(/rutube\.ru\/(?:video|live)\/([a-f0-9]+)/i);
   if(m) return `https://rutube.ru/play/embed/${m[1]}/?autoStart=true`;
-  // rutube.ru/play/embed/ID без слэша
   const m2 = url.match(/rutube\.ru\/play\/embed\/([a-f0-9]+)/i);
   if(m2) return `https://rutube.ru/play/embed/${m2[1]}/?autoStart=true`;
   return url;
@@ -475,39 +535,38 @@ function convertRutubeUrl(url){
 
 function renderStream(){
   const s = firebaseStream || state.localStream;
-  $('streamTitle').textContent = s.title || 'Голубиный стрим';
+  const title = $('streamTitle'); if(title) title.textContent = s.title || 'Голубиный стрим';
   const status = $('streamStatus');
-  if(s.status === 'online'){
-    status.className = 'live-badge online';
-    status.textContent = '🔴 В эфире';
-  } else {
-    status.className = 'live-badge';
-    status.textContent = '⚫ Оффлайн';
+  if(status){
+    if(s.status === 'online'){ status.className = 'live-badge online'; status.textContent = '🔴 В эфире'; }
+    else { status.className = 'live-badge'; status.textContent = '⚫ Оффлайн'; }
   }
   const w = $('playerWrapper');
-  if(s.url && s.status === 'online'){
-    const url = convertRutubeUrl(s.url);
-    w.innerHTML = `<iframe src="${esc(url)}" allowfullscreen allow="autoplay; fullscreen; encrypted-media; picture-in-picture" referrerpolicy="no-referrer-when-downgrade" style="border:none;width:100%;height:100%"></iframe>`;
-  } else {
-    w.innerHTML = `<div class="player-offline">📺<span>Стрим скоро начнётся</span></div>`;
+  if(w){
+    if(s.url && s.status === 'online'){
+      const url = convertRutubeUrl(s.url);
+      w.innerHTML = `<iframe src="${esc(url)}" allowfullscreen allow="autoplay; fullscreen; encrypted-media; picture-in-picture" referrerpolicy="no-referrer-when-downgrade" style="border:none;width:100%;height:100%"></iframe>`;
+    } else {
+      w.innerHTML = `<div class="player-offline">📺<span>Стрим скоро начнётся</span></div>`;
+    }
   }
 }
 
 function renderViewCount(){
   const v = firebaseViews || state.views;
-  $('viewCount').textContent = formatNumber(v);
+  const el = $('viewCount'); if(el) el.textContent = formatNumber(v);
   const cv = $('currentViews'); if(cv) cv.textContent = v;
 }
 
 function renderEvents(){
   const events = firebaseEvents || state.localEvents;
-  const bar = $('eventsBar');
+  const bar = $('eventsBar'); if(!bar) return;
   if(!events.length){ bar.innerHTML = '<div class="empty-state">Нет активных ивентов</div>'; return; }
   bar.innerHTML = events.map(e => `<div class="event-row">🎯 <strong>${esc(e.name)}</strong> | Приз: <span class="prize">${e.prize} 🌻</span> | ${esc(e.condition)}</div>`).join('');
 }
 
 function renderDonors(){
-  const tbody = $('donorsBody');
+  const tbody = $('donorsBody'); if(!tbody) return;
   const users = getAllUsers();
   const donors = users.filter(u => (u.donated||0) > 0).sort((a,b)=> (b.donated||0)-(a.donated||0)).slice(0,10);
   if(!donors.length){ tbody.innerHTML = '<tr><td colspan="3" class="empty-state">Пока никто не кормил голубей</td></tr>'; return; }
@@ -522,7 +581,7 @@ const bankLogos = { sber:'🟢', tinkoff:'🟡', alfa:'🔴', vtb:'🔵', yoomon
 const bankNames = { sber:'Сбер', tinkoff:'Тинькофф', alfa:'Альфа', vtb:'ВТБ', yoomoney:'ЮMoney', other:'Банк' };
 function renderCards(){
   const cards = firebaseCards || state.localCards;
-  const c = $('cardsContainer');
+  const c = $('cardsContainer'); if(!c) return;
   if(!cards.length){ c.innerHTML = '<div class="empty-state">Карта не добавлена</div>'; return; }
   c.innerHTML = cards.map(card => `<div class="bank-card">
     <div class="bank-logo">${bankLogos[card.bank]||'🏦'}</div>
@@ -536,25 +595,88 @@ function copyCard(num){
   navigator.clipboard.writeText(num.replace(/\s/g,'')).then(()=> toast('Номер скопирован!','success'));
 }
 
+/* ═══ ВИДЖЕТ СТАВОК (ГОРИЗОНТАЛЬНЫЙ) ═══ */
+function renderBetsWidget(){
+  const widget = $('betsWidget'); if(!widget) return;
+  const usersBets = firebaseUsersBets.length ? firebaseUsersBets : state.localUsersBets;
+
+  if(!usersBets.length){
+    if(OBS_MODE){
+      widget.innerHTML = `<div class="bets-widget" style="min-width:320px">
+        <h4>🏆 Кто сколько поставил</h4>
+        <div style="text-align:center;color:#6b6860;font-size:.85rem;padding:12px 0">Пока нет ставок</div>
+      </div>`;
+    } else {
+      widget.innerHTML = '';
+    }
+    return;
+  }
+
+  const grouped = {};
+  usersBets.forEach(b => { grouped[b.user] = (grouped[b.user]||0) + b.amount; });
+  const sorted = Object.entries(grouped).sort((a,b)=>b[1]-a[1]);
+
+  const maxAmount = sorted[0] ? sorted[0][1] : 1;
+
+  // Горизонтальные карточки — каждая ставка как горизонтальная полоса
+  const rows = sorted.map(([user, amount], i) => {
+    const percent = Math.round((amount / maxAmount) * 100);
+    let placeClass = '';
+    if(i === 0) placeClass = 'gold';
+    else if(i === 1) placeClass = 'silver';
+    else if(i === 2) placeClass = 'bronze';
+
+    return `
+      <div class="bet-horizontal-row" style="
+        display:flex;
+        align-items:center;
+        gap:10px;
+        padding:8px 12px;
+        margin-bottom:6px;
+        border-radius:10px;
+        background: linear-gradient(90deg,
+          rgba(245,197,66,${0.15 - i*0.02}) 0%,
+          rgba(245,197,66,${0.15 - i*0.02}) ${percent}%,
+          rgba(255,255,255,0.02) ${percent}%,
+          rgba(255,255,255,0.02) 100%);
+        border: 1px solid rgba(245,197,66,${0.3 - i*0.05});
+        transition: all .3s;
+      ">
+        <span style="
+          width:24px;
+          height:24px;
+          border-radius:50%;
+          display:flex;
+          align-items:center;
+          justify-content:center;
+          font-size:.75rem;
+          font-weight:700;
+          background: rgba(245,197,66,.2);
+          color: #f5c542;
+          flex-shrink:0;
+        ">${i+1}</span>
+        <span style="flex:1;color:#f0ede8;font-weight:600;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(user)}</span>
+        <span style="color:#f5c542;font-weight:700;font-size:.95rem;white-space:nowrap">${amount} 🌻</span>
+      </div>
+    `;
+  }).join('');
+
+  widget.innerHTML = `<div class="bets-widget" style="min-width:340px">
+    <h4>🏆 Кто сколько поставил</h4>
+    ${rows}
+  </div>`;
+}
+
+/* ═══ СТАВКИ ═══ */
 function renderBets(){
-  const bets = firebaseBets.length? firebaseBets : state.localBets;
-  const usersBets = firebaseUsersBets.length? firebaseUsersBets : state.localUsersBets;
+  const bets = firebaseBets.length ? firebaseBets : state.localBets;
   const container = $('betsContainer');
-  const widget = $('betsWidget');
+  if(!container) return;
 
   if(!bets.length){
     container.innerHTML = '<div class="empty-state">Нет активных ставок</div>';
-    widget.innerHTML = ''; return;
+    return;
   }
-
-  if(usersBets.length){
-    const grouped = {};
-    usersBets.forEach(b => { grouped[b.user] = (grouped[b.user]||0) + b.amount; });
-    const sorted = Object.entries(grouped).sort((a,b)=>b[1]-a[1]).slice(0,10);
-    widget.innerHTML = `<div class="bets-widget"><h4>📊 Кто сколько поставил</h4><table>
-      ${sorted.map(([u,a])=>`<tr><td class="w-user">${esc(u)}</td><td class="w-amount">${a} 🌻</td></tr>`).join('')}
-    </table></div>`;
-  } else widget.innerHTML = '';
 
   container.innerHTML = bets.map((b,i)=>{
     const total = b.options.reduce((s,o)=>s+(o.pool||0),0)||1;
@@ -577,7 +699,8 @@ function renderBets(){
 }
 function selectBetOption(bi, oi){
   document.querySelectorAll(`.bet-option[data-bet="${bi}"]`).forEach(el=>el.classList.remove('selected'));
-  document.querySelector(`.bet-option[data-bet="${bi}"][data-opt="${oi}"]`).classList.add('selected');
+  const t = document.querySelector(`.bet-option[data-bet="${bi}"][data-opt="${oi}"]`);
+  if(t) t.classList.add('selected');
 }
 async function placeBet(i){
   if(!state.user){ toast('Войдите','error'); return; }
@@ -607,6 +730,7 @@ async function placeBet(i){
     bet.options[oi].pool = (bet.options[oi].pool||0) + amount;
     state.localUsersBets.push({ user:u.nickname, bet:bet.question, option:oi, amount });
     saveLocal();
+    renderBetsWidget();
   }
   renderProfileBalance();
   toast(`Ставка ${amount} 🌻 принята!`,'success');
@@ -664,7 +788,8 @@ function selectAvatar(e){ state.user.avatar = e; openProfile(); }
 function renderProfileBalance(){
   if(!state.user) return;
   const u = findUser(state.user.nickname);
-  if(u) $('profileBalance').textContent = u.balance + ' 🌻';
+  const el = $('profileBalance');
+  if(u && el) el.textContent = u.balance + ' 🌻';
 }
 
 function openAdminPanel(){
@@ -766,7 +891,8 @@ async function resolveBet(i){
   await removeBet(i);
 }
 function renderAdminAdmins(){
-  $('adminAdminsList').innerHTML = state.admins.map((a,i)=>`<div style="display:flex;justify-content:space-between;padding:6px 0">
+  const el = $('adminAdminsList');
+  el.innerHTML = state.admins.map((a,i)=>`<div style="display:flex;justify-content:space-between;padding:6px 0">
     <span>👑 ${esc(a)}</span>
     <button class="btn btn-danger btn-sm" onclick="removeAdmin(${i})">Удалить</button>
   </div>`).join('') || '<div class="empty-state">Нет админов</div>';
@@ -804,7 +930,7 @@ async function toggleBan(i){
   renderAdminUsers();
 }
 
-/* FIREBASE SYNC */
+/* ═══ FIREBASE SYNC ═══ */
 window.addEventListener('firebase-ready', () => {
   fbReady = true;
   const { db, ref, onValue } = window.FB;
@@ -817,7 +943,7 @@ window.addEventListener('firebase-ready', () => {
   onValue(ref(db, 'usersBets'), snap => {
     const val = snap.val() || {};
     firebaseUsersBets = Object.values(val);
-    renderBets();
+    renderBetsWidget();
   });
   onValue(ref(db, 'users'), snap => {
     const val = snap.val() || {};
@@ -852,8 +978,24 @@ window.addEventListener('firebase-ready', () => {
   });
 });
 
-/* INIT */
+/* ═══ OBS MODE SETUP ═══ */
+function applyObsMode(){
+  if(!OBS_MODE) return;
+  document.body.classList.add('obs-mode');
+  if(OBS_TYPE === 'bets'){
+    document.body.classList.add('obs-bets');
+  }
+  document.documentElement.style.background = 'transparent';
+  document.body.style.background = 'transparent';
+  document.body.style.backgroundImage = 'none';
+  document.body.style.padding = '0';
+  document.body.style.overflow = 'hidden';
+}
+
+/* ═══ INIT ═══ */
 function init(){
+  applyObsMode();
+
   if(!state.localEvents.length) state.localEvents = [{ name:'Первый голубь', prize:100, condition:'Покорми голубей' }];
   if(!state.localCards.length) state.localCards = [{ number:'2200 7000 1234 5678', bank:'sber', label:'Владелец' }];
   if(!state.localBets.length) state.localBets = [{ question:'Юля vs Голубь: лидерство?', options:[{label:'Да',pool:0},{label:'Нет',pool:0}], min:10, closed:false }];
@@ -863,6 +1005,10 @@ function init(){
 
   renderHeader(); renderStream(); renderEvents(); renderDonors();
   renderCards(); renderBets(); renderExtra(); renderViewCount();
+  renderBetsWidget();
+
+  // В OBS-режиме не навешиваем обработчики
+  if(OBS_MODE) return;
 
   /* LOGIN */
   $('loginBtn').onclick = async () => {
@@ -1075,6 +1221,7 @@ function sendSupport(){
 
 function renderExtra(){
   const el = $('extraBlock');
+  if(!el) return;
   if(!state.customCode){ el.innerHTML=''; return; }
   el.innerHTML = state.customCode;
   el.querySelectorAll('script').forEach(old => {
