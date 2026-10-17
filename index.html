@@ -35,6 +35,7 @@ h1,h2,h3,h4{font-family:'Manrope',var(--font-main);font-weight:600;letter-spacin
 .btn-ghost:hover{background:rgba(255,255,255,.08);color:var(--text-primary)}
 .btn-sm{padding:8px 16px;font-size:.85rem}
 .btn-danger{background:rgba(231,76,60,.15);color:#e74c3c;border:1px solid rgba(231,76,60,.25)}
+.btn-danger:hover{background:rgba(231,76,60,.25)}
 .btn-success{background:rgba(46,204,113,.15);color:#2ecc71;border:1px solid rgba(46,204,113,.25)}
 header{display:flex;align-items:center;justify-content:space-between;padding:18px 0;flex-wrap:wrap;gap:12px;position:sticky;top:0;z-index:100;background:rgba(10,10,12,.85);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,215,0,.06);margin-bottom:28px}
 .logo{display:flex;align-items:center;gap:10px;font-size:1.6rem;font-weight:700;font-family:'Manrope',sans-serif}
@@ -90,7 +91,6 @@ header{display:flex;align-items:center;justify-content:space-between;padding:18p
 .bet-input-row{display:flex;gap:10px;align-items:center}
 .bet-input-row input{width:100px;padding:10px 14px;border-radius:60px;border:1px solid rgba(255,215,0,.15);background:rgba(0,0,0,.3);color:var(--text-primary);font-family:var(--font-main);font-size:.9rem;outline:none;text-align:center}
 
-/* НОВОЕ: ВКЛАДКА ЗАПИСЕЙ */
 .recording-card{background:var(--surface);border:1px solid var(--surface-border);border-radius:var(--radius-sm);padding:16px;margin-bottom:12px;display:flex;flex-direction:column;gap:12px;transition:all var(--transition)}
 .recording-card:hover{border-color:rgba(255,215,0,.3);transform:translateY(-2px)}
 .recording-header{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
@@ -98,6 +98,11 @@ header{display:flex;align-items:center;justify-content:space-between;padding:18p
 .recording-date{font-size:.8rem;color:var(--text-muted);background:rgba(255,255,255,.05);padding:2px 8px;border-radius:6px}
 .recording-player{width:100%;aspect-ratio:16/9;border-radius:8px;overflow:hidden;background:#000;border:1px solid rgba(255,255,255,.05)}
 .recording-player iframe{width:100%;height:100%;border:none;display:block}
+
+/* Стили для поддержки в админке */
+.support-admin-msg { padding: 8px; border-radius: 8px; margin-bottom: 8px; font-size: 0.85rem; }
+.support-admin-msg.user { background: rgba(255,255,255,0.04); border-left: 3px solid var(--text-muted); }
+.support-admin-msg.admin { background: rgba(245,197,66,0.08); border-left: 3px solid var(--gold); }
 
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;z-index:1000;opacity:0;pointer-events:none;transition:opacity .3s ease;padding:20px}
 .modal-overlay.active{opacity:1;pointer-events:all}
@@ -207,7 +212,6 @@ header{display:flex;align-items:center;justify-content:space-between;padding:18p
     <div id="betsContainer"><div class="empty-state">Нет активных ставок</div></div>
   </section>
 
-  <!-- НОВАЯ СЕКЦИЯ: ЗАПИСИ -->
   <section style="margin-top:24px">
     <div class="section-title">🎬 Записи стримов</div>
     <div id="recordingsContainer"><div class="empty-state">Пока нет записей</div></div>
@@ -276,11 +280,12 @@ header{display:flex;align-items:center;justify-content:space-between;padding:18p
       <button class="admin-tab" data-tab="events">🎯 Ивенты</button>
       <button class="admin-tab" data-tab="cards">💳 Карты</button>
       <button class="admin-tab" data-tab="bets">🎰 Ставки</button>
-      <button class="admin-tab" data-tab="recordings">🎬 Записи</button> <!-- НОВАЯ ВКЛАДКА -->
+      <button class="admin-tab" data-tab="recordings">🎬 Записи</button>
       <button class="admin-tab" data-tab="views">👁️ Просмотры</button>
       <button class="admin-tab" data-tab="admins">👑 Админы</button>
       <button class="admin-tab" data-tab="users">👥 Юзеры</button>
       <button class="admin-tab" data-tab="settings">⚙️ Настройки</button>
+      <button class="admin-tab" data-tab="support">💬 Поддержка</button> <!-- НОВАЯ ВКЛАДКА -->
       <button class="admin-tab" data-tab="code">➕ Код</button>
     </div>
     <div class="admin-panel active" id="panel-stream">
@@ -322,7 +327,6 @@ header{display:flex;align-items:center;justify-content:space-between;padding:18p
       <button class="btn btn-gold btn-sm" id="addBetBtn">Создать</button>
     </div>
     
-    <!-- НОВАЯ ПАНЕЛЬ: ЗАПИСИ -->
     <div class="admin-panel" id="panel-recordings">
       <div id="adminRecordingsList"></div><hr class="divider">
       <h3 style="font-size:.95rem;margin-bottom:10px">Добавить запись</h3>
@@ -357,6 +361,24 @@ header{display:flex;align-items:center;justify-content:space-between;padding:18p
       <hr class="divider">
       <p style="font-size:.85rem;color:var(--text-secondary)">Пароль SND: <b>7345787</b></p>
     </div>
+
+    <!-- НОВАЯ ПАНЕЛЬ ПОДДЕРЖКИ -->
+    <div class="admin-panel" id="panel-support">
+      <h3 style="font-size:1rem;margin-bottom:15px;color:var(--gold-soft)">💬 Диалоги с юзерами</h3>
+      <div style="display:flex;gap:15px;flex-wrap:wrap;">
+        <div style="flex:1;min-width:200px;">
+          <label style="font-size:.85rem;color:var(--text-secondary);margin-bottom:8px;display:block;">Выбери юзера:</label>
+          <select id="adminSupportUserSelect" style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,215,0,.2);background:rgba(0,0,0,.3);color:var(--text-primary);"></select>
+        </div>
+      </div>
+      <div id="adminSupportChat" style="margin-top:15px;max-height:300px;overflow-y:auto;background:rgba(0,0,0,0.2);border-radius:8px;padding:12px;display:flex;flex-direction:column;gap:8px;border:1px solid rgba(255,255,255,0.05);"></div>
+      
+      <div class="form-group" style="margin-top:15px;">
+        <input type="text" id="adminSupportReplyInput" placeholder="Написать ответ юзеру...">
+      </div>
+      <button class="btn btn-gold btn-sm" id="adminSendSupportBtn">Отправить ответ</button>
+    </div>
+
     <div class="admin-panel" id="panel-code">
       <div class="form-group"><label>HTML/JS код</label><textarea id="customCode" rows="6"></textarea></div>
       <button class="btn btn-gold btn-sm" id="saveCodeBtn">Сохранить</button>
@@ -417,7 +439,8 @@ let firebaseStream = null;
 let firebaseEvents = null;
 let firebaseCards = null;
 let firebaseViews = 0;
-let firebaseRecordings = []; // НОВОЕ
+let firebaseRecordings = [];
+let firebaseSupport = []; // НОВОЕ
 
 const state = {
   user: JSON.parse(localStorage.getItem('goldtv_user') || 'null'),
@@ -433,7 +456,7 @@ const state = {
   localStream: JSON.parse(localStorage.getItem('goldtv_localStream') || '{"url":"","title":"Голубиный стрим","status":"offline"}'),
   localEvents: JSON.parse(localStorage.getItem('goldtv_localEvents') || '[]'),
   localCards: JSON.parse(localStorage.getItem('goldtv_localCards') || '[]'),
-  localRecordings: JSON.parse(localStorage.getItem('goldtv_localRecordings') || '[]'), // НОВОЕ
+  localRecordings: JSON.parse(localStorage.getItem('goldtv_localRecordings') || '[]'),
   passwords: JSON.parse(localStorage.getItem('goldtv_passwords') || '{}')
 };
 
@@ -473,7 +496,7 @@ function saveLocal(){
     localStorage.setItem('goldtv_localStream', JSON.stringify(state.localStream));
     localStorage.setItem('goldtv_localEvents', JSON.stringify(state.localEvents));
     localStorage.setItem('goldtv_localCards', JSON.stringify(state.localCards));
-    localStorage.setItem('goldtv_localRecordings', JSON.stringify(state.localRecordings)); // НОВОЕ
+    localStorage.setItem('goldtv_localRecordings', JSON.stringify(state.localRecordings));
   }
 }
 
@@ -714,7 +737,8 @@ function openAdminPanel(){
 function renderAdminAll(){
   renderAdminEvents(); renderAdminCards(); renderAdminBets();
   renderAdminAdmins(); renderAdminUsers();
-  renderAdminRecordings(); // НОВОЕ
+  renderAdminRecordings();
+  renderAdminSupport(); // НОВОЕ
   const s = firebaseStream || state.localStream;
   $('adminStreamUrl').value = s.url||'';
   $('adminStreamTitle').value = s.title||'';
@@ -845,7 +869,7 @@ async function toggleBan(i){
   renderAdminUsers();
 }
 
-/* НОВОЕ: РЕНДЕР ЗАПИСЕЙ */
+/* РЕНДЕР ЗАПИСЕЙ */
 function renderRecordings(){
   const recs = firebaseRecordings.length ? firebaseRecordings : state.localRecordings;
   const container = $('recordingsContainer');
@@ -856,7 +880,6 @@ function renderRecordings(){
     return;
   }
 
-  // Сортируем: сначала новые
   const sorted = [...recs].sort((a,b) => new Date(b.date) - new Date(a.date));
 
   container.innerHTML = sorted.map(r => `
@@ -903,6 +926,45 @@ async function removeRecording(key) {
   }
 }
 
+/* ПОДДЕРЖКА В АДМИНКЕ */
+function renderAdminSupport() {
+  const select = $('adminSupportUserSelect');
+  const chat = $('adminSupportChat');
+  if (!select || !chat) return;
+
+  // Собираем список всех юзеров, кто писал
+  const msgList = firebaseSupport.length ? firebaseSupport : state.supportMessages;
+  const usersSet = new Set();
+  msgList.forEach(m => { if (m.from === 'user') usersSet.add(m.user); });
+
+  if (usersSet.size === 0) {
+    select.innerHTML = '<option value="">Нет сообщений</option>';
+    chat.innerHTML = '<div style="color:var(--text-muted);text-align:center;padding:20px;">Нет активных диалогов</div>';
+    return;
+  }
+
+  const currentUser = select.value;
+  select.innerHTML = Array.from(usersSet).map(u => `<option value="${u}">👤 ${esc(u)}</option>`).join('');
+  if (currentUser && usersSet.has(currentUser)) select.value = currentUser;
+
+  // Рендер чата выбранного юзера
+  const selectedUser = select.value;
+  if (!selectedUser) return;
+
+  const userMessages = msgList.filter(m => m.user === selectedUser).sort((a,b) => a.time - b.time);
+  
+  chat.innerHTML = userMessages.map(m => `
+    <div class="support-admin-msg ${m.from === 'user' ? 'user' : 'admin'}">
+      <div style="font-size:0.7rem;color:var(--text-muted);margin-bottom:2px;">
+        ${m.from === 'user' ? '👤 ' + esc(m.user) : '🕊️ Вы (Админ)'} · ${new Date(m.time).toLocaleTimeString('ru-RU', {hour:'2-digit', minute:'2-digit'})}
+      </div>
+      <div>${esc(m.text)}</div>
+    </div>
+  `).join('');
+  
+  chat.scrollTop = chat.scrollHeight;
+}
+
 /* FIREBASE SYNC */
 window.addEventListener('firebase-ready', () => {
   fbReady = true;
@@ -941,7 +1003,7 @@ window.addEventListener('firebase-ready', () => {
     firebaseCards = Array.isArray(val) ? val : Object.values(val || {});
     renderCards(); renderAdminCards();
   });
-  onValue(ref(db, 'recordings'), snap => { // НОВОЕ
+  onValue(ref(db, 'recordings'), snap => {
     const val = snap.val() || {};
     firebaseRecordings = Object.entries(val).map(([k,v]) => ({...v, _key: k}));
     renderRecordings(); renderAdminRecordings();
@@ -949,6 +1011,12 @@ window.addEventListener('firebase-ready', () => {
   onValue(ref(db, 'views'), snap => {
     firebaseViews = snap.val() || 0;
     renderViewCount();
+  });
+  onValue(ref(db, 'support'), snap => { // НОВОЕ
+    const val = snap.val() || {};
+    firebaseSupport = Object.entries(val).map(([k,v]) => ({...v, _key: k}));
+    renderSupportMessages(); // обновляем чат юзера
+    renderAdminSupport();     // обновляем чат админа
   });
   onValue(ref(db, 'customCode'), snap => {
     state.customCode = snap.val() || '';
@@ -967,7 +1035,7 @@ function init(){
 
   renderHeader(); renderStream(); renderEvents(); renderDonors();
   renderCards(); renderBets(); renderExtra(); renderViewCount();
-  renderRecordings(); // НОВОЕ
+  renderRecordings();
 
   /* LOGIN */
   $('loginBtn').onclick = async () => {
@@ -1038,6 +1106,7 @@ function init(){
     $$('.admin-panel').forEach(x=>x.classList.remove('active'));
     t.classList.add('active');
     $('panel-'+t.dataset.tab).classList.add('active');
+    if(t.dataset.tab === 'support') renderAdminSupport(); // обновляем при клике
   });
 
   /* ADMIN: STREAM */
@@ -1094,7 +1163,7 @@ function init(){
     toast('Ставка создана','success');
   };
 
-  /* ADMIN: RECORDINGS (НОВОЕ) */
+  /* ADMIN: RECORDINGS */
   $('addRecordingBtn').onclick = async () => {
     const title = $('recTitle').value.trim();
     const url = $('recUrl').value.trim();
@@ -1159,6 +1228,26 @@ function init(){
     toast('Пароль изменён','success');
   };
 
+  /* ADMIN: SUPPORT — ОТПРАВКА */
+  $('adminSendSupportBtn').onclick = async () => {
+    const user = $('adminSupportUserSelect').value;
+    const text = $('adminSupportReplyInput').value.trim();
+    if(!user || !text) return;
+
+    const newMsg = { from: 'admin', user, text, time: Date.now() };
+    
+    if (fbReady) {
+      await window.FB.push(window.FB.ref(window.FB.db, 'support'), newMsg);
+    } else {
+      state.supportMessages.push(newMsg);
+      saveLocal();
+      renderSupportMessages(); renderAdminSupport();
+    }
+    
+    $('adminSupportReplyInput').value = '';
+    toast(`Ответ отправлен ${user}`, 'success');
+  };
+
   /* ADMIN: CODE */
   $('saveCodeBtn').onclick = async () => {
     const code = $('customCode').value;
@@ -1168,7 +1257,7 @@ function init(){
     toast('Код сохранён','success');
   };
 
-  /* SUPPORT */
+  /* SUPPORT (USER SIDE) */
   $('supportInput').addEventListener('keydown', e => { if(e.key==='Enter'){ e.preventDefault(); sendSupport(); }});
 
   /* MODAL CLOSE */
@@ -1182,24 +1271,44 @@ function toggleSupport(){
   p.classList.toggle('open');
   if(p.classList.contains('open')) renderSupportMessages();
 }
+
+/* РЕНДЕР ЧАТА ЮЗЕРА */
 function renderSupportMessages(){
   const el = $('supportMessages');
-  el.innerHTML = state.supportMessages.slice(-30).map(m =>
-    `<div class="support-msg ${m.from==='user'?'user':'support'}">${esc(m.text)}</div>`
+  if(!el) return;
+
+  const msgList = firebaseSupport.length ? firebaseSupport : state.supportMessages;
+  const myUser = state.user ? state.user.nickname : 'anon';
+  
+  // Юзер видит только свои сообщения и ответы админа
+  const myMessages = msgList.filter(m => m.user === myUser || (m.from === 'admin' && m.user === myUser)).sort((a,b) => a.time - b.time);
+  
+  el.innerHTML = myMessages.map(m =>
+    `<div class="support-msg ${m.from === 'user' ? 'user' : 'support'}">${esc(m.text)}</div>`
   ).join('');
   el.scrollTop = el.scrollHeight;
 }
-function sendSupport(){
+
+async function sendSupport(){
   const input = $('supportInput');
   const text = input.value.trim();
   if(!text) return;
   if(!state.user){ toast('Войдите','error'); return; }
-  state.supportMessages.push({ from:'user', text:`${state.user.nickname}: ${text}`, time:Date.now() });
-  input.value=''; saveLocal(); renderSupportMessages();
+
+  const newMsg = { from: 'user', user: state.user.nickname, text, time: Date.now() };
+  
+  if (fbReady) {
+    await window.FB.push(window.FB.ref(window.FB.db, 'support'), newMsg);
+  } else {
+    state.supportMessages.push(newMsg);
+    saveLocal();
+    renderSupportMessages();
+  }
+  
+  input.value='';
   setTimeout(() => {
-    state.supportMessages.push({ from:'support', text:'🕊️ Спасибо! Мы свяжемся с вами скоро.', time:Date.now() });
-    saveLocal(); if($('supportPanel').classList.contains('open')) renderSupportMessages();
-  }, 800);
+    if (!$('supportPanel').classList.contains('open')) return;
+  }, 100);
 }
 
 function renderExtra(){
