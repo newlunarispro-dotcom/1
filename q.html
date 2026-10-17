@@ -3,201 +3,195 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>🎤 Voice Room</title>
+<title>🎥 Nexus Voice & Video</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 <style>
+  :root {
+    --bg: #09090b;
+    --panel: rgba(20, 20, 25, 0.7);
+    --border: rgba(255, 255, 255, 0.1);
+    --accent: #6366f1;
+    --accent-glow: rgba(99, 102, 241, 0.5);
+    --success: #10b981;
+    --danger: #ef4444;
+    --text: #f8fafc;
+    --text-muted: #94a3b8;
+  }
+
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  
   body {
-    font-family: -apple-system, 'Segoe UI', Roboto, sans-serif;
-    background: #0a0a1a; color: #fff; min-height: 100vh;
-    overflow-x: hidden; user-select: none;
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg);
+    background-image: 
+      radial-gradient(circle at 15% 50%, rgba(99, 102, 241, 0.15), transparent 30%),
+      radial-gradient(circle at 85% 30%, rgba(16, 185, 129, 0.1), transparent 30%);
+    background-attachment: fixed;
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
   }
-  .screen { display: none; min-height: 100vh; padding: 20px; }
-  .screen.active { display: block; }
 
-  #menu { text-align: center; padding-top: 40px; }
-  #menu h1 {
-    font-size: 42px; margin-bottom: 8px;
-    background: linear-gradient(90deg, #f0a, #0af, #0f0);
-    background-size: 200% auto;
-    -webkit-background-clip: text; background-clip: text;
-    -webkit-text-fill-color: transparent;
-    animation: shine 3s linear infinite;
-    letter-spacing: 2px;
-  }
-  @keyframes shine { to { background-position: 200% center; } }
-  #menu .sub { color: #888; margin-bottom: 35px; font-size: 13px; letter-spacing: 3px; }
+  .screen { display: none; min-height: 100vh; padding: 20px; animation: fadeIn 0.3s ease; flex-direction: column; }
+  .screen.active { display: flex; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-  .btn {
-    display: block; width: 100%; max-width: 340px; margin: 12px auto;
-    padding: 16px; font-size: 17px; font-weight: bold;
-    border: none; border-radius: 12px; cursor: pointer;
-    font-family: inherit; letter-spacing: 1px;
-    transition: transform 0.1s, box-shadow 0.2s;
+  /* ==== МЕНЮ ==== */
+  #menu { align-items: center; justify-content: center; text-align: center; }
+  .logo {
+    font-size: 56px; font-weight: 800; letter-spacing: -2px; margin-bottom: 8px;
+    background: linear-gradient(135deg, #fff, #818cf8);
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 0 20px var(--accent-glow));
   }
-  .btn:active { transform: scale(0.97); }
-  .btn-primary { background: linear-gradient(135deg, #0af, #06f); color: #fff; box-shadow: 0 4px 15px rgba(0, 170, 255, 0.4); }
-  .btn-success { background: linear-gradient(135deg, #0f0, #090); color: #000; box-shadow: 0 4px 15px rgba(0, 255, 0, 0.4); }
-  .btn-danger { background: linear-gradient(135deg, #f33, #a00); color: #fff; box-shadow: 0 4px 15px rgba(255, 50, 50, 0.4); }
-  .btn-secondary { background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.2); }
+  .subtitle { color: var(--text-muted); font-size: 14px; letter-spacing: 4px; margin-bottom: 40px; text-transform: uppercase; font-weight: 600;}
+  
+  .glass-panel {
+    background: var(--panel);
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--border);
+    border-radius: 24px; padding: 30px; width: 100%; max-width: 400px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1);
+  }
 
   input[type="text"] {
-    display: block; width: 100%; max-width: 340px; margin: 8px auto;
-    padding: 14px; font-size: 16px;
-    background: rgba(0,0,0,0.4); border: 1px solid #0af;
-    color: #fff; border-radius: 10px; text-align: center;
-    outline: none; font-family: inherit;
+    width: 100%; padding: 16px 20px; font-size: 16px;
+    background: rgba(0,0,0,0.4); border: 1px solid var(--border);
+    color: #fff; border-radius: 14px; text-align: center;
+    outline: none; font-family: inherit; margin-bottom: 15px;
+    transition: all 0.2s;
   }
-  input.code { text-transform: uppercase; letter-spacing: 8px; font-weight: bold; font-size: 22px; }
+  input[type="text"]:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+  input.code { letter-spacing: 8px; font-weight: 800; font-size: 24px; text-transform: uppercase; }
 
-  #room { padding-top: 15px; display: flex; flex-direction: column; min-height: 100vh; }
+  .btn {
+    width: 100%; padding: 16px; font-size: 16px; font-weight: 600;
+    border: none; border-radius: 14px; cursor: pointer;
+    font-family: inherit; transition: all 0.2s; margin-bottom: 12px;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+  }
+  .btn:active { transform: scale(0.98); }
+  .btn-primary { background: var(--accent); color: #fff; box-shadow: 0 8px 20px var(--accent-glow); }
+  .btn-primary:hover { background: #4f46e5; box-shadow: 0 10px 25px var(--accent-glow); }
+  .btn-outline { background: transparent; border: 1px solid var(--border); color: #fff; }
+  .btn-outline:hover { background: rgba(255,255,255,0.05); }
 
-  .room-header {
+  /* ==== КОМНАТА (ZOOM STYLE) ==== */
+  #room { padding: 15px; height: 100vh; }
+  
+  .room-top {
     display: flex; justify-content: space-between; align-items: center;
-    background: rgba(0,0,0,0.5); padding: 14px 18px; border-radius: 12px;
-    margin-bottom: 15px; border-left: 4px solid #0af;
+    margin-bottom: 15px; padding: 0 5px;
   }
   .room-code {
-    font-size: 22px; color: #0af; font-weight: bold;
-    letter-spacing: 4px; cursor: pointer;
+    font-size: 18px; font-weight: 800; color: #fff; letter-spacing: 2px;
+    background: rgba(255,255,255,0.1); padding: 8px 16px; border-radius: 10px;
+    cursor: pointer; transition: background 0.2s;
   }
-  .room-code:active { opacity: 0.6; }
-  .room-info { font-size: 11px; color: #888; margin-top: 4px; }
-  .room-info b { color: #0f0; }
+  .room-code:hover { background: rgba(255,255,255,0.2); }
 
-  .mic-status {
-    display: flex; justify-content: center; align-items: center;
-    padding: 12px; border-radius: 12px; margin-bottom: 12px;
-    font-size: 15px; font-weight: bold;
-    transition: all 0.2s;
-  }
-  .mic-status.on { background: rgba(0, 255, 0, 0.15); color: #0f0; border: 1px solid #0f0; }
-  .mic-status.off { background: rgba(255, 0, 0, 0.15); color: #f33; border: 1px solid #f33; }
-  .mic-status .dot {
-    width: 12px; height: 12px; border-radius: 50%;
-    background: currentColor; margin-right: 10px;
-    box-shadow: 0 0 12px currentColor;
-    animation: pulse 1.5s infinite;
-  }
-  @keyframes pulse { 50% { opacity: 0.4; } }
-
-  .players-list {
-    flex: 1; background: rgba(0,0,0,0.4); border-radius: 12px;
-    padding: 12px; overflow-y: auto; margin-bottom: 12px;
-    min-height: 200px;
+  .video-grid {
+    flex: 1; display: grid; gap: 12px;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    align-content: start; overflow-y: auto; padding-bottom: 90px;
   }
 
-  .player-item {
-    display: flex; align-items: center;
-    padding: 12px 15px; border-radius: 10px; margin-bottom: 8px;
-    background: rgba(255,255,255,0.05);
-    border-left: 3px solid #444;
-    transition: all 0.2s;
+  /* Плитка участника */
+  .tile {
+    background: #18181b; border-radius: 20px; position: relative;
+    overflow: hidden; display: flex; align-items: center; justify-content: center;
+    aspect-ratio: 16/9; border: 2px solid transparent;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
   }
-  .player-item.me { border-left-color: #ff0; background: rgba(255,255,0,0.08); }
-  .player-item.speaking {
-    border-left-color: #0f0;
-    background: rgba(0, 255, 0, 0.15);
-    box-shadow: 0 0 20px rgba(0, 255, 0, 0.4);
+  .tile.speaking { border-color: var(--success); box-shadow: 0 0 20px rgba(16, 185, 129, 0.3); }
+  
+  .tile video {
+    width: 100%; height: 100%; object-fit: cover;
+    transform: scaleX(-1); display: none;
   }
-  .player-item .avatar {
-    width: 44px; height: 44px; border-radius: 50%;
-    background: linear-gradient(135deg, #0af, #06f);
+  .tile.video-on video { display: block; }
+  .tile.video-on .avatar-big { display: none; }
+
+  .avatar-big {
+    width: 90px; height: 90px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), #a855f7);
     display: flex; align-items: center; justify-content: center;
-    font-size: 22px; margin-right: 12px; flex-shrink: 0;
-    transition: box-shadow 0.15s;
+    font-size: 36px; font-weight: 800; color: #fff;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+    transition: transform 0.2s;
   }
-  .player-item.speaking .avatar {
-    box-shadow: 0 0 20px #0f0, 0 0 40px #0f0;
-  }
-  .player-item .info { flex: 1; overflow: hidden; }
-  .player-item .name { font-weight: bold; font-size: 15px; }
-  .player-item .sub { font-size: 11px; color: #888; margin-top: 2px; }
-  .player-item .status-icon { font-size: 20px; margin-left: 8px; }
+  .tile.speaking .avatar-big { transform: scale(1.05); }
 
-  .controls {
-    display: flex; gap: 10px; margin-bottom: 15px;
+  .tile-name {
+    position: absolute; bottom: 12px; left: 12px;
+    background: rgba(0,0,0,0.6); backdrop-filter: blur(10px);
+    padding: 6px 12px; border-radius: 8px; font-size: 13px; font-weight: 600;
+    display: flex; align-items: center; gap: 8px; z-index: 10;
   }
-  .controls button {
-    flex: 1; padding: 16px; border-radius: 12px;
-    border: none; cursor: pointer;
-    font-size: 15px; font-weight: bold;
-    font-family: inherit;
+  .tile-mute-icon { color: var(--danger); font-size: 14px; }
+
+  /* Панель управления снизу */
+  .controls {
+    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+    display: flex; gap: 15px; padding: 12px 24px;
+    background: var(--panel); backdrop-filter: blur(20px);
+    border-radius: 30px; border: 1px solid var(--border);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    z-index: 100;
+  }
+
+  .btn-circle {
+    width: 56px; height: 56px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px; border: none; cursor: pointer;
+    background: rgba(255,255,255,0.1); color: #fff;
     transition: all 0.2s;
   }
-  .controls .mute-btn {
-    background: linear-gradient(135deg, #0f0, #090); color: #000;
-  }
-  .controls .mute-btn.muted {
-    background: linear-gradient(135deg, #f33, #a00); color: #fff;
-  }
-  .controls .leave-btn {
-    background: rgba(255,255,255,0.1); color: #fff;
-    border: 1px solid rgba(255,255,255,0.2);
-  }
+  .btn-circle:hover { background: rgba(255,255,255,0.2); }
+  .btn-circle.danger { background: var(--danger); box-shadow: 0 0 15px rgba(239, 68, 68, 0.4); }
+  .btn-circle.active { background: var(--accent); box-shadow: 0 0 15px var(--accent-glow); }
+  .btn-circle.muted { background: var(--danger); }
 
+  /* ==== УТИЛИТЫ ==== */
   .hidden { display: none !important; }
-  .top-bar {
-    display: flex; justify-content: space-between; align-items: center;
-    margin-bottom: 20px;
-  }
   .back-btn {
-    background: rgba(255,255,255,0.1); border: none; color: #fff;
-    padding: 10px 18px; border-radius: 10px; cursor: pointer;
-    font-family: inherit; font-size: 14px;
+    background: transparent; border: none; color: var(--text-muted);
+    font-size: 15px; font-weight: 600; cursor: pointer;
+    padding: 10px; display: inline-flex; align-items: center;
   }
+  .back-btn:hover { color: #fff; }
 
   #loading-overlay {
-    position: fixed; inset: 0; background: rgba(0,0,0,0.95);
-    display: flex; flex-direction: column; align-items: center;
-    justify-content: center; z-index: 1000;
-    color: #0af; font-size: 16px;
-    transition: opacity 0.3s;
+    position: fixed; inset: 0; background: var(--bg); z-index: 1000;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    transition: opacity 0.5s;
   }
-  #loading-overlay.hidden { display: none; }
-
   .spinner {
-    width: 50px; height: 50px; border: 4px solid rgba(0,170,255,0.2);
-    border-top-color: #0af; border-radius: 50%;
-    animation: spin 1s linear infinite; margin-bottom: 20px;
+    width: 40px; height: 40px; border: 3px solid rgba(255,255,255,0.1);
+    border-top-color: var(--accent); border-radius: 50%;
+    animation: spin 1s linear infinite;
   }
   @keyframes spin { to { transform: rotate(360deg); } }
 
   #toast {
-    position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
-    background: rgba(0,0,0,0.9); color: #0af;
-    padding: 14px 24px; border-radius: 12px;
-    font-size: 14px; z-index: 2000;
-    opacity: 0; transition: opacity 0.3s;
-    border: 1px solid #0af;
-    box-shadow: 0 0 30px rgba(0,170,255,0.4);
-    pointer-events: none;
-    max-width: 90%;
-    text-align: center;
+    position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%);
+    background: var(--accent); color: #fff; padding: 12px 24px;
+    border-radius: 12px; font-weight: 600; font-size: 14px;
+    opacity: 0; transition: opacity 0.3s, transform 0.3s;
+    pointer-events: none; z-index: 2000;
+    box-shadow: 0 10px 20px var(--accent-glow);
+    transform: translate(-50%, 20px);
   }
-  #toast.show { opacity: 1; }
+  #toast.show { opacity: 1; transform: translate(-50%, 0); }
 
-  #audio-container {
-    position: absolute; width: 0; height: 0; overflow: hidden;
-    pointer-events: none;
-  }
-
-  .warn-box {
-    background: rgba(255, 200, 0, 0.1);
-    border: 1px solid rgba(255, 200, 0, 0.4);
-    border-radius: 10px;
-    padding: 12px 15px;
-    margin-bottom: 15px;
-    font-size: 12px;
-    color: #fa0;
-    text-align: center;
-  }
+  #audio-container { position: absolute; width: 0; height: 0; overflow: hidden; }
 </style>
 </head>
 <body>
 
 <div id="loading-overlay">
   <div class="spinner"></div>
-  <div>Подключение...</div>
 </div>
 
 <div id="toast"></div>
@@ -205,70 +199,62 @@
 
 <!-- МЕНЮ -->
 <div id="menu" class="screen active">
-  <h1>🎤 VOICE ROOM</h1>
-  <div class="sub">ГОЛОСОВЫЕ КОМНАТЫ · P2P</div>
+  <div class="logo">NEXUS</div>
+  <div class="subtitle">Voice & Video</div>
 
-  <input type="text" id="name-input" placeholder="Твоё имя" maxlength="16">
-
-  <button class="btn btn-success" onclick="showCreateRoom()">🏠 СОЗДАТЬ КОМНАТУ</button>
-  <button class="btn btn-primary" onclick="showJoinRoom()">🔗 ВОЙТИ ПО КОДУ</button>
-
-  <div style="margin-top: 30px; font-size: 11px; color: #666;">
-    <div id="device-info"></div>
+  <div class="glass-panel">
+    <input type="text" id="name-input" placeholder="Твоё имя" maxlength="16">
+    <button class="btn btn-primary" onclick="showCreateRoom()">🚀 Создать комнату</button>
+    <button class="btn btn-outline" onclick="showJoinRoom()">🔗 Войти по коду</button>
   </div>
 </div>
 
 <!-- СОЗДАНИЕ -->
 <div id="create-room" class="screen">
-  <div class="top-bar"><button class="back-btn" onclick="showScreen('menu')">← Назад</button></div>
-  <h2 style="text-align:center; margin-bottom:20px;">🏠 Создать комнату</h2>
-  <input type="text" id="room-name-input" placeholder="Название комнаты" maxlength="24">
-  <button class="btn btn-success" onclick="createRoom()">СОЗДАТЬ</button>
+  <div><button class="back-btn" onclick="showScreen('menu')">← Назад</button></div>
+  <div style="flex:1; display:flex; align-items:center; justify-content:center;">
+    <div class="glass-panel">
+      <h2 style="margin-bottom:20px; font-weight:800; text-align:center;">Новая комната</h2>
+      <input type="text" id="room-name-input" placeholder="Название (необязательно)" maxlength="24">
+      <button class="btn btn-primary" onclick="createRoom()">Создать</button>
+    </div>
+  </div>
 </div>
 
 <!-- ВХОД -->
 <div id="join-room" class="screen">
-  <div class="top-bar"><button class="back-btn" onclick="showScreen('menu')">← Назад</button></div>
-  <h2 style="text-align:center; margin-bottom:20px;">🔗 Войти в комнату</h2>
-  <input type="text" id="join-code-input" class="code" placeholder="КОД" maxlength="6">
-  <button class="btn btn-primary" onclick="joinRoom()">ВОЙТИ</button>
+  <div><button class="back-btn" onclick="showScreen('menu')">← Назад</button></div>
+  <div style="flex:1; display:flex; align-items:center; justify-content:center;">
+    <div class="glass-panel">
+      <h2 style="margin-bottom:20px; font-weight:800; text-align:center;">Вход по коду</h2>
+      <input type="text" id="join-code-input" class="code" placeholder="XXXXXX" maxlength="6">
+      <button class="btn btn-primary" onclick="joinRoom()">Войти</button>
+    </div>
+  </div>
 </div>
 
 <!-- КОМНАТА -->
 <div id="room" class="screen">
-  <div class="room-header">
-    <div>
-      <div class="room-code" id="room-code-display" onclick="copyRoomCode()">------</div>
-      <div class="room-info">Игроков: <b id="player-count">1</b></div>
-    </div>
-    <div style="text-align: right; font-size: 12px; color: #888;">
-      <div id="room-title">Комната</div>
+  <div class="room-top">
+    <div class="room-code" id="room-code-display" onclick="copyRoomCode()">------</div>
+    <div style="color:var(--text-muted); font-size:14px; font-weight:600;">
+      <span id="player-count">1</span> в сети
     </div>
   </div>
 
-  <div class="mic-status on" id="mic-status">
-    <span class="dot"></span>
-    <span id="mic-status-text">Микрофон включён</span>
-  </div>
-
-  <div class="warn-box" id="warn-box">
-    ⚠️ Если больше 6-8 человек — будет лагать (P2P соединение)
-  </div>
-
-  <div class="players-list" id="players-list"></div>
+  <div class="video-grid" id="video-grid"></div>
 
   <div class="controls">
-    <button class="mute-btn" id="mute-btn" onclick="toggleMute()">🎤 Говорю</button>
-    <button class="leave-btn" onclick="leaveRoom()">🚪 Выйти</button>
+    <button class="btn-circle" id="mic-btn" onclick="toggleMute()" title="Микрофон">🎤</button>
+    <button class="btn-circle" id="cam-btn" onclick="toggleVideo()" title="Камера">📷</button>
+    <button class="btn-circle danger" onclick="leaveRoom()" title="Выйти">✕</button>
   </div>
 </div>
 
+<!-- Firebase SDK -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import {
-    getDatabase, ref, set, get, update, onValue, remove,
-    onDisconnect, push, off
-  } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+  import { getDatabase, ref, set, get, update, onValue, remove, onDisconnect, push } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyBr65adGCtaBQGDaUZCNIXJVK7nqKOzHRY",
@@ -280,372 +266,150 @@
     appId: "1:363914814983:web:58d95ab4050e2cbd11aca2"
   };
 
-  let app, db;
   try {
-    app = initializeApp(firebaseConfig);
-    db = getDatabase(app);
+    const app = initializeApp(firebaseConfig);
+    window.db = getDatabase(app);
+    window.fb = { ref, set, get, update, onValue, remove, onDisconnect, push };
     console.log('✅ Firebase подключен');
-  } catch (e) {
-    console.error('❌ Firebase error:', e);
-  }
+  } catch (e) { console.error('Firebase error:', e); }
 
-  // Передаём наружу (в обычный script)
-  window.db = db;
-  window.fb = { ref, set, get, update, onValue, remove, onDisconnect, push, off };
-
-  const ICE_SERVERS = {
+  window.ICE_SERVERS = {
     iceServers: [
       { urls: 'stun:stun.l.google.com:19302' },
-      { urls: 'stun:stun1.l.google.com:19302' },
-      { urls: 'stun:stun2.l.google.com:19302' },
       { urls: 'turn:openrelay.metered.ca:80', username: 'openrelayproject', credential: 'openrelayproject' },
       { urls: 'turn:openrelay.metered.ca:443', username: 'openrelayproject', credential: 'openrelayproject' }
     ]
   };
-  window.ICE_SERVERS = ICE_SERVERS;
-
-  function getDeviceInfo() {
-    const ua = navigator.userAgent;
-    let name = 'Устройство', os = '?';
-    if (/Android/i.test(ua)) {
-      os = 'Android';
-      const m = ua.match(/;\s*([^)]+)\s+Build/);
-      name = m ? m[1] : 'Android';
-    } else if (/iPhone|iPad/i.test(ua)) { os = 'iOS'; name = 'iPhone'; }
-    else if (/Windows/i.test(ua)) { os = 'Windows'; name = 'PC'; }
-    else if (/Mac/i.test(ua)) { os = 'macOS'; name = 'Mac'; }
-    else if (/Linux/i.test(ua)) { os = 'Linux'; name = 'Linux'; }
-    return { name, os };
-  }
-
-  const deviceInfo = getDeviceInfo();
-  window.deviceInfo = deviceInfo; // ⚡ ВАЖНО: передаём наружу
-
-  const devEl = document.getElementById('device-info');
-  if (devEl) devEl.innerHTML = `<div>${deviceInfo.name} · ${deviceInfo.os}</div>`;
-
-  const savedName = localStorage.getItem('voice_name');
-  if (savedName) {
-    const el = document.getElementById('name-input');
-    if (el) el.value = savedName;
-  }
 
   setTimeout(() => {
     const o = document.getElementById('loading-overlay');
-    if (o) o.classList.add('hidden');
-  }, 300);
-
-  console.log('🎤 Voice Room загружен, устройство:', deviceInfo);
+    if(o) { o.style.opacity = '0'; setTimeout(() => o.remove(), 500); }
+  }, 400);
 </script>
 
+<!-- Основная логика -->
 <script>
-  // ============================================================
-  //  СОСТОЯНИЕ
-  // ============================================================
   let myName = '';
   let myId = 'u_' + Math.random().toString(36).substr(2, 9);
   let currentRoom = null;
-  let isHost = false;
   let inRoom = false;
-
-  // WebRTC
+  
   let localStream = null;
   let micMuted = false;
+  let camOn = false;
+
   const peers = new Map();
+  let playersUnsub = null, signalsUnsub = null;
+  let knownPlayerIds = new Set();
+  let audioCtx = null, selfAnalyser = null;
 
-  // Firebase
-  let playersRef = null;
-  let signalsRef = null;
-  let playersUnsub = null;
-  let signalsUnsub = null;
-
-  let audioCtx = null;
-  let selfAnalyser = null;
-
-  // ============================================================
-  //  УТИЛИТЫ
-  // ============================================================
+  // UI Функции
   function showScreen(id) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    const el = document.getElementById(id);
-    if (el) el.classList.add('active');
-    window.scrollTo(0, 0);
+    document.getElementById(id).classList.add('active');
   }
-
   function toast(msg) {
     const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.classList.add('show');
-    clearTimeout(t._timer);
-    t._timer = setTimeout(() => t.classList.remove('show'), 3000);
+    t.textContent = msg; t.classList.add('show');
+    clearTimeout(t._timer); t._timer = setTimeout(() => t.classList.remove('show'), 3000);
   }
-
   function getMyName() {
-    const input = document.getElementById('name-input');
-    let n = input ? input.value.trim() : '';
+    let n = document.getElementById('name-input').value.trim();
     if (!n) n = 'Гость' + Math.floor(Math.random() * 9000 + 1000);
-    localStorage.setItem('voice_name', n);
     return n.slice(0, 16);
   }
+  function escapeHtml(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
-  function escapeHtml(s) {
-    return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  }
-
-  // ============================================================
-  //  МИКРОФОН
-  // ============================================================
-  async function initMic() {
+  // Медиа
+  async function initMedia() {
     if (localStream) return true;
     try {
       localStream = await navigator.mediaDevices.getUserMedia({
-        audio: {
-          echoCancellation: true,
-          noiseSuppression: true,
-          autoGainControl: true
-        },
-        video: false
+        audio: { echoCancellation: true, noiseSuppression: true },
+        video: { width: 640, height: 360 } // Запрашиваем видео
       });
+      
+      // По умолчанию камера выключена, микрофон включен
+      localStream.getVideoTracks().forEach(t => t.enabled = false);
+      camOn = false;
 
       audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       const source = audioCtx.createMediaStreamSource(localStream);
       selfAnalyser = audioCtx.createAnalyser();
-      selfAnalyser.fftSize = 512;
+      selfAnalyser.fftSize = 256;
       source.connect(selfAnalyser);
 
-      console.log('🎤 Микрофон получен');
+      // Создаем свою плитку
+      addTile(myId, myName, localStream, true);
       return true;
     } catch (e) {
-      console.error('❌ Ошибка микрофона:', e);
-      toast('❌ Нет доступа к микрофону. Разреши в браузере.');
-      return false;
+      console.warn('Микрофон/камера не доступны, пробуем только звук...', e);
+      try {
+        localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+        camOn = false;
+        document.getElementById('cam-btn').style.display = 'none'; // Скрываем кнопку камеры, если ее нет
+        addTile(myId, myName, localStream, true);
+        return true;
+      } catch (e2) {
+        toast('❌ Нет доступа к микрофону');
+        return false;
+      }
     }
   }
 
   function toggleMute() {
+    if (!localStream) return;
     micMuted = !micMuted;
-    if (localStream) {
-      localStream.getAudioTracks().forEach(t => t.enabled = !micMuted);
-    }
-    const btn = document.getElementById('mute-btn');
-    const status = document.getElementById('mic-status');
-    const statusText = document.getElementById('mic-status-text');
-
-    if (micMuted) {
-      btn.textContent = '🔇 Молчу';
-      btn.classList.add('muted');
-      status.className = 'mic-status off';
-      statusText.textContent = 'Микрофон выключен';
-    } else {
-      btn.textContent = '🎤 Говорю';
-      btn.classList.remove('muted');
-      status.className = 'mic-status on';
-      statusText.textContent = 'Микрофон включён';
-    }
+    localStream.getAudioTracks().forEach(t => t.enabled = !micMuted);
+    
+    const btn = document.getElementById('mic-btn');
+    btn.classList.toggle('muted', micMuted);
+    btn.textContent = micMuted ? '🔇' : '🎤';
+    
+    document.getElementById('mute-icon-' + myId).textContent = micMuted ? '🔇' : '';
+    updateFirebaseState();
   }
 
-  // ============================================================
-  //  КОМНАТЫ
-  // ============================================================
-  function showCreateRoom() {
-    myName = getMyName();
-    showScreen('create-room');
+  function toggleVideo() {
+    if (!localStream || !localStream.getVideoTracks().length) return;
+    camOn = !camOn;
+    localStream.getVideoTracks().forEach(t => t.enabled = camOn);
+    
+    const btn = document.getElementById('cam-btn');
+    btn.classList.toggle('active', camOn);
+    document.getElementById('tile-' + myId).classList.toggle('video-on', camOn);
+    
+    updateFirebaseState();
   }
 
-  function showJoinRoom() {
-    myName = getMyName();
-    showScreen('join-room');
-  }
-
-  async function createRoom() {
-    const roomName = (document.getElementById('room-name-input').value.trim() || (myName + 'а комната')).slice(0, 24);
-    const code = Math.random().toString(36).substr(2, 6).toUpperCase();
-
-    myName = getMyName();
-    isHost = true;
-    currentRoom = code;
-
-    const ok = await initMic();
-    if (!ok) return;
-
+  async function updateFirebaseState() {
+    if (!currentRoom) return;
     try {
-      const roomR = window.fb.ref(window.db, `voice_rooms/${code}`);
-      await window.fb.set(roomR, {
-        name: roomName,
-        host: myId,
-        createdAt: Date.now()
+      await window.fb.update(window.fb.ref(window.db, `rooms/${currentRoom}/players/${myId}`), {
+        muted: micMuted, video: camOn
       });
-
-      const playerR = window.fb.ref(window.db, `voice_rooms/${code}/players/${myId}`);
-      await window.fb.set(playerR, {
-        name: myName,
-        device: window.deviceInfo.name,
-        os: window.deviceInfo.os,
-        joinedAt: Date.now(),
-        muted: false,
-        speaking: false
-      });
-      window.fb.onDisconnect(playerR).remove();
-
-      await enterRoom();
-    } catch (e) {
-      console.error(e);
-      toast('Ошибка: ' + e.message);
-    }
+    } catch(e) {}
   }
 
-  async function joinRoom() {
-    const code = document.getElementById('join-code-input').value.trim().toUpperCase();
-    if (code.length !== 6) { toast('Код 6 символов'); return; }
-
-    myName = getMyName();
-    isHost = false;
-    currentRoom = code;
-
-    const ok = await initMic();
-    if (!ok) return;
-
-    try {
-      const roomR = window.fb.ref(window.db, `voice_rooms/${code}`);
-      const snap = await window.fb.get(roomR);
-      if (!snap.exists()) { toast('Комната не найдена'); return; }
-
-      const playerR = window.fb.ref(window.db, `voice_rooms/${code}/players/${myId}`);
-      await window.fb.set(playerR, {
-        name: myName,
-        device: window.deviceInfo.name,
-        os: window.deviceInfo.os,
-        joinedAt: Date.now(),
-        muted: false,
-        speaking: false
-      });
-      window.fb.onDisconnect(playerR).remove();
-
-      await enterRoom();
-    } catch (e) {
-      console.error(e);
-      toast('Ошибка: ' + e.message);
-    }
-  }
-
-  async function enterRoom() {
-    inRoom = true;
-    showScreen('room');
-    document.getElementById('room-code-display').textContent = currentRoom;
-
-    playersRef = window.fb.ref(window.db, `voice_rooms/${currentRoom}/players`);
-    signalsRef = window.fb.ref(window.db, `voice_rooms/${currentRoom}/signals`);
-
-    playersUnsub = window.fb.onValue(playersRef, (snap) => {
-      if (!snap.exists()) return;
-      const players = snap.val();
-      renderPlayers(players);
-      handlePlayerChanges(players);
-    });
-
-    signalsUnsub = window.fb.onValue(signalsRef, (snap) => {
-      if (!snap.exists()) return;
-      const signals = snap.val();
-      handleSignals(signals);
-    });
-
-    setInterval(updateSpeakingStatus, 200);
-  }
-
-  function renderPlayers(players) {
-    const list = document.getElementById('players-list');
-    list.innerHTML = '';
-    const ids = Object.keys(players);
-    document.getElementById('player-count').textContent = ids.length;
-
-    ids.sort((a, b) => {
-      if (a === myId) return -1;
-      if (b === myId) return 1;
-      return (players[a].joinedAt || 0) - (players[b].joinedAt || 0);
-    });
-
-    ids.forEach(id => {
-      const p = players[id];
-      const isMe = id === myId;
-      const div = document.createElement('div');
-      div.className = 'player-item' + (isMe ? ' me' : '');
-      div.id = 'player-' + id;
-
-      const initial = (p.name || '?')[0].toUpperCase();
-
-      div.innerHTML = `
-        <div class="avatar">${initial}</div>
-        <div class="info">
-          <div class="name">${isMe ? '⭐ ' : ''}${escapeHtml(p.name)}</div>
-          <div class="sub">${p.device || '?'} · ${p.os || '?'}</div>
-        </div>
-        <div class="status-icon">${p.muted ? '🔇' : '🎤'}</div>
-      `;
-      list.appendChild(div);
-    });
-  }
-
-  let knownPlayerIds = new Set();
-
-  async function handlePlayerChanges(players) {
-    const currentIds = new Set(Object.keys(players));
-
-    for (const id of currentIds) {
-      if (id === myId) continue;
-      if (!knownPlayerIds.has(id)) {
-        console.log('👤 Новый игрок:', id);
-        knownPlayerIds.add(id);
-
-        // Кто создаёт offer — детерминированно по ID
-        if (myId < id) {
-          await createOffer(id);
-        }
-      }
-    }
-
-    for (const id of knownPlayerIds) {
-      if (!currentIds.has(id)) {
-        console.log('👋 Игрок ушёл:', id);
-        knownPlayerIds.delete(id);
-        closePeer(id);
-      }
-    }
-  }
-
-  // ============================================================
-  //  WEBRTC
-  // ============================================================
+  // WebRTC
   function createPC(peerId) {
     const pc = new RTCPeerConnection(window.ICE_SERVERS);
-
-    if (localStream) {
-      localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
-    }
+    if (localStream) localStream.getTracks().forEach(t => pc.addTrack(t, localStream));
 
     const remoteStream = new MediaStream();
     pc.ontrack = (event) => {
       event.streams[0].getTracks().forEach(t => remoteStream.addTrack(t));
-      attachAudio(peerId, remoteStream);
+      addTile(peerId, '...', remoteStream, false);
     };
 
     pc.onicecandidate = (event) => {
       if (event.candidate) {
-        window.fb.push(window.fb.ref(window.db, `voice_rooms/${currentRoom}/signals/${peerId}/ice`), {
-          from: myId,
-          candidate: event.candidate.toJSON(),
-          ts: Date.now()
+        window.fb.push(window.fb.ref(window.db, `rooms/${currentRoom}/signals/${peerId}/ice`), {
+          from: myId, candidate: event.candidate.toJSON()
         });
       }
     };
-
-    pc.onconnectionstatechange = () => {
-      console.log(`Connection ${peerId}:`, pc.connectionState);
-      if (pc.connectionState === 'failed' || pc.connectionState === 'disconnected') {
-        closePeer(peerId);
-      }
-    };
-
-    peers.set(peerId, { pc, audioEl: null, stream: remoteStream, analyser: null });
+    peers.set(peerId, { pc });
     return pc;
   }
 
@@ -654,193 +418,214 @@
       const pc = createPC(peerId);
       const offer = await pc.createOffer();
       await pc.setLocalDescription(offer);
-
-      await window.fb.set(window.fb.ref(window.db, `voice_rooms/${currentRoom}/signals/${peerId}/offer`), {
-        from: myId,
-        offer: { type: offer.type, sdp: offer.sdp },
-        ts: Date.now()
+      await window.fb.set(window.fb.ref(window.db, `rooms/${currentRoom}/signals/${peerId}/offer`), {
+        from: myId, offer: { type: offer.type, sdp: offer.sdp }
       });
-    } catch (e) {
-      console.error('createOffer error:', e);
-    }
+    } catch (e) { console.error(e); }
   }
 
   async function handleSignals(signals) {
     for (const [peerId, sig] of Object.entries(signals)) {
       if (peerId === myId) continue;
+      let peer = peers.get(peerId);
 
       if (sig.offer && sig.offer.from !== myId) {
-        if (!peers.has(peerId)) {
-          const pc = createPC(peerId);
-          try {
-            await pc.setRemoteDescription(new RTCSessionDescription(sig.offer.offer));
-            const answer = await pc.createAnswer();
-            await pc.setLocalDescription(answer);
-
-            await window.fb.set(window.fb.ref(window.db, `voice_rooms/${currentRoom}/signals/${peerId}/answer`), {
-              from: myId,
-              answer: { type: answer.type, sdp: answer.sdp },
-              ts: Date.now()
-            });
-          } catch (e) {
-            console.warn('Answer error:', e);
-          }
+        if (!peer) {
+          peer = { pc: createPC(peerId) };
+          await peer.pc.setRemoteDescription(new RTCSessionDescription(sig.offer.offer));
+          const answer = await peer.pc.createAnswer();
+          await peer.pc.setLocalDescription(answer);
+          await window.fb.set(window.fb.ref(window.db, `rooms/${currentRoom}/signals/${peerId}/answer`), {
+            from: myId, answer: { type: answer.type, sdp: answer.sdp }
+          });
         }
       }
 
-      if (sig.answer && sig.answer.from !== myId) {
-        const peer = peers.get(peerId);
-        if (peer && peer.pc.signalingState !== 'stable') {
-          try {
-            await peer.pc.setRemoteDescription(new RTCSessionDescription(sig.answer.answer));
-          } catch (e) {
-            console.warn('setRemoteDescription answer error:', e);
-          }
+      if (sig.answer && sig.answer.from !== myId && peer) {
+        if (peer.pc.signalingState !== 'stable') {
+          await peer.pc.setRemoteDescription(new RTCSessionDescription(sig.answer.answer));
         }
       }
 
-      if (sig.ice) {
-        const peer = peers.get(peerId);
-        if (peer) {
-          for (const ice of Object.values(sig.ice)) {
-            if (ice.from !== myId) {
-              try {
-                await peer.pc.addIceCandidate(new RTCIceCandidate(ice.candidate));
-              } catch (e) {}
-            }
+      if (sig.ice && peer) {
+        for (const ice of Object.values(sig.ice)) {
+          if (ice.from !== myId) {
+            try { await peer.pc.addIceCandidate(new RTCIceCandidate(ice.candidate)); } catch(e) {}
           }
         }
       }
     }
   }
 
-  function attachAudio(peerId, stream) {
-    const peer = peers.get(peerId);
-    if (!peer) return;
-
-    let audioEl = peer.audioEl;
-    if (!audioEl) {
-      audioEl = document.createElement('audio');
-      audioEl.autoplay = true;
-      audioEl.playsInline = true;
-      audioEl.id = 'audio-' + peerId;
-      document.getElementById('audio-container').appendChild(audioEl);
-      peer.audioEl = audioEl;
-
-      if (audioCtx) {
-        try {
-          const src = audioCtx.createMediaStreamSource(stream);
-          const analyser = audioCtx.createAnalyser();
-          analyser.fftSize = 512;
-          src.connect(analyser);
-          peer.analyser = analyser;
-        } catch (e) {}
-      }
+  // UI плитки
+  function addTile(id, name, stream, isMe) {
+    let tile = document.getElementById('tile-' + id);
+    if (!tile) {
+      tile = document.createElement('div');
+      tile.id = 'tile-' + id;
+      tile.className = 'tile';
+      tile.innerHTML = `
+        <div class="avatar-big">${isMe ? '⭐' : '👤'}</div>
+        <video autoplay playsinline ${isMe ? 'muted' : ''}></video>
+        <div class="tile-name">
+          <span>${escapeHtml(name)} ${isMe ? '(Ты)' : ''}</span>
+          <span class="tile-mute-icon" id="mute-icon-${id}"></span>
+        </div>
+      `;
+      document.getElementById('video-grid').appendChild(tile);
     }
-    audioEl.srcObject = stream;
-    audioEl.play().catch(e => console.warn('Audio play failed:', e));
+    
+    const videoEl = tile.querySelector('video');
+    videoEl.srcObject = stream;
+
+    // Проверяем наличие видеотрека
+    const hasVideo = stream.getVideoTracks().length > 0 && stream.getVideoTracks()[0].enabled;
+    tile.classList.toggle('video-on', hasVideo);
+
+    // Анализ звука для чужого потока
+    if (!isMe && audioCtx) {
+      try {
+        const src = audioCtx.createMediaStreamSource(stream);
+        const analyzer = audioCtx.createAnalyser();
+        analyzer.fftSize = 256;
+        src.connect(analyzer);
+        const data = new Uint8Array(analyzer.frequencyBinCount);
+        
+        setInterval(() => {
+          analyzer.getByteFrequencyData(data);
+          let sum = 0; for(let i=0; i<data.length; i++) sum+=data[i];
+          const avg = sum/data.length;
+          // Подсветка, если громко
+          if (avg > 10) tile.classList.add('speaking');
+          else tile.classList.remove('speaking');
+          
+          // Обновляем иконку видео на лету
+          if (stream.getVideoTracks().length > 0) {
+             tile.classList.toggle('video-on', stream.getVideoTracks()[0].enabled);
+          }
+        }, 200);
+      } catch(e){}
+    }
   }
 
-  function closePeer(peerId) {
-    const peer = peers.get(peerId);
-    if (!peer) return;
-    if (peer.pc) {
-      try { peer.pc.close(); } catch(e) {}
-    }
-    if (peer.audioEl) peer.audioEl.remove();
-    peers.delete(peerId);
-    try {
-      window.fb.remove(window.fb.ref(window.db, `voice_rooms/${currentRoom}/signals/${peerId}`));
-    } catch(e) {}
+  function removeTile(id) {
+    const t = document.getElementById('tile-' + id);
+    if (t) t.remove();
   }
 
-  // ============================================================
-  //  SPEAKING STATUS
-  // ============================================================
-  async function updateSpeakingStatus() {
-    if (!inRoom) return;
+  // Логика комнаты
+  async function showCreateRoom() { myName = getMyName(); showScreen('create-room'); }
+  async function showJoinRoom() { myName = getMyName(); showScreen('join-room'); }
 
-    let selfSpeaking = false;
-    if (selfAnalyser && !micMuted) {
-      const data = new Uint8Array(selfAnalyser.frequencyBinCount);
-      selfAnalyser.getByteFrequencyData(data);
-      let sum = 0;
-      for (let i = 0; i < data.length; i++) sum += data[i];
-      const avg = sum / data.length;
-      selfSpeaking = avg > 15;
-    }
+  async function createRoom() {
+    const code = Math.random().toString(36).substr(2, 6).toUpperCase();
+    myName = getMyName(); currentRoom = code;
+    if (!(await initMedia())) return;
 
     try {
-      await window.fb.update(window.fb.ref(window.db, `voice_rooms/${currentRoom}/players/${myId}`), {
-        muted: micMuted,
-        speaking: selfSpeaking
+      await window.fb.set(window.fb.ref(window.db, `rooms/${code}`), { host: myId });
+      await window.fb.set(window.fb.ref(window.db, `rooms/${code}/players/${myId}`), {
+        name: myName, muted: false, video: false, joinedAt: Date.now()
       });
-    } catch(e) {}
-
-    for (const [peerId, peer] of peers) {
-      if (!peer.analyser) continue;
-      const data = new Uint8Array(peer.analyser.frequencyBinCount);
-      peer.analyser.getByteFrequencyData(data);
-      let sum = 0;
-      for (let i = 0; i < data.length; i++) sum += data[i];
-      const avg = sum / data.length;
-      const isSpeaking = avg > 15;
-
-      const el = document.getElementById('player-' + peerId);
-      if (el) el.classList.toggle('speaking', isSpeaking);
-    }
-
-    const myEl = document.getElementById('player-' + myId);
-    if (myEl) myEl.classList.toggle('speaking', selfSpeaking);
+      window.fb.onDisconnect(window.fb.ref(window.db, `rooms/${code}/players/${myId}`)).remove();
+      enterRoom();
+    } catch (e) { toast('Ошибка Firebase'); }
   }
 
-  // ============================================================
-  //  ВЫХОД
-  // ============================================================
+  async function joinRoom() {
+    const code = document.getElementById('join-code-input').value.trim().toUpperCase();
+    if (code.length !== 6) return toast('Код 6 символов');
+    myName = getMyName(); currentRoom = code;
+    if (!(await initMedia())) return;
+
+    try {
+      const snap = await window.fb.get(window.fb.ref(window.db, `rooms/${code}`));
+      if (!snap.exists()) return toast('Комната не найдена');
+      
+      await window.fb.set(window.fb.ref(window.db, `rooms/${code}/players/${myId}`), {
+        name: myName, muted: false, video: false, joinedAt: Date.now()
+      });
+      window.fb.onDisconnect(window.fb.ref(window.db, `rooms/${code}/players/${myId}`)).remove();
+      enterRoom();
+    } catch (e) { toast('Ошибка Firebase'); }
+  }
+
+  function enterRoom() {
+    inRoom = true;
+    showScreen('room');
+    document.getElementById('room-code-display').textContent = currentRoom;
+    
+    const pRef = window.fb.ref(window.db, `rooms/${currentRoom}/players`);
+    const sRef = window.fb.ref(window.db, `rooms/${currentRoom}/signals`);
+
+    playersUnsub = window.fb.onValue(pRef, snap => {
+      if (!snap.exists()) return;
+      const players = snap.val();
+      document.getElementById('player-count').textContent = Object.keys(players).length;
+      
+      const currentIds = new Set(Object.keys(players));
+      // Кто-то зашел
+      for (const id of currentIds) {
+        if (id !== myId && !knownPlayerIds.has(id)) {
+          knownPlayerIds.add(id);
+          if (myId < id) createOffer(id);
+        }
+        if (id !== myId) {
+           // Обновляем иконку мута у чужого
+           const icon = document.getElementById('mute-icon-' + id);
+           if (icon) icon.textContent = players[id].muted ? '🔇' : '';
+        }
+      }
+      // Кто-то вышел
+      for (const id of knownPlayerIds) {
+        if (!currentIds.has(id)) {
+          knownPlayerIds.delete(id);
+          removeTile(id);
+          if (peers.has(id)) { peers.get(id).pc.close(); peers.delete(id); }
+        }
+      }
+    });
+
+    signalsUnsub = window.fb.onValue(sRef, snap => {
+      if (snap.exists()) handleSignals(snap.val());
+    });
+  }
+
   async function leaveRoom() {
     if (!currentRoom) return;
-    inRoom = false;
-
-    if (playersUnsub) { playersUnsub(); playersUnsub = null; }
-    if (signalsUnsub) { signalsUnsub(); signalsUnsub = null; }
-
-    for (const id of Array.from(peers.keys())) closePeer(id);
+    if (playersUnsub) playersUnsub();
+    if (signalsUnsub) signalsUnsub();
+    
+    for (const id of Array.from(peers.keys())) { peers.get(id).pc.close(); removeTile(id); }
+    peers.clear(); knownPlayerIds.clear();
 
     try {
-      await window.fb.remove(window.fb.ref(window.db, `voice_rooms/${currentRoom}/players/${myId}`));
-      const snap = await window.fb.get(window.fb.ref(window.db, `voice_rooms/${currentRoom}/players`));
-      if (!snap.exists() || Object.keys(snap.val() || {}).length === 0) {
-        await window.fb.remove(window.fb.ref(window.db, `voice_rooms/${currentRoom}`));
+      await window.fb.remove(window.fb.ref(window.db, `rooms/${currentRoom}/players/${myId}`));
+      const snap = await window.fb.get(window.fb.ref(window.db, `rooms/${currentRoom}/players`));
+      if (!snap.exists() || Object.keys(snap.val()||{}).length === 0) {
+        await window.fb.remove(window.fb.ref(window.db, `rooms/${currentRoom}`));
       }
-    } catch (e) {}
+    } catch(e){}
 
-    if (localStream) {
-      localStream.getTracks().forEach(t => t.stop());
-      localStream = null;
-    }
-
+    if (localStream) localStream.getTracks().forEach(t => t.stop());
+    localStream = null;
+    document.getElementById('video-grid').innerHTML = '';
     currentRoom = null;
-    knownPlayerIds.clear();
     showScreen('menu');
   }
 
   function copyRoomCode() {
-    if (!currentRoom) return;
-    navigator.clipboard.writeText(currentRoom).then(() => {
-      toast('📋 Код скопирован: ' + currentRoom);
-    });
+    if (currentRoom) {
+      navigator.clipboard.writeText(currentRoom);
+      toast('Код скопирован: ' + currentRoom);
+    }
   }
 
   window.addEventListener('beforeunload', () => {
     if (currentRoom) {
-      try {
-        window.fb.remove(window.fb.ref(window.db, `voice_rooms/${currentRoom}/players/${myId}`));
-      } catch(e) {}
+      window.fb.remove(window.fb.ref(window.db, `rooms/${currentRoom}/players/${myId}`));
     }
   });
-
-  console.log('🎤 Voice Room готов');
 </script>
-
 </body>
 </html>
