@@ -99,7 +99,6 @@ header{display:flex;align-items:center;justify-content:space-between;padding:18p
 .recording-player{width:100%;aspect-ratio:16/9;border-radius:8px;overflow:hidden;background:#000;border:1px solid rgba(255,255,255,.05)}
 .recording-player iframe{width:100%;height:100%;border:none;display:block}
 
-/* Стили для поддержки в админке */
 .support-admin-msg { padding: 8px; border-radius: 8px; margin-bottom: 8px; font-size: 0.85rem; }
 .support-admin-msg.user { background: rgba(255,255,255,0.04); border-left: 3px solid var(--text-muted); }
 .support-admin-msg.admin { background: rgba(245,197,66,0.08); border-left: 3px solid var(--gold); }
@@ -285,7 +284,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:18p
       <button class="admin-tab" data-tab="admins">👑 Админы</button>
       <button class="admin-tab" data-tab="users">👥 Юзеры</button>
       <button class="admin-tab" data-tab="settings">⚙️ Настройки</button>
-      <button class="admin-tab" data-tab="support">💬 Поддержка</button> <!-- НОВАЯ ВКЛАДКА -->
+      <button class="admin-tab" data-tab="support">💬 Поддержка</button>
       <button class="admin-tab" data-tab="code">➕ Код</button>
     </div>
     <div class="admin-panel active" id="panel-stream">
@@ -362,7 +361,6 @@ header{display:flex;align-items:center;justify-content:space-between;padding:18p
       <p style="font-size:.85rem;color:var(--text-secondary)">Пароль SND: <b>7345787</b></p>
     </div>
 
-    <!-- НОВАЯ ПАНЕЛЬ ПОДДЕРЖКИ -->
     <div class="admin-panel" id="panel-support">
       <h3 style="font-size:1rem;margin-bottom:15px;color:var(--gold-soft)">💬 Диалоги с юзерами</h3>
       <div style="display:flex;gap:15px;flex-wrap:wrap;">
@@ -389,7 +387,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:18p
 <!-- FIREBASE SDK -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getDatabase, ref, onValue, set, update, push, remove, get }
+import { getDatabase, ref, onValue, set, update, push, remove, get, runTransaction }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
 const firebaseConfig = {
@@ -404,7 +402,7 @@ const firebaseConfig = {
 
 const fbApp = initializeApp(firebaseConfig);
 const db = getDatabase(fbApp);
-window.FB = { db, ref, onValue, set, update, push, remove, get };
+window.FB = { db, ref, onValue, set, update, push, remove, get, runTransaction };
 
 const connRef = ref(db, '.info/connected');
 onValue(connRef, (snap) => {
@@ -440,7 +438,7 @@ let firebaseEvents = null;
 let firebaseCards = null;
 let firebaseViews = 0;
 let firebaseRecordings = [];
-let firebaseSupport = []; // НОВОЕ
+let firebaseSupport = [];
 
 const state = {
   user: JSON.parse(localStorage.getItem('goldtv_user') || 'null'),
@@ -684,8 +682,8 @@ async function feed(amount){
 
   if(fbReady){
     await window.FB.update(window.FB.ref(window.FB.db, `users/${encodeKey(u.nickname)}`), { balance: u.balance, donated: u.donated });
-    const newViews = (firebaseViews||0) + 1;
-    await window.FB.set(window.FB.ref(window.FB.db, 'views'), newViews);
+    const viewsRef = window.FB.ref(window.FB.db, 'views');
+    await window.FB.runTransaction(viewsRef, (cur) => (cur || 0) + 1);
   } else {
     state.views += 1;
     saveLocal();
@@ -738,7 +736,7 @@ function renderAdminAll(){
   renderAdminEvents(); renderAdminCards(); renderAdminBets();
   renderAdminAdmins(); renderAdminUsers();
   renderAdminRecordings();
-  renderAdminSupport(); // НОВОЕ
+  renderAdminSupport();
   const s = firebaseStream || state.localStream;
   $('adminStreamUrl').value = s.url||'';
   $('adminStreamTitle').value = s.title||'';
@@ -932,7 +930,6 @@ function renderAdminSupport() {
   const chat = $('adminSupportChat');
   if (!select || !chat) return;
 
-  // Собираем список всех юзеров, кто писал
   const msgList = firebaseSupport.length ? firebaseSupport : state.supportMessages;
   const usersSet = new Set();
   msgList.forEach(m => { if (m.from === 'user') usersSet.add(m.user); });
@@ -947,7 +944,6 @@ function renderAdminSupport() {
   select.innerHTML = Array.from(usersSet).map(u => `<option value="${u}">👤 ${esc(u)}</option>`).join('');
   if (currentUser && usersSet.has(currentUser)) select.value = currentUser;
 
-  // Рендер чата выбранного юзера
   const selectedUser = select.value;
   if (!selectedUser) return;
 
@@ -1012,11 +1008,11 @@ window.addEventListener('firebase-ready', () => {
     firebaseViews = snap.val() || 0;
     renderViewCount();
   });
-  onValue(ref(db, 'support'), snap => { // НОВОЕ
+  onValue(ref(db, 'support'), snap => {
     const val = snap.val() || {};
     firebaseSupport = Object.entries(val).map(([k,v]) => ({...v, _key: k}));
-    renderSupportMessages(); // обновляем чат юзера
-    renderAdminSupport();     // обновляем чат админа
+    renderSupportMessages();
+    renderAdminSupport();
   });
   onValue(ref(db, 'customCode'), snap => {
     state.customCode = snap.val() || '';
@@ -1106,7 +1102,7 @@ function init(){
     $$('.admin-panel').forEach(x=>x.classList.remove('active'));
     t.classList.add('active');
     $('panel-'+t.dataset.tab).classList.add('active');
-    if(t.dataset.tab === 'support') renderAdminSupport(); // обновляем при клике
+    if(t.dataset.tab === 'support') renderAdminSupport();
   });
 
   /* ADMIN: STREAM */
@@ -1184,30 +1180,47 @@ function init(){
     toast('Запись добавлена!','success');
   };
 
-  /* ADMIN: VIEWS */
+  /* ADMIN: VIEWS (ИСПРАВЛЕНО) */
   $('viewsStartBtn').onclick = async () => {
     const start = Number($('viewsStart').value);
     const step = Number($('viewsStep').value) || 5;
+    
     if (start) {
       state.views = start;
-      if (fbReady) { await window.FB.set(window.FB.ref(window.FB.db, 'views'), start); firebaseViews = start; }
+      if (fbReady) { 
+        await window.FB.set(window.FB.ref(window.FB.db, 'views'), start); 
+        firebaseViews = start; 
+      }
       renderViewCount();
     }
+    
     if (window._viewsTimer) clearInterval(window._viewsTimer);
+    
     window._viewsTimer = setInterval(async () => {
-      if(!state.viewsConfig.running && !$('viewsStartBtn')) return;
-      const cur = firebaseViews || state.views;
-      const next = cur + step;
-      if(fbReady) await window.FB.set(window.FB.ref(window.FB.db, 'views'), next);
-      else { state.views = next; renderViewCount(); }
+      if (!state.viewsConfig.running) return;
+      
+      if (fbReady && window.FB && window.FB.runTransaction) {
+        const viewsRef = window.FB.ref(window.FB.db, 'views');
+        window.FB.runTransaction(viewsRef, (currentViews) => {
+          return (currentViews || 0) + step;
+        }).catch(e => console.error("Views Error:", e));
+      } else {
+        state.views = (state.views || 0) + step;
+        renderViewCount();
+      }
     }, 3000);
+    
     state.viewsConfig.running = true;
-    toast('Накрутка запущена','success');
+    toast('Накрутка запущена', 'success');
   };
+
   $('viewsStopBtn').onclick = () => {
     state.viewsConfig.running = false;
-    if(window._viewsTimer) clearInterval(window._viewsTimer);
-    toast('Накрутка остановлена','info');
+    if (window._viewsTimer) {
+      clearInterval(window._viewsTimer);
+      window._viewsTimer = null;
+    }
+    toast('Накрутка остановлена', 'info');
   };
 
   /* ADMIN: ADMINS */
@@ -1228,7 +1241,7 @@ function init(){
     toast('Пароль изменён','success');
   };
 
-  /* ADMIN: SUPPORT — ОТПРАВКА */
+  /* ADMIN: SUPPORT */
   $('adminSendSupportBtn').onclick = async () => {
     const user = $('adminSupportUserSelect').value;
     const text = $('adminSupportReplyInput').value.trim();
@@ -1272,7 +1285,6 @@ function toggleSupport(){
   if(p.classList.contains('open')) renderSupportMessages();
 }
 
-/* РЕНДЕР ЧАТА ЮЗЕРА */
 function renderSupportMessages(){
   const el = $('supportMessages');
   if(!el) return;
@@ -1280,7 +1292,6 @@ function renderSupportMessages(){
   const msgList = firebaseSupport.length ? firebaseSupport : state.supportMessages;
   const myUser = state.user ? state.user.nickname : 'anon';
   
-  // Юзер видит только свои сообщения и ответы админа
   const myMessages = msgList.filter(m => m.user === myUser || (m.from === 'admin' && m.user === myUser)).sort((a,b) => a.time - b.time);
   
   el.innerHTML = myMessages.map(m =>
@@ -1306,9 +1317,6 @@ async function sendSupport(){
   }
   
   input.value='';
-  setTimeout(() => {
-    if (!$('supportPanel').classList.contains('open')) return;
-  }, 100);
 }
 
 function renderExtra(){
