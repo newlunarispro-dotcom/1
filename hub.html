@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SND Games | Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #050508; --card-bg: rgba(20, 20, 30, 0.6); --border: rgba(255, 255, 255, 0.08);
+    --accent: #6366f1; --accent-glow: rgba(99, 102, 241, 0.4);
+    --text: #f8fafc; --text-muted: #94a3b8; --danger: #ef4444;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; }
+  body {
+    font-family: 'Inter', sans-serif; background-color: var(--bg); color: var(--text);
+    min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden;
+  }
+  .bg-glow {
+    position: fixed; inset: 0; z-index: -1;
+    background: radial-gradient(circle at 15% 50%, rgba(99, 102, 241, 0.15), transparent 30%),
+                radial-gradient(circle at 85% 30%, rgba(16, 185, 129, 0.1), transparent 30%);
+  }
+  
+  header {
+    padding: 20px 40px; display: flex; justify-content: space-between; align-items: center;
+    background: rgba(5, 5, 8, 0.8); backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100;
+  }
+  .logo { display: flex; align-items: center; gap: 15px; font-size: 24px; font-weight: 800; }
+  .logo-icon {
+    width: 40px; height: 40px; background: linear-gradient(135deg, var(--accent), #a855f7);
+    border-radius: 12px; display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 0 20px var(--accent-glow);
+  }
+  
+  .admin-btn {
+    background: transparent; border: 1px solid var(--border); color: var(--text-muted);
+    padding: 8px 16px; border-radius: 10px; cursor: pointer; font-weight: 600; transition: 0.2s;
+  }
+  .admin-btn:hover { color: #fff; border-color: #fff; }
+  
+  main { flex: 1; padding: 40px; max-width: 1200px; margin: 0 auto; width: 100%; }
+  .section-title { font-size: 28px; font-weight: 800; margin-bottom: 25px; }
+  
+  .games-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 25px; }
+  .game-card {
+    background: var(--card-bg); border-radius: 24px; border: 1px solid var(--border);
+    overflow: hidden; cursor: pointer; transition: all 0.3s ease; backdrop-filter: blur(20px);
+    display: flex; flex-direction: column; position: relative;
+  }
+  .game-card:hover {
+    transform: translateY(-8px); border-color: rgba(99, 102, 241, 0.5);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.5), 0 0 20px var(--accent-glow);
+  }
+  .game-banner {
+    height: 160px; background: #18181b; display: flex; align-items: center; justify-content: center;
+    font-size: 64px; position: relative; overflow: hidden;
+  }
+  .game-info { padding: 20px; flex: 1; display: flex; flex-direction: column; }
+  .game-title { font-size: 20px; font-weight: 800; margin-bottom: 8px; }
+  .game-url { font-size: 12px; color: var(--text-muted); margin-bottom: 20px; flex: 1; word-break: break-all; }
+  .play-btn {
+    background: var(--text); color: #000; border: none; padding: 8px 20px;
+    border-radius: 12px; font-weight: 800; font-size: 14px; transition: 0.2s;
+    align-self: flex-start;
+  }
+  .game-card:hover .play-btn { background: var(--accent); color: #fff; }
+
+  /* Кнопка удаления для админа */
+  .delete-btn {
+    position: absolute; top: 10px; right: 10px; background: var(--danger); color: #fff;
+    border: none; width: 32px; height: 32px; border-radius: 50%; font-weight: bold;
+    cursor: pointer; display: none; z-index: 10; box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+    font-size: 16px;
+  }
+  body.is-admin .delete-btn { display: flex; align-items: center; justify-content: center; }
+
+  /* Модалки */
+  .modal {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px);
+    display: none; align-items: center; justify-content: center; z-index: 1000;
+  }
+  .modal.active { display: flex; }
+  .modal-content {
+    background: var(--card-bg); border: 1px solid var(--border); padding: 30px;
+    border-radius: 20px; width: 100%; max-width: 400px; backdrop-filter: blur(20px);
+  }
+  .modal-content h2 { margin-bottom: 20px; font-weight: 800; }
+  input {
+    width: 100%; padding: 12px 15px; background: rgba(0,0,0,0.5); border: 1px solid var(--border);
+    color: #fff; border-radius: 10px; margin-bottom: 15px; font-family: inherit; outline: none;
+  }
+  input:focus { border-color: var(--accent); }
+  .modal-btn {
+    width: 100%; padding: 12px; background: var(--accent); color: #fff; border: none;
+    border-radius: 10px; font-weight: bold; cursor: pointer; margin-bottom: 10px; transition: 0.2s;
+  }
+  .modal-btn:hover { opacity: 0.9; }
+  .modal-btn.cancel { background: transparent; border: 1px solid var(--border); }
+
+  /* Плавающая кнопка добавления */
+  #add-game-floating-btn {
+    position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px;
+    border-radius: 50%; background: var(--accent); color: #fff; font-size: 30px;
+    border: none; cursor: pointer; box-shadow: 0 10px 20px var(--accent-glow);
+    z-index: 999; display: none; align-items: center; justify-content: center;
+  }
+  body.is-admin #add-game-floating-btn { display: flex; }
+</style>
+</head>
+<body>
+
+<div class="bg-glow"></div>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">S</div>
+    SND Games
+  </div>
+  <button class="admin-btn" id="auth-btn" onclick="handleAuthClick()">Вход для админа</button>
+</header>
+
+<main>
+  <div class="section-title">🔥 Все игры</div>
+  <div class="games-grid" id="games-grid">
+    <div style="color:#888;">Загрузка игр из Firebase...</div>
+  </div>
+</main>
+
+<!-- Кнопка + -->
+<button id="add-game-floating-btn" onclick="document.getElementById('add-modal').classList.add('active')">+</button>
+
+<!-- Модалка входа -->
+<div class="modal" id="login-modal">
+  <div class="modal-content">
+    <h2>Вход для админа</h2>
+    <input type="password" id="admin-password" placeholder="Пароль" onkeypress="if(event.key === 'Enter') loginAdmin()">
+    <button class="modal-btn" onclick="loginAdmin()">Войти</button>
+    <button class="modal-btn cancel" onclick="closeModal('login-modal')">Отмена</button>
+  </div>
+</div>
+
+<!-- Модалка добавления -->
+<div class="modal" id="add-modal">
+  <div class="modal-content">
+    <h2>Добавить игру</h2>
+    <input type="text" id="game-name" placeholder="Название (например, КС 1.6)">
+    <input type="text" id="game-url" placeholder="Путь к файлу (например, q.html)">
+    <input type="text" id="game-icon" placeholder="Эмодзи (например, 🔫)" maxlength="2">
+    <button class="modal-btn" onclick="addGame()">Добавить в Firebase</button>
+    <button class="modal-btn cancel" onclick="closeModal('add-modal')">Отмена</button>
+  </div>
+</div>
+
+<!-- Firebase SDK -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getDatabase, ref, set, onValue, remove, push } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBr65adGCtaBQGDaUZCNIXJVK7nqKOzHRY",
+    authDomain: "bitva-ab615.firebaseapp.com",
+    databaseURL: "https://bitva-ab615-default-rtdb.firebaseio.com",
+    projectId: "bitva-ab615",
+    storageBucket: "bitva-ab615.firebasestorage.app",
+    messagingSenderId: "363914814983",
+    appId: "1:363914814983:web:58d95ab4050e2cbd11aca2"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+  
+  window.firebaseDB = db;
+  window.firebaseFns = { ref, set, onValue, remove, push };
+</script>
+
+<!-- Логика -->
+<script>
+  const ADMIN_PASSWORD = "062913QA"; // ⚠️ Твой новый пароль
+  let isAdmin = false;
+
+  if (localStorage.getItem('snd_admin') === 'true') {
+    setAdminMode();
+  }
+
+  function loadGames() {
+    const { ref, onValue } = window.firebaseFns;
+    const gamesRef = ref(window.firebaseDB, 'hub_games');
+    
+    onValue(gamesRef, (snapshot) => {
+      const grid = document.getElementById('games-grid');
+      grid.innerHTML = '';
+      
+      if (!snapshot.exists()) {
+        grid.innerHTML = '<div style="color:#888;">Пока нет игр. Добавь первую через админку!</div>';
+        return;
+      }
+
+      const games = snapshot.val();
+      for (const id in games) {
+        const game = games[id];
+        
+        const card = document.createElement('div');
+        card.className = 'game-card';
+        
+        card.onclick = (e) => {
+          if (e.target.classList.contains('delete-btn')) return;
+          window.location.href = game.url;
+        };
+
+        card.innerHTML = `
+          <button class="delete-btn" onclick="deleteGame('${id}')">✕</button>
+          <div class="game-banner" style="background: linear-gradient(135deg, #1e1b4b, #312e81);">
+            ${game.icon || '🎮'}
+          </div>
+          <div class="game-info">
+            <div class="game-title">${game.name}</div>
+            <div class="game-url">${game.url}</div>
+            <div class="game-footer">
+              <button class="play-btn">Играть</button>
+            </div>
+          </div>
+        `;
+        grid.appendChild(card);
+      }
+    });
+  }
+
+  function handleAuthClick() {
+    if (isAdmin) {
+      isAdmin = false;
+      localStorage.removeItem('snd_admin');
+      document.body.classList.remove('is-admin');
+      document.getElementById('auth-btn').textContent = 'Вход для админа';
+    } else {
+      document.getElementById('login-modal').classList.add('active');
+      document.getElementById('admin-password').value = '';
+      document.getElementById('admin-password').focus();
+    }
+  }
+
+  function loginAdmin() {
+    const pass = document.getElementById('admin-password').value;
+    if (pass === ADMIN_PASSWORD) {
+      isAdmin = true;
+      localStorage.setItem('snd_admin', 'true');
+      setAdminMode();
+      closeModal('login-modal');
+    } else {
+      alert('Неверный пароль!');
+    }
+  }
+
+  function setAdminMode() {
+    isAdmin = true;
+    document.body.classList.add('is-admin');
+    document.getElementById('auth-btn').textContent = 'Выйти из админки';
+  }
+
+  async function addGame() {
+    const name = document.getElementById('game-name').value.trim();
+    const url = document.getElementById('game-url').value.trim();
+    const icon = document.getElementById('game-icon').value.trim() || '🎮';
+
+    if (!name || !url) {
+      alert('Заполни название и ссылку!');
+      return;
+    }
+
+    const { ref, push, set } = window.firebaseFns;
+    const gamesRef = ref(window.firebaseDB, 'hub_games');
+    const newGameRef = push(gamesRef);
+    
+    try {
+      await set(newGameRef, { name, url, icon });
+      closeModal('add-modal');
+      document.getElementById('game-name').value = '';
+      document.getElementById('game-url').value = '';
+      document.getElementById('game-icon').value = '';
+    } catch (e) {
+      alert('Ошибка при добавлении: ' + e.message);
+    }
+  }
+
+  async function deleteGame(id) {
+    if (!confirm('Удалить эту игру из хаба?')) return;
+    const { ref, remove } = window.firebaseFns;
+    try {
+      await remove(ref(window.firebaseDB, `hub_games/${id}`));
+    } catch (e) {
+      alert('Ошибка при удалении: ' + e.message);
+    }
+  }
+
+  function closeModal(id) {
+    document.getElementById(id).classList.remove('active');
+  }
+
+  loadGames();
+</script>
+
+</body>
+</html>
