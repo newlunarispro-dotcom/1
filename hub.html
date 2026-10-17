@@ -31,7 +31,7 @@
   .logo-icon {
     width: 40px; height: 40px; background: linear-gradient(135deg, var(--accent), #a855f7);
     border-radius: 12px; display: flex; align-items: center; justify-content: center;
-    box-shadow: 0 0 20px var(--accent-glow);
+    box-shadow: 0 0 20px var(--accent-glow); font-weight: 900;
   }
   
   .admin-btn {
@@ -43,7 +43,7 @@
   main { flex: 1; padding: 40px; max-width: 1200px; margin: 0 auto; width: 100%; }
   .section-title { font-size: 28px; font-weight: 800; margin-bottom: 25px; }
   
-  .games-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 25px; }
+  .games-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 25px; }
   .game-card {
     background: var(--card-bg); border-radius: 24px; border: 1px solid var(--border);
     overflow: hidden; cursor: pointer; transition: all 0.3s ease; backdrop-filter: blur(20px);
@@ -53,13 +53,22 @@
     transform: translateY(-8px); border-color: rgba(99, 102, 241, 0.5);
     box-shadow: 0 20px 40px rgba(0,0,0,0.5), 0 0 20px var(--accent-glow);
   }
+  
+  /* Баннер со скриншотом */
   .game-banner {
-    height: 160px; background: #18181b; display: flex; align-items: center; justify-content: center;
-    font-size: 64px; position: relative; overflow: hidden;
+    height: 180px; background: #111116; position: relative; overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
   }
+  .game-banner img {
+    width: 100%; height: 100%; object-fit: cover; object-position: top;
+    transition: transform 0.3s ease;
+  }
+  .game-card:hover .game-banner img { transform: scale(1.05); }
+  
   .game-info { padding: 20px; flex: 1; display: flex; flex-direction: column; }
   .game-title { font-size: 20px; font-weight: 800; margin-bottom: 8px; }
   .game-url { font-size: 12px; color: var(--text-muted); margin-bottom: 20px; flex: 1; word-break: break-all; }
+  
   .play-btn {
     background: var(--text); color: #000; border: none; padding: 8px 20px;
     border-radius: 12px; font-weight: 800; font-size: 14px; transition: 0.2s;
@@ -67,6 +76,7 @@
   }
   .game-card:hover .play-btn { background: var(--accent); color: #fff; }
 
+  /* Кнопка удаления для админа */
   .delete-btn {
     position: absolute; top: 10px; right: 10px; background: var(--danger); color: #fff;
     border: none; width: 32px; height: 32px; border-radius: 50%; font-weight: bold;
@@ -75,6 +85,7 @@
   }
   body.is-admin .delete-btn { display: flex; align-items: center; justify-content: center; }
 
+  /* Модалки */
   .modal {
     position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px);
     display: none; align-items: center; justify-content: center; z-index: 1000;
@@ -97,6 +108,7 @@
   .modal-btn:hover { opacity: 0.9; }
   .modal-btn.cancel { background: transparent; border: 1px solid var(--border); }
 
+  /* Плавающая кнопка добавления */
   #add-game-floating-btn {
     position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px;
     border-radius: 50%; background: var(--accent); color: #fff; font-size: 30px;
@@ -127,6 +139,7 @@
 
 <button id="add-game-floating-btn" onclick="document.getElementById('add-modal').classList.add('active')">+</button>
 
+<!-- Модалка входа -->
 <div class="modal" id="login-modal">
   <div class="modal-content">
     <h2>Вход для админа</h2>
@@ -136,12 +149,12 @@
   </div>
 </div>
 
+<!-- Модалка добавления -->
 <div class="modal" id="add-modal">
   <div class="modal-content">
     <h2>Добавить игру</h2>
     <input type="text" id="game-name" placeholder="Название (например, КС 1.6)">
     <input type="text" id="game-url" placeholder="Путь к файлу (например, q.html)">
-    <input type="text" id="game-icon" placeholder="Эмодзи (например, 🔫)" maxlength="2">
     <button class="modal-btn" onclick="addGame()">Добавить в Firebase</button>
     <button class="modal-btn cancel" onclick="closeModal('add-modal')">Отмена</button>
   </div>
@@ -167,12 +180,9 @@
     const db = getDatabase(app);
     window.firebaseDB = db;
     window.firebaseFns = { ref, set, onValue, remove, push };
-    
-    // Говорим сайту, что Firebase готов
     window.dispatchEvent(new Event('firebase-ready'));
-    console.log("🔥 Firebase успешно подключен");
   } catch (e) {
-    console.error("❌ Ошибка Firebase:", e);
+    console.error("Ошибка Firebase:", e);
   }
 </script>
 
@@ -185,9 +195,7 @@
     setAdminMode();
   }
 
-  // Функция загрузки игр
   function loadGames() {
-    // Если Firebase еще не загрузился, ждем
     if (!window.firebaseFns) return; 
 
     const { ref, onValue } = window.firebaseFns;
@@ -214,10 +222,16 @@
           window.location.href = game.url;
         };
 
+        // Формируем полную ссылку для скриншота (API требует http/https)
+        const fullUrl = window.location.origin + window.location.pathname.replace('index.html', '') + game.url;
+        
+        // Используем бесплатный API thum.io для получения скриншота
+        const screenshotUrl = `https://image.thum.io/get/width/600/crop/800/noanimate/${fullUrl}`;
+
         card.innerHTML = `
           <button class="delete-btn" onclick="deleteGame('${id}')">✕</button>
-          <div class="game-banner" style="background: linear-gradient(135deg, #1e1b4b, #312e81);">
-            ${game.icon || '🎮'}
+          <div class="game-banner">
+            <img src="${screenshotUrl}" alt="${game.name}" loading="lazy" onerror="this.src='https://via.placeholder.com/600x400/18181b/6366f1?text=No+Image'">
           </div>
           <div class="game-info">
             <div class="game-title">${game.name}</div>
@@ -232,19 +246,15 @@
     });
   }
 
-  // Ждем, когда Firebase загрузится, и только потом начинаем
   if (window.firebaseFns) {
     loadGames();
   } else {
     window.addEventListener('firebase-ready', loadGames);
-    
-    // Если через 5 секунд Firebase так и не загрузился, показываем ошибку
     setTimeout(() => {
       if (!window.firebaseFns) {
         document.getElementById('games-grid').innerHTML = `
           <div style="color:#ef4444; background: rgba(239,68,68,0.1); padding: 20px; border-radius: 12px;">
-            <b>Ошибка загрузки Firebase!</b><br>
-            Скорее всего, он заблокирован провайдером или не загрузился. Включи VPN и перезагрузи страницу.
+            <b>Ошибка загрузки Firebase!</b> Включи VPN и перезагрузи страницу.
           </div>`;
       }
     }, 5000);
@@ -286,7 +296,6 @@
 
     const name = document.getElementById('game-name').value.trim();
     const url = document.getElementById('game-url').value.trim();
-    const icon = document.getElementById('game-icon').value.trim() || '🎮';
 
     if (!name || !url) {
       alert('Заполни название и ссылку!');
@@ -298,11 +307,10 @@
     const newGameRef = push(gamesRef);
     
     try {
-      await set(newGameRef, { name, url, icon });
+      await set(newGameRef, { name, url });
       closeModal('add-modal');
       document.getElementById('game-name').value = '';
       document.getElementById('game-url').value = '';
-      document.getElementById('game-icon').value = '';
     } catch (e) {
       alert('Ошибка при добавлении: ' + e.message);
     }
