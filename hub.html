@@ -67,7 +67,6 @@
   }
   .game-card:hover .play-btn { background: var(--accent); color: #fff; }
 
-  /* Кнопка удаления для админа */
   .delete-btn {
     position: absolute; top: 10px; right: 10px; background: var(--danger); color: #fff;
     border: none; width: 32px; height: 32px; border-radius: 50%; font-weight: bold;
@@ -76,7 +75,6 @@
   }
   body.is-admin .delete-btn { display: flex; align-items: center; justify-content: center; }
 
-  /* Модалки */
   .modal {
     position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px);
     display: none; align-items: center; justify-content: center; z-index: 1000;
@@ -99,7 +97,6 @@
   .modal-btn:hover { opacity: 0.9; }
   .modal-btn.cancel { background: transparent; border: 1px solid var(--border); }
 
-  /* Плавающая кнопка добавления */
   #add-game-floating-btn {
     position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px;
     border-radius: 50%; background: var(--accent); color: #fff; font-size: 30px;
@@ -128,10 +125,8 @@
   </div>
 </main>
 
-<!-- Кнопка + -->
 <button id="add-game-floating-btn" onclick="document.getElementById('add-modal').classList.add('active')">+</button>
 
-<!-- Модалка входа -->
 <div class="modal" id="login-modal">
   <div class="modal-content">
     <h2>Вход для админа</h2>
@@ -141,7 +136,6 @@
   </div>
 </div>
 
-<!-- Модалка добавления -->
 <div class="modal" id="add-modal">
   <div class="modal-content">
     <h2>Добавить игру</h2>
@@ -168,23 +162,34 @@
     appId: "1:363914814983:web:58d95ab4050e2cbd11aca2"
   };
 
-  const app = initializeApp(firebaseConfig);
-  const db = getDatabase(app);
-  
-  window.firebaseDB = db;
-  window.firebaseFns = { ref, set, onValue, remove, push };
+  try {
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    window.firebaseDB = db;
+    window.firebaseFns = { ref, set, onValue, remove, push };
+    
+    // Говорим сайту, что Firebase готов
+    window.dispatchEvent(new Event('firebase-ready'));
+    console.log("🔥 Firebase успешно подключен");
+  } catch (e) {
+    console.error("❌ Ошибка Firebase:", e);
+  }
 </script>
 
 <!-- Логика -->
 <script>
-  const ADMIN_PASSWORD = "062913QA"; // ⚠️ Твой новый пароль
+  const ADMIN_PASSWORD = "062913QA"; 
   let isAdmin = false;
 
   if (localStorage.getItem('snd_admin') === 'true') {
     setAdminMode();
   }
 
+  // Функция загрузки игр
   function loadGames() {
+    // Если Firebase еще не загрузился, ждем
+    if (!window.firebaseFns) return; 
+
     const { ref, onValue } = window.firebaseFns;
     const gamesRef = ref(window.firebaseDB, 'hub_games');
     
@@ -227,6 +232,24 @@
     });
   }
 
+  // Ждем, когда Firebase загрузится, и только потом начинаем
+  if (window.firebaseFns) {
+    loadGames();
+  } else {
+    window.addEventListener('firebase-ready', loadGames);
+    
+    // Если через 5 секунд Firebase так и не загрузился, показываем ошибку
+    setTimeout(() => {
+      if (!window.firebaseFns) {
+        document.getElementById('games-grid').innerHTML = `
+          <div style="color:#ef4444; background: rgba(239,68,68,0.1); padding: 20px; border-radius: 12px;">
+            <b>Ошибка загрузки Firebase!</b><br>
+            Скорее всего, он заблокирован провайдером или не загрузился. Включи VPN и перезагрузи страницу.
+          </div>`;
+      }
+    }, 5000);
+  }
+
   function handleAuthClick() {
     if (isAdmin) {
       isAdmin = false;
@@ -259,6 +282,8 @@
   }
 
   async function addGame() {
+    if (!window.firebaseFns) return alert('Firebase не загружен!');
+
     const name = document.getElementById('game-name').value.trim();
     const url = document.getElementById('game-url').value.trim();
     const icon = document.getElementById('game-icon').value.trim() || '🎮';
@@ -284,7 +309,9 @@
   }
 
   async function deleteGame(id) {
+    if (!window.firebaseFns) return;
     if (!confirm('Удалить эту игру из хаба?')) return;
+    
     const { ref, remove } = window.firebaseFns;
     try {
       await remove(ref(window.firebaseDB, `hub_games/${id}`));
@@ -296,8 +323,6 @@
   function closeModal(id) {
     document.getElementById(id).classList.remove('active');
   }
-
-  loadGames();
 </script>
 
 </body>
