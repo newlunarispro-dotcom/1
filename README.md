@@ -23,6 +23,7 @@
 
 ## 🛠️ Технические особенности
 Мы не используем тяжелые игровые движки, такие как Unity или Unreal. Весь код написан вручную для максимальной производительности в вебе.
+
 <div align="center">
   <img src="https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white" />
   <img src="https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white" />
@@ -30,6 +31,9 @@
   <img src="https://img.shields.io/badge/WebGL-990000?style=for-the-badge&logo=webgl&logoColor=white" />
   <img src="https://img.shields.io/badge/Firebase-039BE5?style=for-the-badge&logo=Firebase&logoColor=white" />
 </div>
+
+<br>
+
 * ⚡ **WebGL & Canvas 2D:** Используются для рендеринга графики и симуляций в реальном времени.
 * 🎨 **CSS3 Animations:** Плавный UI, стеклянные панели (Glassmorphism) и неоновое свечение.
 * 🔥 **Firebase:** Применяется для синхронизации данных, таблиц лидеров и сетевых фич.
@@ -42,29 +46,6 @@
 3. Жми "Играть" и наслаждайся.
 
 **Если ты разработчик и хочешь развернуть хаб локально:**
-1. Склонируй репозиторий: `git clone https://github.com/newlunarispro-dotcom/1.git`
-2. Перейди в папку с хабом: `cd 1/hub`
-3. Открой файл `index.html` в любом современном браузере. Для сетевых фич может потребоваться локальный сервер (например, Live Server в VS Code).
-
-## 📁 Структура репозитория
-* `1/hub/` — Главная страница хаба (витрина), интерфейс с карточками игр (`index.html`).
-* `1/phone/` — Игра Bitva Phone (бенчмарк) (`index.html`).
-* `1/arena/` — Игра Space Arena (космический шутер) (`index.html`).
-* `README.md` — Документация проекта.
-
-## ❓ FAQ (Частые вопросы)
-* **Нужно ли что-то скачивать для игры?** Нет! Все игры работают прямо в браузере. Просто зайди на сайт хаба и выбери игру.
-* **Работает ли это на телефоне?** Да, интерфейс и игры полностью адаптированы под мобильные устройства. Для теста мощности телефона (Bitva Phone) рекомендуется использовать именно смартфон.
-* **Как добавить свою игру в хаб?** Если ты разработчик и хочешь предложить свой проект, напиши на почту Dimaniktp@gmail.com. Мы рассмотрим любые интересные идеи!
-* **Почему некоторые игры могут тормозить?** Игры на WebGL (например, Neon Fluid или Space Arena) сильно нагружают видеокарту. На старых устройствах могут быть просадки FPS.
-
-## 📬 Контакты и обратная связь
-Если нашел баг, хочешь предложить фичу или просто связаться с разработчиком:
-**Автор проекта:** SND
-**Email:** [Dimaniktp@gmail.com](mailto:Dimaniktp@gmail.com)
-**GitHub:** [newlunarispro-dotcom](https://github.com/newlunarispro-dotcom)
-
-<div align="center">
-  <i>Сделано с 💜 для ценителей хорошего геймдева.</i><br>
-  <b>© 2026 SND Games. Все права защищены.</b>
-</div>
+1. Склонируй репозиторий: 
+   ```bash
+   git clone https://github.com/newlunarispro-dotcom/1.git
