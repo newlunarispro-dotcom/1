@@ -1020,6 +1020,40 @@ window.addEventListener('firebase-ready', () => {
   });
 });
 
+/* ═══════════ НАКРУТКА ПРОСМОТРОВ (ИСПРАВЛЕНО) ═══════════ */
+function startViewsCounter(step) {
+  if (window._viewsTimer) clearInterval(window._viewsTimer);
+  
+  window._viewsTimer = setInterval(async () => {
+    if (!state.viewsConfig.running) return;
+    
+    const current = firebaseViews || state.views || 0;
+    const next = current + step;
+    
+    if (fbReady && window.FB) {
+      try {
+        await window.FB.set(window.FB.ref(window.FB.db, 'views'), next);
+        firebaseViews = next;
+        renderViewCount();
+      } catch(e) {
+        console.error('Views error:', e);
+      }
+    } else {
+      state.views = next;
+      renderViewCount();
+      saveLocal();
+    }
+  }, 3000);
+}
+
+function stopViewsCounter() {
+  state.viewsConfig.running = false;
+  if (window._viewsTimer) {
+    clearInterval(window._viewsTimer);
+    window._viewsTimer = null;
+  }
+}
+
 /* INIT */
 function init(){
   if(!state.localEvents.length) state.localEvents = [{ name:'Первый голубь', prize:100, condition:'Покорми голубей' }];
@@ -1180,7 +1214,7 @@ function init(){
     toast('Запись добавлена!','success');
   };
 
-  /* ADMIN: VIEWS (ИСПРАВЛЕНО) */
+  /* ADMIN: VIEWS */
   $('viewsStartBtn').onclick = async () => {
     const start = Number($('viewsStart').value);
     const step = Number($('viewsStep').value) || 5;
@@ -1194,32 +1228,14 @@ function init(){
       renderViewCount();
     }
     
-    if (window._viewsTimer) clearInterval(window._viewsTimer);
-    
-    window._viewsTimer = setInterval(async () => {
-      if (!state.viewsConfig.running) return;
-      
-      if (fbReady && window.FB && window.FB.runTransaction) {
-        const viewsRef = window.FB.ref(window.FB.db, 'views');
-        window.FB.runTransaction(viewsRef, (currentViews) => {
-          return (currentViews || 0) + step;
-        }).catch(e => console.error("Views Error:", e));
-      } else {
-        state.views = (state.views || 0) + step;
-        renderViewCount();
-      }
-    }, 3000);
-    
     state.viewsConfig.running = true;
+    state.viewsConfig.step = step;
+    startViewsCounter(step);
     toast('Накрутка запущена', 'success');
   };
 
   $('viewsStopBtn').onclick = () => {
-    state.viewsConfig.running = false;
-    if (window._viewsTimer) {
-      clearInterval(window._viewsTimer);
-      window._viewsTimer = null;
-    }
+    stopViewsCounter();
     toast('Накрутка остановлена', 'info');
   };
 
