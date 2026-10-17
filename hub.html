@@ -54,16 +54,17 @@
     box-shadow: 0 20px 40px rgba(0,0,0,0.5), 0 0 20px var(--accent-glow);
   }
   
-  /* Баннер со скриншотом */
+  /* Баннер с заглушкой */
   .game-banner {
-    height: 180px; background: #111116; position: relative; overflow: hidden;
+    height: 180px; position: relative; overflow: hidden;
     display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(135deg, #1e1b4b, #312e81);
   }
-  .game-banner img {
-    width: 100%; height: 100%; object-fit: cover; object-position: top;
+  .banner-placeholder {
+    font-size: 64px; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.5));
     transition: transform 0.3s ease;
   }
-  .game-card:hover .game-banner img { transform: scale(1.05); }
+  .game-card:hover .banner-placeholder { transform: scale(1.1) rotate(5deg); }
   
   .game-info { padding: 20px; flex: 1; display: flex; flex-direction: column; }
   .game-title { font-size: 20px; font-weight: 800; margin-bottom: 8px; }
@@ -108,7 +109,6 @@
   .modal-btn:hover { opacity: 0.9; }
   .modal-btn.cancel { background: transparent; border: 1px solid var(--border); }
 
-  /* Плавающая кнопка добавления */
   #add-game-floating-btn {
     position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px;
     border-radius: 50%; background: var(--accent); color: #fff; font-size: 30px;
@@ -139,7 +139,6 @@
 
 <button id="add-game-floating-btn" onclick="document.getElementById('add-modal').classList.add('active')">+</button>
 
-<!-- Модалка входа -->
 <div class="modal" id="login-modal">
   <div class="modal-content">
     <h2>Вход для админа</h2>
@@ -149,18 +148,16 @@
   </div>
 </div>
 
-<!-- Модалка добавления -->
 <div class="modal" id="add-modal">
   <div class="modal-content">
     <h2>Добавить игру</h2>
-    <input type="text" id="game-name" placeholder="Название (например, КС 1.6)">
-    <input type="text" id="game-url" placeholder="Путь к файлу (например, q.html)">
-    <button class="modal-btn" onclick="addGame()">Добавить в Firebase</button>
+    <input type="text" id="game-name" placeholder="Название игры">
+    <input type="text" id="game-url" placeholder="Ссылка (например, q.html)">
+    <button class="modal-btn" onclick="addGame()">Добавить в хаб</button>
     <button class="modal-btn cancel" onclick="closeModal('add-modal')">Отмена</button>
   </div>
 </div>
 
-<!-- Firebase SDK -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getDatabase, ref, set, onValue, remove, push } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
@@ -181,39 +178,31 @@
     window.firebaseDB = db;
     window.firebaseFns = { ref, set, onValue, remove, push };
     window.dispatchEvent(new Event('firebase-ready'));
-  } catch (e) {
-    console.error("Ошибка Firebase:", e);
-  }
+  } catch (e) { console.error(e); }
 </script>
 
-<!-- Логика -->
 <script>
   const ADMIN_PASSWORD = "062913QA"; 
   let isAdmin = false;
 
-  if (localStorage.getItem('snd_admin') === 'true') {
-    setAdminMode();
-  }
+  if (localStorage.getItem('snd_admin') === 'true') setAdminMode();
 
   function loadGames() {
     if (!window.firebaseFns) return; 
-
     const { ref, onValue } = window.firebaseFns;
-    const gamesRef = ref(window.firebaseDB, 'hub_games');
     
-    onValue(gamesRef, (snapshot) => {
+    onValue(ref(window.firebaseDB, 'hub_games'), (snapshot) => {
       const grid = document.getElementById('games-grid');
       grid.innerHTML = '';
       
       if (!snapshot.exists()) {
-        grid.innerHTML = '<div style="color:#888;">Пока нет игр. Добавь первую через админку!</div>';
+        grid.innerHTML = '<div style="color:#888;">Пока нет игр. Добавь первую!</div>';
         return;
       }
 
       const games = snapshot.val();
       for (const id in games) {
         const game = games[id];
-        
         const card = document.createElement('div');
         card.className = 'game-card';
         
@@ -222,16 +211,18 @@
           window.location.href = game.url;
         };
 
-        // Формируем полную ссылку для скриншота (API требует http/https)
-        const fullUrl = window.location.origin + window.location.pathname.replace('index.html', '') + game.url;
-        
-        // Используем бесплатный API thum.io для получения скриншота
-        const screenshotUrl = `https://image.thum.io/get/width/600/crop/800/noanimate/${fullUrl}`;
+        // Выбираем иконку по названию
+        let icon = '🎮';
+        const n = game.name.toLowerCase();
+        if (n.includes('кс') || n.includes('cs')) icon = '🔫';
+        else if (n.includes('телефон') || n.includes('phone')) icon = '📱';
+        else if (n.includes('голуб') || n.includes('тв')) icon = '📺';
+        else if (n.includes('гит') || n.includes('git')) icon = '🐙';
 
         card.innerHTML = `
           <button class="delete-btn" onclick="deleteGame('${id}')">✕</button>
           <div class="game-banner">
-            <img src="${screenshotUrl}" alt="${game.name}" loading="lazy" onerror="this.src='https://via.placeholder.com/600x400/18181b/6366f1?text=No+Image'">
+            <div class="banner-placeholder">${icon}</div>
           </div>
           <div class="game-info">
             <div class="game-title">${game.name}</div>
@@ -246,17 +237,11 @@
     });
   }
 
-  if (window.firebaseFns) {
-    loadGames();
-  } else {
+  if (window.firebaseFns) loadGames();
+  else {
     window.addEventListener('firebase-ready', loadGames);
     setTimeout(() => {
-      if (!window.firebaseFns) {
-        document.getElementById('games-grid').innerHTML = `
-          <div style="color:#ef4444; background: rgba(239,68,68,0.1); padding: 20px; border-radius: 12px;">
-            <b>Ошибка загрузки Firebase!</b> Включи VPN и перезагрузи страницу.
-          </div>`;
-      }
+      if (!window.firebaseFns) document.getElementById('games-grid').innerHTML = '<div style="color:#ef4444;">Ошибка Firebase! Включи VPN.</div>';
     }, 5000);
   }
 
@@ -274,58 +259,39 @@
   }
 
   function loginAdmin() {
-    const pass = document.getElementById('admin-password').value;
-    if (pass === ADMIN_PASSWORD) {
+    if (document.getElementById('admin-password').value === ADMIN_PASSWORD) {
       isAdmin = true;
       localStorage.setItem('snd_admin', 'true');
       setAdminMode();
       closeModal('login-modal');
-    } else {
-      alert('Неверный пароль!');
-    }
+    } else alert('Неверный пароль!');
   }
 
   function setAdminMode() {
     isAdmin = true;
     document.body.classList.add('is-admin');
-    document.getElementById('auth-btn').textContent = 'Выйти из админки';
+    document.getElementById('auth-btn').textContent = 'Выйти';
   }
 
   async function addGame() {
-    if (!window.firebaseFns) return alert('Firebase не загружен!');
-
+    if (!window.firebaseFns) return;
     const name = document.getElementById('game-name').value.trim();
     const url = document.getElementById('game-url').value.trim();
 
-    if (!name || !url) {
-      alert('Заполни название и ссылку!');
-      return;
-    }
+    if (!name || !url) return alert('Заполни поля!');
 
     const { ref, push, set } = window.firebaseFns;
-    const gamesRef = ref(window.firebaseDB, 'hub_games');
-    const newGameRef = push(gamesRef);
+    await set(push(ref(window.firebaseDB, 'hub_games')), { name, url });
     
-    try {
-      await set(newGameRef, { name, url });
-      closeModal('add-modal');
-      document.getElementById('game-name').value = '';
-      document.getElementById('game-url').value = '';
-    } catch (e) {
-      alert('Ошибка при добавлении: ' + e.message);
-    }
+    closeModal('add-modal');
+    document.getElementById('game-name').value = '';
+    document.getElementById('game-url').value = '';
   }
 
   async function deleteGame(id) {
-    if (!window.firebaseFns) return;
-    if (!confirm('Удалить эту игру из хаба?')) return;
-    
+    if (!confirm('Удалить?')) return;
     const { ref, remove } = window.firebaseFns;
-    try {
-      await remove(ref(window.firebaseDB, `hub_games/${id}`));
-    } catch (e) {
-      alert('Ошибка при удалении: ' + e.message);
-    }
+    await remove(ref(window.firebaseDB, `hub_games/${id}`));
   }
 
   function closeModal(id) {
