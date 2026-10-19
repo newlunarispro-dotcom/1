@@ -32,9 +32,34 @@ body {
   overflow-x: hidden;
 }
 
-.tshirt-page { display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 40px 20px; min-height: 80vh; }
-.tshirt-page.active { display: flex; }
-.tshirt-code { font-size: 3rem; font-family: monospace; font-weight: 800; color: #ffd700; letter-spacing: 5px; background: rgba(0,0,0,0.5); padding: 20px 40px; border-radius: 12px; border: 2px dashed #ffd700; margin: 20px 0; cursor: pointer; transition: 0.3s; }
+/* Баннер с футболкой */
+#tshirtBanner {
+  display: none;
+  background: rgba(0,0,0,0.8);
+  border-bottom: 2px solid #ffd700;
+  padding: 20px;
+  text-align: center;
+  position: relative;
+  z-index: 101;
+}
+#tshirtBanner.active {
+  display: block;
+}
+.tshirt-code {
+  font-size: 2rem;
+  font-family: monospace;
+  font-weight: 800;
+  color: #ffd700;
+  letter-spacing: 5px;
+  background: rgba(0,0,0,0.5);
+  padding: 10px 20px;
+  border-radius: 12px;
+  border: 2px dashed #ffd700;
+  margin: 10px auto;
+  cursor: pointer;
+  display: inline-block;
+  transition: 0.3s;
+}
 .tshirt-code:hover { background: rgba(255, 215, 0, 0.1); }
 
 header { display: flex; justify-content: space-between; align-items: center; padding: 15px 30px; background: var(--glass); backdrop-filter: blur(20px); border-bottom: 1px solid var(--glass-border); position: sticky; top: 0; z-index: 100; }
@@ -125,25 +150,17 @@ main { flex: 1; max-width: 1100px; display: grid; grid-template-columns: 2fr 1fr
 </head>
 <body>
 
-<!-- СТРАНИЦА ФУТБОЛКИ (Показывается если в URL есть /f) -->
-<div id="tshirtPage" class="tshirt-page">
-  <div style="font-size: 5rem; margin-bottom: 20px; animation: bounce 2s infinite;">👕</div>
-  <h1 style="font-family:'Montserrat', sans-serif; font-size: 2rem; color: #fff; margin-bottom: 10px;">ПОЗДРАВЛЯЕМ!</h1>
-  <p style="color: var(--text-muted); margin-bottom: 20px;">Ты выиграл футболку Факел ТВ!</p>
-  
-  <div style="background: rgba(0,0,0,0.4); padding: 30px; border-radius: 16px; border: 1px dashed #ffd700; margin-bottom: 20px;">
-    <p style="font-size: 0.9rem; color: #aaa; text-transform: uppercase; margin-bottom: 10px;">Твой код:</p>
-    <div class="tshirt-code" id="tshirtCodeDisplay" onclick="copyCode(this.innerText)">XXXXXX</div>
-    <p style="font-size: 0.8rem; color: #aaa; margin-top: 10px;">(Нажми, чтобы скопировать)</p>
-  </div>
-
-  <p style="color: #fff; margin-bottom: 20px;">Отправь этот код в Telegram:</p>
-  <a href="https://t.me/CyberDataX" target="_blank" class="btn btn-accent" style="padding: 15px 40px; font-size: 1.1rem;">Написать @CyberDataX</a>
-  
-  <button class="btn btn-glass" style="margin-top: 20px;" onclick="window.location.href='/1/'">Вернуться на главную</button>
+<!-- БАННЕР ФУТБОЛКИ (Показывается только если есть ?code=) -->
+<div id="tshirtBanner">
+  <h2 style="color:#ffd700; margin-bottom: 10px;">👕 ПОЗДРАВЛЯЕМ С ВЫИГРЫШЕМ!</h2>
+  <p style="color: #fff; margin-bottom: 10px;">Твой код для получения футболки:</p>
+  <div class="tshirt-code" id="tshirtCodeDisplay" onclick="copyCode(this.innerText)">XXXXXX</div>
+  <p style="color: #aaa; font-size: 0.8rem; margin-bottom: 15px;">Нажми на код, чтобы скопировать. Отправь его в Telegram: <b>@CyberDataX</b></p>
+  <a href="https://t.me/CyberDataX" target="_blank" class="btn btn-accent">Написать в ТГ</a>
+  <button class="btn btn-glass" style="margin-left: 10px;" onclick="document.getElementById('tshirtBanner').style.display='none'">Скрыть</button>
 </div>
 
-<!-- ОСНОВНОЙ САЙТ (Скрывается на странице /f) -->
+<!-- ОСНОВНОЙ САЙТ -->
 <div id="mainApp">
   <header>
     <div class="logo" onclick="window.location.href='/1/'">🔥 Факел ТВ</div>
@@ -400,24 +417,14 @@ let firebaseAds = [];
 let firebaseStream = { url: '', status: 'offline' };
 let adminEmail = "dimaniktp@gmail.com"; // По умолчанию
 
-// ПРОВЕРКА НА СТРАНИЦУ ФУТБОЛКИ
-function checkTshirtPage() {
-  const path = window.location.pathname;
-  if (path.endsWith('/f') || path.endsWith('/f/')) {
-    document.getElementById('tshirtPage').classList.add('active');
-    document.getElementById('mainApp').style.display = 'none';
-    
-    const params = new URLSearchParams(window.location.search);
-    const code = params.get('code');
-    if (code) {
-      document.getElementById('tshirtCodeDisplay').textContent = code;
-    } else {
-      document.getElementById('tshirtCodeDisplay').textContent = 'ОШИБКА (Код не найден)';
-      document.getElementById('tshirtCodeDisplay').style.color = '#e52e71';
-    }
-    return true;
+// ПРОВЕРКА НА БАННЕР ФУТБОЛКИ
+function checkTshirtBanner() {
+  const params = new URLSearchParams(window.location.search);
+  const code = params.get('code');
+  if (code) {
+    document.getElementById('tshirtBanner').classList.add('active');
+    document.getElementById('tshirtCodeDisplay').textContent = code;
   }
-  return false;
 }
 
 function copyCode(text) {
@@ -1049,7 +1056,8 @@ async function testEmail() {
 // СЛУШАТЕЛЬ СОСТОЯНИЯ АВТОРИЗАЦИИ
 window.addEventListener('firebase-ready', () => {
   fbReady = true;
-  if(checkTshirtPage()) return;
+  
+  checkTshirtBanner(); // Показываем баннер, если в ссылке есть ?code=
   
   loadRecords();
   loadStream();
@@ -1070,7 +1078,6 @@ window.addEventListener('firebase-ready', () => {
   });
 });
 document.addEventListener('DOMContentLoaded', () => { 
-  if(checkTshirtPage()) return;
   updateUI(); 
 });
 </script>
