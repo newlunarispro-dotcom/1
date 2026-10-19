@@ -32,7 +32,6 @@ body {
   overflow-x: hidden;
 }
 
-/* Баннер с футболкой */
 #tshirtBanner {
   display: none;
   background: rgba(0,0,0,0.8);
@@ -42,9 +41,7 @@ body {
   position: relative;
   z-index: 101;
 }
-#tshirtBanner.active {
-  display: block;
-}
+#tshirtBanner.active { display: block; }
 .tshirt-code {
   font-size: 2rem;
   font-family: monospace;
@@ -150,7 +147,7 @@ main { flex: 1; max-width: 1100px; display: grid; grid-template-columns: 2fr 1fr
 </head>
 <body>
 
-<!-- БАННЕР ФУТБОЛКИ (Показывается только если есть ?code=) -->
+<!-- БАННЕР ФУТБОЛКИ -->
 <div id="tshirtBanner">
   <h2 style="color:#ffd700; margin-bottom: 10px;">👕 ПОЗДРАВЛЯЕМ С ВЫИГРЫШЕМ!</h2>
   <p style="color: #fff; margin-bottom: 10px;">Твой код для получения футболки:</p>
@@ -263,15 +260,44 @@ main { flex: 1; max-width: 1100px; display: grid; grid-template-columns: 2fr 1fr
   </div>
 </div>
 
-<!-- Модалки -->
+<!-- МОДАЛКА ВХОДА -->
 <div class="modal-overlay" id="authModal">
   <div class="modal-content">
     <button class="close-modal" onclick="closeModal('authModal')">&times;</button>
-    <h2>Вход</h2>
-    <button class="btn btn-primary" style="width:100%; padding: 15px; font-size: 1rem; display: flex; justify-content: center;" onclick="signInWithGoogle()">
+    <h2 style="text-align: center; margin-bottom: 20px;">Вход на сайт</h2>
+    
+    <button class="btn btn-primary" style="width:100%; padding: 15px; font-size: 1rem; display: flex; justify-content: center; margin-bottom: 15px;" onclick="signInWithGoogle()">
       <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" style="width: 20px; height: 20px; background: white; border-radius: 50%; padding: 2px;">
       Войти через Google
     </button>
+    
+    <div style="text-align: center; color: var(--text-muted); margin-bottom: 15px; font-size: 0.8rem;">— ИЛИ —</div>
+    
+    <div class="form-group" style="margin-bottom: 10px;">
+      <input type="text" class="input-glass" id="adminNickInput" placeholder="Ник админа" autocomplete="off" style="margin-bottom: 0;">
+    </div>
+    <button class="btn btn-accent" style="width:100%; padding: 15px; font-size: 1rem;" onclick="loginAsAdmin()">
+      Войти по нику (Админ)
+    </button>
+  </div>
+</div>
+
+<!-- ПРОФИЛЬ (С ВОЗМОЖНОСТЬЮ СМЕНЫ НИКА) -->
+<div class="modal-overlay" id="profileModal">
+  <div class="modal-content">
+    <button class="close-modal" onclick="closeModal('profileModal')">&times;</button>
+    <h2>Профиль</h2>
+    
+    <div class="form-group" style="margin-bottom: 15px;">
+      <label style="display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 5px;">Твой никнейм</label>
+      <input type="text" class="input-glass" id="profileNickInput" placeholder="Введите новый ник" maxlength="15">
+    </div>
+    <button class="btn btn-primary" style="width:100%; margin-bottom: 15px;" onclick="saveNewNick()">Сохранить ник</button>
+    
+    <hr style="border: none; border-top: 1px solid rgba(255,255,255,0.1); margin: 15px 0;">
+    
+    <p style="margin-bottom:8px; font-size:0.9rem;">Баланс: <b id="profileBal"></b> 🔥</p>
+    <button class="btn btn-glass" style="width:100%; margin-top:10px;" onclick="logout()">Выйти</button>
   </div>
 </div>
 
@@ -356,16 +382,6 @@ main { flex: 1; max-width: 1100px; display: grid; grid-template-columns: 2fr 1fr
       <p style="font-size:0.75rem; color:var(--text-muted); margin-bottom:10px;">Нажми, чтобы отправить тестовое письмо на указанную почту.</p>
       <button class="btn btn-accent" style="width:100%;" id="testEmailBtn" onclick="testEmail()">✉️ Отправить тест</button>
     </div>
-  </div>
-</div>
-
-<div class="modal-overlay" id="profileModal">
-  <div class="modal-content">
-    <button class="close-modal" onclick="closeModal('profileModal')">&times;</button>
-    <h2>Профиль</h2>
-    <p style="margin-bottom:8px; font-size:0.9rem;">Ник: <b id="profileNick"></b></p>
-    <p style="margin-bottom:8px; font-size:0.9rem;">Баланс: <b id="profileBal"></b> 🔥</p>
-    <button class="btn btn-glass" style="width:100%; margin-top:10px;" onclick="logout()">Выйти</button>
   </div>
 </div>
 
@@ -481,6 +497,24 @@ async function signInWithGoogle() {
   }
 }
 
+// ВХОД ПО НИКУ (ДЛЯ АДМИНА)
+async function loginAsAdmin() {
+  const nick = $('adminNickInput').value.trim();
+  if(!nick) return toast('Введите ник', true);
+  
+  const ref = window.FB.ref(window.FB.db, `fakel_users/${nick}`);
+  const snap = await window.FB.get(ref);
+  
+  if(snap.exists()) {
+    currentUser = { nickname: nick };
+    closeModal('authModal');
+    loadUserData(nick);
+    toast(`Привет, ${nick}!`);
+  } else {
+    toast('Такого ника нет', true);
+  }
+}
+
 function logout() {
   window.FB.signOut(window.FB.auth).then(() => {
     currentUser = null;
@@ -499,6 +533,31 @@ async function loadUserData(nick) {
 async function saveUserData() {
   if(!currentUser || !fbReady) return;
   await window.FB.set(window.FB.ref(window.FB.db, `fakel_users/${currentUser.nickname}`), userData);
+}
+
+// СМЕНА НИКА
+async function saveNewNick() {
+  const newNick = $('profileNickInput').value.trim();
+  if(!newNick) return toast('Введите новый ник', true);
+  if(newNick === currentUser.nickname) return toast('Это твой текущий ник', true);
+  
+  const oldNick = currentUser.nickname;
+  
+  // Проверяем, не занят ли новый ник
+  const checkRef = window.FB.ref(window.FB.db, `fakel_users/${newNick}`);
+  const checkSnap = await window.FB.get(checkRef);
+  if(checkSnap.exists()) {
+    return toast('Этот ник уже занят!', true);
+  }
+
+  // Переносим данные
+  await window.FB.set(window.FB.ref(window.FB.db, `fakel_users/${newNick}`), userData);
+  await window.FB.remove(window.FB.ref(window.FB.db, `fakel_users/${oldNick}`));
+  
+  currentUser.nickname = newNick;
+  toast('Ник изменён!');
+  closeModal('profileModal');
+  loadUserData(newNick);
 }
 
 async function loadAdmins() {
@@ -575,7 +634,7 @@ function updateUI() {
 }
 
 function openProfile() {
-  $('profileNick').textContent = currentUser.nickname;
+  $('profileNickInput').value = currentUser.nickname;
   $('profileBal').textContent = userData.balance;
   openModal('profileModal');
 }
@@ -1057,15 +1116,14 @@ async function testEmail() {
 window.addEventListener('firebase-ready', () => {
   fbReady = true;
   
-  checkTshirtBanner(); // Показываем баннер, если в ссылке есть ?code=
+  checkTshirtBanner();
   
   loadRecords();
   loadStream();
   loadAdmins();
   loadAds();
-  loadSettings(); // Загружаем почту
+  loadSettings();
 
-  // Проверяем, залогинен ли юзер через Google
   window.FB.onAuthStateChanged(window.FB.auth, (user) => {
     if (user) {
       const nick = user.email.split('@')[0];
