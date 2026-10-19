@@ -1,0 +1,1738 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🔥 Факел ТВ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700;800&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --bg: #0d0b14;
+  --glass: rgba(255, 255, 255, 0.05);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --primary: #667eea;
+  --accent: #e52e71;
+  --text: #fff;
+  --text-muted: rgba(255,255,255,0.6);
+}
+body {
+  background-color: var(--bg);
+  background-image: 
+    radial-gradient(circle at 15% 50%, rgba(121, 40, 202, 0.4), transparent 50%),
+    radial-gradient(circle at 85% 30%, rgba(0, 212, 255, 0.3), transparent 50%);
+  background-attachment: fixed;
+  color: var(--text);
+  font-family: 'Poppins', sans-serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+}
+
+@keyframes rainbow-text {
+  0% { color: #ff0000; } 17% { color: #ff8c00; } 33% { color: #ffee00; }
+  50% { color: #00ff00; } 67% { color: #00bfff; } 83% { color: #8a2be2; } 100% { color: #ff0000; }
+}
+.rainbow-nick { animation: rainbow-text 3s linear infinite; font-weight: 800; }
+.rainbow-frame { border: 2px solid transparent; border-image: linear-gradient(45deg, red, orange, yellow, green, blue, indigo, violet); border-image-slice: 1; }
+
+#tshirtBanner { display: none; background: rgba(0,0,0,0.8); border-bottom: 2px solid #ffd700; padding: 20px; text-align: center; position: relative; z-index: 101; }
+#tshirtBanner.active { display: block; }
+.tshirt-code { font-size: 2rem; font-family: monospace; font-weight: 800; color: #ffd700; letter-spacing: 5px; background: rgba(0,0,0,0.5); padding: 10px 20px; border-radius: 12px; border: 2px dashed #ffd700; margin: 10px auto; cursor: pointer; display: inline-block; transition: 0.3s; }
+
+header { display: flex; justify-content: space-between; align-items: center; padding: 15px 30px; background: var(--glass); backdrop-filter: blur(20px); border-bottom: 1px solid var(--glass-border); position: sticky; top: 0; z-index: 100; }
+.logo { font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 1.4rem; background: linear-gradient(45deg, #ff8a00, #e52e71); -webkit-background-clip: text; -webkit-text-fill-color: transparent; cursor: pointer; }
+.header-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+
+.btn { padding: 8px 16px; border-radius: 50px; font-weight: 600; font-size: 0.85rem; border: none; cursor: pointer; transition: all 0.3s; display: inline-flex; align-items: center; gap: 6px; }
+.btn-primary { background: var(--primary); color: white; }
+.btn-primary:hover { background: #5a6fd6; }
+.btn-glass { background: rgba(255, 255, 255, 0.08); border: 1px solid var(--glass-border); color: white; }
+.btn-glass:hover { background: rgba(255, 255, 255, 0.15); }
+.btn-accent { background: var(--accent); color: white; }
+.btn-accent:hover { background: #d12662; }
+.btn-sm { padding: 4px 10px; font-size: 0.75rem; }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.balance-pill { background: rgba(255, 255, 255, 0.1); padding: 4px 12px; border-radius: 50px; font-weight: 700; font-size: 0.85rem; border: 1px solid var(--glass-border); }
+
+.layout-wrapper { display: flex; justify-content: center; gap: 20px; max-width: 1600px; margin: 20px auto; padding: 0 20px; width: 100%; }
+.banner-col { width: 160px; flex-shrink: 0; display: flex; flex-direction: column; gap: 20px; }
+.banner-item { width: 100%; border-radius: 12px; overflow: hidden; cursor: pointer; transition: transform 0.3s; display: block; }
+.banner-item:hover { transform: scale(1.02); }
+.banner-item img { width: 100%; display: block; object-fit: cover; }
+@media (max-width: 1250px) { .banner-col { display: none; } }
+
+main { flex: 1; max-width: 1100px; display: grid; grid-template-columns: 2fr 1fr; gap: 20px; width: 100%; }
+@media (max-width: 900px) { main { grid-template-columns: 1fr; } }
+
+.glass-card { background: var(--glass); backdrop-filter: blur(25px); border: 1px solid var(--glass-border); border-radius: 16px; padding: 20px; box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3); }
+.card-title { font-family: 'Montserrat', sans-serif; font-size: 1.1rem; font-weight: 700; margin-bottom: 4px; }
+.card-subtitle { color: var(--text-muted); font-size: 0.75rem; margin-bottom: 15px; }
+
+.stream-wrapper { width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 10px; overflow: hidden; border: 1px solid var(--glass-border); }
+.stream-wrapper iframe { width: 100%; height: 100%; border: none; }
+.stream-offline { display: flex; align-items: center; justify-content: center; flex-direction: column; height: 100%; color: var(--text-muted); font-size: 0.8rem; }
+.stream-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.live-badge { background: rgba(229, 46, 113, 0.2); color: #e52e71; padding: 3px 8px; border-radius: 10px; font-size: 0.7rem; font-weight: 700; border: 1px solid #e52e71; }
+.live-badge.online { background: rgba(0, 212, 255, 0.2); color: #00d4ff; border-color: #00d4ff; }
+
+.side-panel { display: flex; flex-direction: column; gap: 15px; }
+
+.wheel-area { display: flex; flex-direction: column; align-items: center; }
+.wheel-container { position: relative; width: 220px; height: 220px; margin-bottom: 15px; }
+.wheel { width: 100%; height: 100%; border-radius: 50%; border: 4px solid rgba(255, 255, 255, 0.15); box-shadow: 0 0 20px rgba(102, 126, 234, 0.2); transition: transform 5s cubic-bezier(0.15, 1, 0.25, 1); position: relative; overflow: hidden; }
+.wheel svg { width: 100%; height: 100%; display: block; }
+.wheel-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 40px; height: 40px; background: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; z-index: 10; border: 2px solid #222; }
+.pointer { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent; border-top: 18px solid #fff; z-index: 20; }
+
+.streak-area { display: flex; flex-direction: column; align-items: center; text-align: center; }
+.fire-icon { font-size: 3rem; margin-bottom: 5px; filter: grayscale(1) opacity(0.3); transition: 0.3s; }
+.fire-icon.active { filter: grayscale(0) opacity(1) drop-shadow(0 0 15px rgba(255, 138, 0, 0.6)); }
+.streak-number { font-family: 'Montserrat', sans-serif; font-size: 2rem; font-weight: 800; line-height: 1; }
+.streak-label { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 15px; }
+
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 15px; }
+.modal-overlay.active { display: flex; }
+.modal-content { background: #1a1825; border: 1px solid var(--glass-border); border-radius: 16px; padding: 20px; width: 100%; max-width: 400px; max-height: 90vh; overflow-y: auto; position: relative; }
+.modal-content h2 { font-family: 'Montserrat', sans-serif; font-size: 1.1rem; margin-bottom: 15px; }
+.input-glass { width: 100%; padding: 10px; background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); border-radius: 8px; color: white; font-family: 'Poppins', sans-serif; margin-bottom: 10px; font-size: 0.85rem; outline: none; }
+.close-modal { position: absolute; top: 10px; right: 15px; background: none; border: none; color: #fff; font-size: 1.2rem; cursor: pointer; }
+
+.admin-tabs { display: flex; gap: 5px; margin-bottom: 15px; flex-wrap: wrap; }
+.admin-tab { padding: 5px 10px; border-radius: 15px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: #fff; cursor: pointer; font-size: 0.75rem; }
+.admin-tab.active { background: var(--primary); border-color: var(--primary); }
+.admin-panel { display: none; }
+.admin-panel.active { display: block; }
+
+.support-messages { height: 200px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; background: rgba(0,0,0,0.2); padding: 8px; border-radius: 8px; }
+.support-msg { padding: 6px 10px; border-radius: 8px; font-size: 0.75rem; max-width: 80%; }
+.support-msg.user { background: var(--primary); color: #fff; align-self: flex-end; }
+.support-msg.admin { background: rgba(255,255,255,0.1); color: #fff; align-self: flex-start; }
+
+.toast-container { position: fixed; bottom: 15px; right: 15px; z-index: 2000; display: flex; flex-direction: column; gap: 8px; }
+.toast { background: #1a1825; border-left: 3px solid var(--primary); padding: 10px 15px; border-radius: 6px; font-size: 0.8rem; animation: slideUp 0.3s; }
+@keyframes slideUp { from { transform: translateY(10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+.records-list { display: flex; flex-direction: column; gap: 8px; }
+.record-item { background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; }
+.record-item a { color: #00d4ff; text-decoration: none; font-weight: 600; }
+
+#tshirtCheckResult { padding: 10px; border-radius: 8px; text-align: center; font-weight: 600; margin-top: 10px; animation: fadeIn 0.3s; display: none; }
+#tshirtCheckResult.success { background: rgba(0, 230, 118, 0.1); border: 1px solid #00e676; color: #00e676; display: block; }
+#tshirtCheckResult.error { background: rgba(229, 46, 113, 0.1); border: 1px solid #e52e71; color: #e52e71; display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+
+.chat-container { position: fixed; bottom: 20px; right: 20px; width: 300px; height: 400px; background: #1a1825; border: 1px solid var(--glass-border); border-radius: 16px; display: none; flex-direction: column; z-index: 1500; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+.chat-container.open { display: flex; }
+.chat-header { padding: 10px; background: rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center; font-weight: 600; font-size: 0.9rem; border-bottom: 1px solid var(--glass-border); }
+.chat-messages { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 8px; }
+.chat-msg { padding: 6px 10px; border-radius: 8px; font-size: 0.8rem; background: rgba(255,255,255,0.05); max-width: 90%; word-break: break-word; }
+.chat-msg.user { align-self: flex-end; background: rgba(102, 126, 234, 0.3); }
+.chat-msg .nick { font-weight: bold; color: var(--gold-soft); margin-right: 4px; }
+.chat-input-row { display: flex; gap: 5px; padding: 10px; border-top: 1px solid var(--glass-border); }
+.chat-input-row input { flex: 1; padding: 8px; border-radius: 8px; border: 1px solid var(--glass-border); background: rgba(0,0,0,0.3); color: #fff; outline: none; font-size: 0.8rem; }
+.chat-input-row button { padding: 8px 12px; border-radius: 8px; border: none; background: var(--primary); color: #fff; cursor: pointer; }
+</style>
+
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+</head>
+<body>
+
+<div id="tshirtBanner">
+  <h2 style="color:#ffd700; margin-bottom: 10px;">👕 ПОЗДРАВЛЯЕМ С ВЫИГРЫШЕМ!</h2>
+  <p style="color: #fff; margin-bottom: 10px;">Твой код для получения футболки:</p>
+  <div class="tshirt-code" id="tshirtCodeDisplay" onclick="copyCode(this.innerText)">XXXXXX</div>
+  <p style="color: #aaa; font-size: 0.8rem; margin-bottom: 15px;">Нажми на код, чтобы скопировать. Отправь его в Telegram: <b>@CyberDataX</b></p>
+  <a href="https://t.me/CyberDataX" target="_blank" class="btn btn-accent">Написать в ТГ</a>
+  <button class="btn btn-glass" style="margin-left: 10px;" onclick="document.getElementById('tshirtBanner').style.display='none'">Скрыть</button>
+</div>
+
+<div id="mainApp">
+  <header>
+    <div class="logo" onclick="window.location.href='/1/'">🔥 Факел ТВ</div>
+    <div class="header-actions" id="headerActions"></div>
+  </header>
+
+  <div class="layout-wrapper">
+    <div class="banner-col" id="leftBanners"></div>
+
+    <main>
+      <div style="display:flex; flex-direction:column; gap:15px;">
+        <div class="glass-card">
+          <div class="stream-header">
+            <div class="card-title" style="margin:0">📺 Эфир</div>
+            <div class="live-badge" id="liveStatus">Оффлайн</div>
+          </div>
+          <div class="stream-wrapper" id="streamWrapper">
+            <div class="stream-offline">💤 Ожидание...</div>
+          </div>
+        </div>
+
+        <div class="glass-card">
+          <div class="card-title">🎁 Кейсы и Магазин</div>
+          <div style="display:flex; flex-direction: column; gap:10px; margin-top:10px;">
+            <button class="btn btn-primary" onclick="openCase()">📦 Открыть кейс (500 🔥)</button>
+            <div style="display:flex; gap:10px;">
+              <button class="btn btn-accent" onclick="buyFrame()">🔥 Огненная рамка (500 🔥)</button>
+              <button class="btn btn-glass" onclick="buyVip()">💎 VIP (50 🔥/мес)</button>
+              <button class="btn btn-glass" onclick="buyPremium()">👑 Premium (150 🔥/мес)</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="glass-card">
+          <div class="card-title">🏆 Зал Славы (Топ по балансу)</div>
+          <table class="donors-table" id="leaderboardTable">
+            <thead><tr><th>#</th><th>Игрок</th><th style="text-align:right;">Факелы</th></tr></thead>
+            <tbody><tr><td colspan="3" class="empty-state">Загрузка...</td></tr></tbody>
+          </table>
+        </div>
+
+        <div class="glass-card">
+          <div class="card-title">🔗 Реферальная ссылка</div>
+          <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 10px;">Пригласи друга и получи <b>+100 🔥</b>, когда он сделает первый спин!</p>
+          <div style="display: flex; gap: 10px;">
+            <input type="text" id="refLinkInput" class="input-glass" readonly style="flex:1; margin:0;">
+            <button class="btn btn-primary" onclick="copyRefLink()">Копировать</button>
+          </div>
+        </div>
+
+        <div class="glass-card">
+          <div class="card-title">🎬 Записи</div>
+          <div class="records-list" id="recordsList">
+            <div style="color:var(--text-muted);font-size:0.8rem;">Нет записей</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="side-panel">
+        <div class="glass-card">
+          <div class="card-title">Рулетка</div>
+          <div class="card-subtitle">1 спин = 10 факелов</div>
+          <div class="wheel-area">
+            <div class="wheel-container">
+              <div class="pointer"></div>
+              <div class="wheel" id="wheel">
+                <svg viewBox="0 0 200 200">
+                  <g transform="translate(100,100)">
+                    <path d="M0,0 L0,-100 A100,100 0 0,1 50,-86.6 Z" fill="#ff3366" />
+                    <text x="35" y="-48" fill="#fff" font-size="22" font-weight="bold" text-anchor="middle" dominant-baseline="middle" transform="rotate(15)">?</text>
+                    <path d="M0,0 L50,-86.6 A100,100 0 0,1 86.6,-50 Z" fill="#667eea" />
+                    <text x="35" y="-48" fill="#fff" font-size="22" font-weight="bold" text-anchor="middle" dominant-baseline="middle" transform="rotate(45)">?</text>
+                    <path d="M0,0 L86.6,-50 A100,100 0 0,1 100,0 Z" fill="#2d2a4a" />
+                    <text x="35" y="-48" fill="#fff" font-size="22" font-weight="bold" text-anchor="middle" dominant-baseline="middle" transform="rotate(75)">?</text>
+                    <path d="M0,0 L100,0 A100,100 0 0,1 86.6,50 Z" fill="#ff8a00" />
+                    <text x="35" y="-48" fill="#fff" font-size="22" font-weight="bold" text-anchor="middle" dominant-baseline="middle" transform="rotate(105)">?</text>
+                    <path d="M0,0 L86.6,50 A100,100 0 0,1 50,86.6 Z" fill="#00d4ff" />
+                    <text x="35" y="-48" fill="#fff" font-size="22" font-weight="bold" text-anchor="middle" dominant-baseline="middle" transform="rotate(135)">?</text>
+                    <path d="M0,0 L50,86.6 A100,100 0 0,1 0,100 Z" fill="#ff3366" />
+                    <text x="35" y="-48" fill="#fff" font-size="22" font-weight="bold" text-anchor="middle" dominant-baseline="middle" transform="rotate(165)">?</text>
+                    <path d="M0,0 L0,100 A100,100 0 0,1 -50,86.6 Z" fill="#667eea" />
+                    <text x="35" y="-48" fill="#fff" font-size="22" font-weight="bold" text-anchor="middle" dominant-baseline="middle" transform="rotate(195)">?</text>
+                    <path d="M0,0 L-50,86.6 A100,100 0 0,1 -86.6,50 Z" fill="#2d2a4a" />
+                    <text x="35" y="-48" fill="#fff" font-size="22" font-weight="bold" text-anchor="middle" dominant-baseline="middle" transform="rotate(225)">?</text>
+                    <path d="M0,0 L-86.6,50 A100,100 0 0,1 -100,0 Z" fill="#ff8a00" />
+                    <text x="35" y="-48" fill="#fff" font-size="22" font-weight="bold" text-anchor="middle" dominant-baseline="middle" transform="rotate(255)">?</text>
+                    <path d="M0,0 L-100,0 A100,100 0 0,1 -86.6,-50 Z" fill="#00d4ff" />
+                    <text x="35" y="-48" fill="#fff" font-size="22" font-weight="bold" text-anchor="middle" dominant-baseline="middle" transform="rotate(285)">?</text>
+                    <path d="M0,0 L-86.6,-50 A100,100 0 0,1 -50,-86.6 Z" fill="#ff3366" />
+                    <text x="35" y="-48" fill="#fff" font-size="22" font-weight="bold" text-anchor="middle" dominant-baseline="middle" transform="rotate(315)">?</text>
+                    <path d="M0,0 L-50,-86.6 A100,100 0 0,1 0,-100 Z" fill="#667eea" />
+                    <text x="35" y="-48" fill="#fff" font-size="22" font-weight="bold" text-anchor="middle" dominant-baseline="middle" transform="rotate(345)">?</text>
+                  </g>
+                </svg>
+              </div>
+              <div class="wheel-center">🔥</div>
+            </div>
+            <div class="result-text" id="resultText" style="height:auto; min-height:20px; margin-bottom:10px; font-weight:700; color:#00d4ff; font-size:0.9rem; text-align:center; line-height:1.3;"></div>
+            <button class="btn btn-accent" id="spinBtn" onclick="spinWheel()" style="width: 100%; padding: 10px;">Крутить (10 🔥)</button>
+          </div>
+        </div>
+
+        <div class="glass-card">
+          <div class="card-title">Бонус</div>
+          <div class="streak-area">
+            <div class="fire-icon" id="streakIcon">🔥</div>
+            <div class="streak-number" id="streakCount">0</div>
+            <div class="streak-label">Дней</div>
+            <button class="btn btn-glass" id="dailyBtn" onclick="claimDaily()" style="width: 100%;">Поджечь</button>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <div class="banner-col" id="rightBanners"></div>
+  </div>
+</div>
+
+<div class="chat-container" id="chatContainer">
+  <div class="chat-header">
+    <span>💬 Общий чат</span>
+    <button class="btn-ghost btn-sm" onclick="toggleChat()">✕</button>
+  </div>
+  <div class="chat-messages" id="chatMessages"></div>
+  <div class="chat-input-row">
+    <input type="text" id="chatInput" placeholder="Написать..." onkeydown="if(event.key==='Enter') sendChatMessage()">
+    <button onclick="sendChatMessage()">➤</button>
+  </div>
+</div>
+
+<button class="btn btn-primary" style="position: fixed; bottom: 20px; left: 20px; z-index: 1400; border-radius: 50%; width: 50px; height: 50px;" onclick="toggleChat()">💬</button>
+
+<div class="modal-overlay" id="authModal">
+  <div class="modal-content">
+    <button class="close-modal" onclick="closeModal('authModal')">&times;</button>
+    <h2 style="text-align: center; margin-bottom: 20px;">Вход на сайт</h2>
+    <button class="btn btn-primary" style="width:100%; padding: 15px; font-size: 1rem; display: flex; justify-content: center; margin-bottom: 15px;" onclick="signInWithGoogle()">
+      <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" style="width: 20px; height: 20px; background: white; border-radius: 50%; padding: 2px;">
+      Войти через Google
+    </button>
+    <div style="text-align: center; color: var(--text-muted); margin-bottom: 15px; font-size: 0.8rem;">— ИЛИ —</div>
+    <div class="form-group" style="margin-bottom: 10px;">
+      <input type="text" class="input-glass" id="adminNickInput" placeholder="Ник" autocomplete="off" style="margin-bottom: 0;">
+    </div>
+    <div class="form-group" style="margin-bottom: 10px;">
+      <input type="password" class="input-glass" id="adminPassInput" placeholder="Пароль" style="margin-bottom: 0;">
+    </div>
+    <button class="btn btn-accent" style="width:100%; padding: 15px; font-size: 1rem;" onclick="loginWithPassword()">Войти</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="profileModal">
+  <div class="modal-content">
+    <button class="close-modal" onclick="closeModal('profileModal')">&times;</button>
+    <h2>Профиль</h2>
+    <div class="form-group" style="margin-bottom: 15px;">
+      <label style="display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 5px;">Ссылка на аватарку</label>
+      <input type="text" class="input-glass" id="profileAvatarUrl" placeholder="https://... или эмодзи">
+    </div>
+    <button class="btn btn-primary" style="width:100%; margin-bottom: 15px;" onclick="saveAvatar()">Сохранить аватарку</button>
+    <div class="form-group" style="margin-bottom: 15px;">
+      <label style="display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 5px;">Твой никнейм</label>
+      <input type="text" class="input-glass" id="profileNickInput" placeholder="Введите новый ник" maxlength="15">
+    </div>
+    <button class="btn btn-primary" style="width:100%; margin-bottom: 15px;" onclick="saveNewNick()">Сохранить ник</button>
+    <div class="form-group" style="margin-bottom: 15px;">
+      <label style="display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 5px;">Сменить пароль</label>
+      <input type="password" class="input-glass" id="profilePasswordInput" placeholder="Новый пароль">
+    </div>
+    <button class="btn btn-accent" style="width:100%; margin-bottom: 15px;" onclick="saveNewPassword()">Сменить пароль</button>
+    <div id="adminRainbowBtn" style="display:none; margin-bottom: 15px;">
+      <button class="btn btn-success" style="width:100%;" onclick="toggleRainbow()">Включить/Выключить радугу (Админ)</button>
+    </div>
+    <hr style="border: none; border-top: 1px solid rgba(255,255,255,0.1); margin: 15px 0;">
+    <p style="margin-bottom:8px; font-size:0.9rem;">Баланс: <b id="profileBal"></b> 🔥</p>
+    <button class="btn btn-glass" style="width:100%; margin-top:10px;" onclick="logout()">Выйти</button>
+  </div>
+</div>
+
+<!-- МОДАЛКА ДОНАТА -->
+<div class="modal-overlay" id="donateModal">
+  <div class="modal-content">
+    <button class="close-modal" onclick="closeModal('donateModal')">&times;</button>
+    <h2>💳 Пополнение факелов</h2>
+
+    <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:10px;">
+      Курс: <b>1 ₽ = 1 🔥</b>. Выбери пакет или введи сумму.
+    </p>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px;">
+      <button class="btn btn-glass" onclick="pickDonateAmount(100)">100 🔥 — 100 ₽</button>
+      <button class="btn btn-glass" onclick="pickDonateAmount(250)">250 🔥 — 250 ₽</button>
+      <button class="btn btn-glass" onclick="pickDonateAmount(500)">500 🔥 — 500 ₽</button>
+      <button class="btn btn-glass" onclick="pickDonateAmount(1000)">1000 🔥 — 1000 ₽</button>
+    </div>
+
+    <input type="number" class="input-glass" id="donateAmount" placeholder="Своя сумма (мин. 50)" min="50" style="margin-bottom:10px;">
+    <input type="text" class="input-glass" id="donateComment" placeholder="Комментарий (необязательно)" style="margin-bottom:12px;">
+
+    <div style="background:rgba(0,0,0,0.3); border:1px solid var(--glass-border); border-radius:8px; padding:12px; margin-bottom:12px; font-size:0.85rem; line-height:1.5; text-align:center;">
+      <b style="color:var(--text-muted); display:block; margin-bottom:6px;">Для оплаты напиши админу:</b>
+      <a href="https://t.me/CyberDataX" target="_blank" style="color:#00d4ff; font-weight:700; font-size:1rem; text-decoration:none;">
+        ✈️ Telegram: @CyberDataX
+      </a>
+      <div style="color:var(--text-muted); font-size:0.7rem; margin-top:6px;">
+        Напиши сумму и ник — админ скинет реквизиты
+      </div>
+    </div>
+
+    <button class="btn btn-accent" style="width:100%; padding:12px;" onclick="createDonation()">Создать заявку</button>
+
+    <p style="font-size:0.7rem; color:var(--text-muted); margin-top:10px; text-align:center;">
+      После оплаты админ подтвердит заявку — факелы зачислятся.
+    </p>
+
+    <hr style="border:none; border-top:1px solid rgba(255,255,255,0.1); margin:15px 0;">
+    <h3 style="font-size:0.9rem; margin-bottom:8px;">Мои заявки</h3>
+    <div id="myDonationsList" style="max-height:150px; overflow-y:auto; font-size:0.75rem;"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="supportModal">
+  <div class="modal-content">
+    <button class="close-modal" onclick="closeModal('supportModal')">&times;</button>
+    <h2>💬 Поддержка</h2>
+    <div class="support-messages" id="supportMessages"></div>
+    <input type="text" class="input-glass" id="supportInput" placeholder="Сообщение..." onkeydown="if(event.key==='Enter') sendSupport()">
+    <button class="btn btn-primary" style="width:100%;" onclick="sendSupport()">Отправить</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="adminModal">
+  <div class="modal-content" style="max-width: 500px;">
+    <button class="close-modal" onclick="closeModal('adminModal')">&times;</button>
+    <h2>⚙️ Админ</h2>
+    <div class="admin-tabs">
+      <button class="admin-tab active" onclick="switchAdminTab('stream')">Стрим</button>
+      <button class="admin-tab" onclick="switchAdminTab('records')">Записи</button>
+      <button class="admin-tab" onclick="switchAdminTab('users')">Юзеры</button>
+      <button class="admin-tab" onclick="switchAdminTab('support')">Помощь</button>
+      <button class="admin-tab" onclick="switchAdminTab('tshirts')">Футболки</button>
+      <button class="admin-tab" onclick="switchAdminTab('donations')">Донаты</button>
+      <button class="admin-tab" onclick="switchAdminTab('admins')">Админы</button>
+      <button class="admin-tab" onclick="switchAdminTab('ads')">Реклама</button>
+      <button class="admin-tab" onclick="switchAdminTab('settings')">Настройки</button>
+    </div>
+
+    <div class="admin-panel active" id="admin-panel-stream">
+      <input type="text" class="input-glass" id="adminStreamUrl" placeholder="Ссылка (RuTube/YT)">
+      <select class="input-glass" id="adminStreamStatus" style="background:#1a1825;">
+        <option value="offline">Оффлайн</option>
+        <option value="online">В эфире</option>
+      </select>
+      <button class="btn btn-primary" style="width:100%;" onclick="saveStream()">Обновить</button>
+    </div>
+
+    <div class="admin-panel" id="admin-panel-records">
+      <input type="text" class="input-glass" id="adminRecTitle" placeholder="Название">
+      <input type="text" class="input-glass" id="adminRecUrl" placeholder="Ссылка">
+      <button class="btn btn-primary" style="width:100%;margin-bottom:10px;" onclick="addRecord()">Добавить</button>
+      <div id="adminRecordsList"></div>
+    </div>
+
+    <div class="admin-panel" id="admin-panel-users"><div id="adminUsersList"></div></div>
+    <div class="admin-panel" id="admin-panel-support"><div id="adminSupportList"></div></div>
+
+    <div class="admin-panel" id="admin-panel-tshirts">
+      <h3 style="font-size:0.9rem; margin-bottom:10px;">Проверка кода</h3>
+      <input type="text" class="input-glass" id="tshirtCodeInput" placeholder="Введите 6-значный код" autocomplete="off">
+      <button class="btn btn-primary" id="checkTshirtBtn" style="width:100%;" onclick="checkTshirtCode()">Проверить</button>
+      <div id="tshirtCheckResult"></div>
+    </div>
+
+    <div class="admin-panel" id="admin-panel-donations">
+      <h3 style="font-size:0.9rem; margin-bottom:10px;">Заявки на пополнение</h3>
+      <div id="adminDonationsList" style="max-height:300px; overflow-y:auto;"></div>
+    </div>
+
+    <div class="admin-panel" id="admin-panel-admins">
+      <input type="text" class="input-glass" id="newAdminNick" placeholder="Ник нового админа">
+      <button class="btn btn-primary" style="width:100%;margin-bottom:10px;" onclick="addAdmin()">Добавить админа</button>
+      <div id="adminAdminsList"></div>
+    </div>
+
+    <div class="admin-panel" id="admin-panel-ads">
+      <h3 style="font-size:0.9rem; margin-bottom:10px;">Добавить баннер</h3>
+      <input type="text" class="input-glass" id="adImgUrl" placeholder="Ссылка на картинку (URL)">
+      <input type="text" class="input-glass" id="adLinkUrl" placeholder="Ссылка при клике">
+      <select class="input-glass" id="adSide" style="background:#1a1825;">
+        <option value="left">Слева</option>
+        <option value="right">Справа</option>
+      </select>
+      <button class="btn btn-primary" style="width:100%;margin-bottom:15px;" onclick="addAd()">Добавить рекламу</button>
+      <div id="adminAdsList"></div>
+    </div>
+
+    <div class="admin-panel" id="admin-panel-settings">
+      <h3 style="font-size:0.9rem; margin-bottom:10px;">Настройки почты</h3>
+      <p style="font-size:0.75rem; color:var(--text-muted); margin-bottom:10px;">Уведомления о выигрыше футболки будут приходить на этот адрес.</p>
+      <input type="email" class="input-glass" id="adminEmailInput" placeholder="example@gmail.com">
+      <button class="btn btn-primary" style="width:100%; margin-bottom:10px;" onclick="saveEmailSetting()">Сохранить почту</button>
+      <hr style="border: none; border-top: 1px solid rgba(255,255,255,0.1); margin: 15px 0;">
+      <h3 style="font-size:0.9rem; margin-bottom:10px;">Тест EmailJS</h3>
+      <p style="font-size:0.75rem; color:var(--text-muted); margin-bottom:10px;">Нажми, чтобы отправить тестовое письмо на указанную почту.</p>
+      <button class="btn btn-accent" style="width:100%;" id="testEmailBtn" onclick="testEmail()">✉️ Отправить тест</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getDatabase, ref, onValue, set, get, push, remove, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAdbu4JrNb0RYzjMLad1pRn3oOSaPF1LKY",
+  authDomain: "golubtv-3e870.firebaseapp.com",
+  databaseURL: "https://golubtv-3e870-default-rtdb.firebaseio.com",
+  projectId: "golubtv-3e870",
+  storageBucket: "golubtv-3e870.firebasestorage.app",
+  messagingSenderId: "727939517632",
+  appId: "1:727939517632:web:260c51db542629ab847125"
+};
+
+const fbApp = initializeApp(firebaseConfig);
+const db = getDatabase(fbApp);
+const auth = getAuth(fbApp);
+const provider = new GoogleAuthProvider();
+
+window.FB = { db, ref, onValue, set, get, push, remove, update, auth, signInWithPopup, provider, onAuthStateChanged, signOut };
+window.dispatchEvent(new Event('firebase-ready'));
+</script>
+
+<script>
+const EMAILJS_SERVICE_ID = "service_zzxkbn6";
+const EMAILJS_TEMPLATE_ID = "template_969ecdc";
+const EMAILJS_PUBLIC_KEY = "d8f5KeUY9iRPqELOj";
+
+emailjs.init(EMAILJS_PUBLIC_KEY);
+
+const $ = id => document.getElementById(id);
+let fbReady = false;
+let currentUser = null;
+let userData = { balance: 100, streak: 0, lastClaim: 0, role: 'user', avatar: '🕊️', status: 'none', password: '123456', vipUntil: 0, premiumUntil: 0 };
+let isSpinning = false;
+let wheelAngle = 0;
+let firebaseRecords = [];
+let firebaseUsers = {};
+let firebaseSupport = [];
+let firebaseAdmins = [];
+let firebaseAds = [];
+let firebaseStream = { url: '', status: 'offline' };
+let firebaseChat = [];
+let firebaseDonations = [];
+let adminEmail = "dimaniktp@gmail.com";
+let caseOpened = false;
+
+function checkTshirtBanner() {
+  const params = new URLSearchParams(window.location.search);
+  const code = params.get('code');
+  if (code) {
+    document.getElementById('tshirtBanner').classList.add('active');
+    document.getElementById('tshirtCodeDisplay').textContent = code;
+  }
+}
+
+function copyCode(text) {
+  if(text === 'ОШИБКА (Код не найден)') return;
+  navigator.clipboard.writeText(text);
+  toast('Код скопирован!');
+}
+
+function toast(msg, isError = false) {
+  const c = $('toastContainer');
+  const el = document.createElement('div');
+  el.className = 'toast';
+  if(isError) el.style.borderLeftColor = '#e52e71';
+  el.textContent = msg;
+  c.appendChild(el);
+  setTimeout(() => el.remove(), 3000);
+}
+function openModal(id){ $(id).classList.add('active'); }
+function closeModal(id){ $(id).classList.remove('active'); }
+function esc(s){ return String(s).replace(/[&<>"]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m])); }
+
+/* ============================================================
+   🔑 АВТОРИЗАЦИЯ
+   ============================================================ */
+
+async function findUserByEmail(email) {
+  const usersRef = window.FB.ref(window.FB.db, 'fakel_users');
+  const snap = await window.FB.get(usersRef);
+  if (!snap.exists()) return null;
+  const users = snap.val();
+  for (const [nick, data] of Object.entries(users)) {
+    if (data && data.email === email) return nick;
+  }
+  return null;
+}
+
+async function pickUniqueNick(baseNick) {
+  let nick = baseNick;
+  let counter = 1;
+  while (true) {
+    const nickRef = window.FB.ref(window.FB.db, `fakel_users/${nick}`);
+    const nickSnap = await window.FB.get(nickRef);
+    if (!nickSnap.exists()) return nick;
+    nick = `${baseNick}${counter}`;
+    counter++;
+    if (counter > 10000) return `${baseNick}_${Date.now()}`;
+  }
+}
+
+async function signInWithGoogle() {
+  try {
+    const result = await window.FB.signInWithPopup(window.FB.auth, window.FB.provider);
+    const user = result.user;
+    const uid = user.uid;
+    const email = user.email;
+    const baseNick = email.split('@')[0];
+
+    closeModal('authModal');
+
+    const byUidRef = window.FB.ref(window.FB.db, `fakel_users_by_uid/${uid}`);
+    const byUidSnap = await window.FB.get(byUidRef);
+
+    if (byUidSnap.exists()) {
+      const nick = byUidSnap.val();
+      const userRef = window.FB.ref(window.FB.db, `fakel_users/${nick}`);
+      const userSnap = await window.FB.get(userRef);
+      if (userSnap.exists()) {
+        currentUser = { nickname: nick, uid: uid, email: email };
+        loadUserData(nick);
+        toast(`С возвращением, ${nick}!`);
+        return;
+      }
+    }
+
+    const existingNick = await findUserByEmail(email);
+    if (existingNick) {
+      await window.FB.update(
+        window.FB.ref(window.FB.db, `fakel_users/${existingNick}`),
+        { uid: uid }
+      );
+      await window.FB.set(byUidRef, existingNick);
+      currentUser = { nickname: existingNick, uid: uid, email: email };
+      loadUserData(existingNick);
+      toast(`Аккаунт найден и привязан: ${existingNick}`);
+      return;
+    }
+
+    const finalNick = await pickUniqueNick(baseNick);
+    const newUser = {
+      nickname: finalNick,
+      balance: 100,
+      streak: 0,
+      lastClaim: 0,
+      role: 'user',
+      created: Date.now(),
+      email: email,
+      uid: uid,
+      avatar: '🕊️',
+      status: 'none',
+      password: null,
+      vipUntil: 0,
+      premiumUntil: 0
+    };
+    await window.FB.set(window.FB.ref(window.FB.db, `fakel_users/${finalNick}`), newUser);
+    await window.FB.set(byUidRef, finalNick);
+
+    currentUser = { nickname: finalNick, uid: uid, email: email };
+    loadUserData(finalNick);
+    toast(`Аккаунт создан! Твой ник: ${finalNick}. +100 факелов`);
+
+  } catch (error) {
+    console.error(error);
+    toast('Ошибка входа: ' + error.message, true);
+  }
+}
+
+async function loginWithPassword() {
+  const nick = $('adminNickInput').value.trim();
+  const pass = $('adminPassInput').value;
+  if(!nick || !pass) return toast('Введите ник и пароль', true);
+
+  const ref = window.FB.ref(window.FB.db, `fakel_users/${nick}`);
+  const snap = await window.FB.get(ref);
+
+  if(!snap.exists()) return toast('Такого ника нет', true);
+
+  const data = snap.val();
+  if(!data.password) {
+    return toast('Этот аккаунт привязан к Google. Войдите через Google.', true);
+  }
+  if(data.password !== pass) {
+    return toast('Неверный пароль', true);
+  }
+
+  currentUser = { nickname: nick, uid: data.uid || null, email: data.email || null };
+  closeModal('authModal');
+  loadUserData(nick);
+  toast(`Привет, ${nick}!`);
+}
+
+function logout() {
+  window.FB.signOut(window.FB.auth).then(() => {
+    currentUser = null;
+    closeModal('profileModal');
+    updateUI();
+    toast('Вы вышли');
+  });
+}
+
+async function loadUserData(nick) {
+  const ref = window.FB.ref(window.FB.db, `fakel_users/${nick}`);
+  window.FB.onValue(ref, (snap) => {
+    if(snap.exists()) {
+      userData = snap.val();
+      updateUI();
+      renderLeaderboard();
+    }
+  });
+}
+
+async function saveUserData() {
+  if(!currentUser || !fbReady) return;
+  await window.FB.set(window.FB.ref(window.FB.db, `fakel_users/${currentUser.nickname}`), userData);
+}
+
+async function saveNewNick() {
+  const newNick = $('profileNickInput').value.trim();
+  if(!newNick) return toast('Введите новый ник', true);
+  if(newNick === currentUser.nickname) return toast('Это твой текущий ник', true);
+
+  const oldNick = currentUser.nickname;
+
+  const checkRef = window.FB.ref(window.FB.db, `fakel_users/${newNick}`);
+  const checkSnap = await window.FB.get(checkRef);
+  if(checkSnap.exists()) return toast('Этот ник уже занят!', true);
+
+  await window.FB.set(window.FB.ref(window.FB.db, `fakel_users/${newNick}`), userData);
+  await window.FB.remove(window.FB.ref(window.FB.db, `fakel_users/${oldNick}`));
+
+  if(currentUser.uid) {
+    await window.FB.set(
+      window.FB.ref(window.FB.db, `fakel_users_by_uid/${currentUser.uid}`),
+      newNick
+    );
+  }
+
+  currentUser.nickname = newNick;
+  toast('Ник изменён!');
+  closeModal('profileModal');
+  loadUserData(newNick);
+}
+
+async function saveAvatar() {
+  const avatar = $('profileAvatarUrl').value.trim();
+  if(!avatar) return toast('Введите ссылку или эмодзи', true);
+
+  userData.avatar = avatar;
+  await saveUserData();
+  toast('Аватарка обновлена!');
+  updateUI();
+}
+
+async function saveNewPassword() {
+  const pass = $('profilePasswordInput').value.trim();
+  if(!pass) return toast('Введите новый пароль', true);
+
+  if(!userData.password) {
+    return toast('Это Google-аккаунт. Смена пароля недоступна.', true);
+  }
+
+  userData.password = pass;
+  await saveUserData();
+  toast('Пароль изменён!');
+}
+
+async function toggleRainbow() {
+  if(!currentUser) return;
+  if(userData.status === 'rainbow') {
+    userData.status = 'none';
+  } else {
+    userData.status = 'rainbow';
+  }
+  await saveUserData();
+  updateUI();
+  closeModal('profileModal');
+  toast('Статус изменён!');
+}
+
+async function loadAdmins() {
+  if(!fbReady) return;
+  const ref = window.FB.ref(window.FB.db, 'fakel_admins');
+  window.FB.onValue(ref, (snap) => {
+    firebaseAdmins = snap.val() || [];
+    renderAdminAdmins();
+  });
+}
+
+async function loadAds() {
+  if(!fbReady) return;
+  const ref = window.FB.ref(window.FB.db, 'fakel_ads');
+  window.FB.onValue(ref, (snap) => {
+    const data = snap.val() || {};
+    firebaseAds = Object.entries(data).map(([id, ad]) => ({ id, ...ad }));
+    renderAds();
+  });
+}
+
+async function loadSettings() {
+  if(!fbReady) return;
+  const ref = window.FB.ref(window.FB.db, 'fakel_settings/email');
+  window.FB.onValue(ref, (snap) => {
+    if(snap.exists()) {
+      adminEmail = snap.val();
+      $('adminEmailInput').value = adminEmail;
+    } else {
+      $('adminEmailInput').value = "dimaniktp@gmail.com";
+    }
+  });
+}
+
+async function loadChat() {
+  if(!fbReady) return;
+  const ref = window.FB.ref(window.FB.db, 'fakel_chat');
+  window.FB.onValue(ref, (snap) => {
+    const data = snap.val() || {};
+    firebaseChat = Object.entries(data).map(([id, msg]) => ({ id, ...msg })).sort((a,b) => a.time - b.time);
+    renderChat();
+  });
+}
+
+function renderLeaderboard() {
+  const tbody = document.querySelector('#leaderboardTable tbody');
+  const users = Object.entries(firebaseUsers).map(([nick, data]) => ({ nick, ...data }));
+  const sorted = users.sort((a,b) => b.balance - a.balance).slice(0, 10);
+
+  if(!sorted.length) {
+    tbody.innerHTML = '<tr><td colspan="3" class="empty-state">Пока нет игроков</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = sorted.map((u, i) => `
+    <tr>
+      <td class="place">${i+1}</td>
+      <td>${renderAvatar(u.avatar)} ${u.status === 'rainbow' ? `<span class="rainbow-nick">${esc(u.nick)}</span>` : esc(u.nick)}</td>
+      <td class="donor-sum">${u.balance} 🔥</td>
+    </tr>
+  `).join('');
+}
+
+function renderAvatar(av) {
+  if(!av) return '🕊️';
+  if(av.startsWith('http')) return `<img src="${esc(av)}" style="width:24px;height:24px;border-radius:50%;object-fit:cover;vertical-align:middle;">`;
+  return esc(av);
+}
+
+function updateUI() {
+  const actions = $('headerActions');
+  const spinBtn = $('spinBtn');
+  const dailyBtn = $('dailyBtn');
+  const streakIcon = $('streakIcon');
+  const streakCount = $('streakCount');
+
+  if(currentUser) {
+    const isAdmin = userData.role === 'admin' || firebaseAdmins.includes(currentUser.nickname);
+    let adminBtn = isAdmin ? `<button class="btn btn-glass" onclick="openModal('adminModal')">⚙️</button>` : '';
+
+    const nickClass = userData.status === 'rainbow' ? 'rainbow-nick' : '';
+    const frameClass = userData.status === 'frame' ? 'rainbow-frame' : '';
+
+    actions.innerHTML = `
+      <button class="btn btn-accent" onclick="openDonateModal()">💳 Пополнить</button>
+      <div class="balance-pill">🔥 <span>${userData.balance}</span></div>
+      <button class="btn btn-glass" onclick="openModal('supportModal')">💬</button>
+      ${adminBtn}
+      <button class="btn btn-glass ${frameClass}" onclick="openProfile()">
+        <div style="display:flex; align-items:center; gap:5px;">
+          ${renderAvatar(userData.avatar)}
+          <span class="${nickClass}">${esc(currentUser.nickname)}</span>
+        </div>
+      </button>
+    `;
+
+    const adminRainbowBtn = $('adminRainbowBtn');
+    if(adminRainbowBtn) {
+      adminRainbowBtn.style.display = isAdmin ? 'block' : 'none';
+    }
+
+    spinBtn.disabled = isSpinning || userData.balance < 10;
+    streakCount.textContent = userData.streak;
+    if(userData.streak > 0) streakIcon.classList.add('active');
+    else streakIcon.classList.remove('active');
+
+    const now = Date.now();
+    const oneDay = 24 * 60 * 60 * 1000;
+    if(now - userData.lastClaim < oneDay) {
+      dailyBtn.disabled = true;
+      dailyBtn.textContent = 'Завтра';
+    } else {
+      dailyBtn.disabled = false;
+      dailyBtn.textContent = 'Поджечь';
+    }
+
+    if($('refLinkInput')) {
+      $('refLinkInput').value = `https://newlunarispro-dotcom.github.io/1/?ref=${currentUser.nickname}`;
+    }
+
+    loadSupport();
+    loadChat();
+  } else {
+    actions.innerHTML = `<button class="btn btn-primary" onclick="openModal('authModal')">Войти</button>`;
+    spinBtn.disabled = true;
+    dailyBtn.disabled = true;
+    streakCount.textContent = '0';
+    streakIcon.classList.remove('active');
+    if($('adminRainbowBtn')) $('adminRainbowBtn').style.display = 'none';
+  }
+}
+
+function openProfile() {
+  $('profileNickInput').value = currentUser.nickname;
+  $('profileBal').textContent = userData.balance;
+  openModal('profileModal');
+}
+
+function copyRefLink() {
+  const input = $('refLinkInput');
+  input.select();
+  navigator.clipboard.writeText(input.value);
+  toast('Ссылка скопирована!');
+}
+
+async function buyFrame() {
+  if(!currentUser) return toast('Войдите', true);
+  if(userData.balance < 500) return toast('Мало факелов (нужно 500)', true);
+
+  userData.balance -= 500;
+  userData.status = 'frame';
+  await saveUserData();
+  updateUI();
+  toast('Вы купили Огненную рамку!');
+}
+
+async function buyVip() {
+  if(!currentUser) return toast('Войдите', true);
+  if(userData.balance < 50) return toast('Мало факелов (нужно 50)', true);
+
+  userData.balance -= 50;
+  userData.vipUntil = Date.now() + 30 * 24 * 60 * 60 * 1000;
+  await saveUserData();
+  updateUI();
+  toast('Вы купили VIP на месяц!');
+}
+
+async function buyPremium() {
+  if(!currentUser) return toast('Войдите', true);
+  if(userData.balance < 150) return toast('Мало факелов (нужно 150)', true);
+
+  userData.balance -= 150;
+  userData.premiumUntil = Date.now() + 30 * 24 * 60 * 60 * 1000;
+  userData.status = 'rainbow';
+  await saveUserData();
+  updateUI();
+  toast('Вы купили Premium на месяц! Теперь у вас радужный ник!');
+}
+
+async function openCase() {
+  if(!currentUser) return toast('Войдите', true);
+  if(userData.balance < 500) return toast('Мало факелов (нужно 500)', true);
+  if(caseOpened) return;
+
+  caseOpened = true;
+  userData.balance -= 500;
+  await saveUserData();
+  updateUI();
+
+  const prizes = [100, 250, 500, 1000, 5000];
+  const win = prizes[Math.floor(Math.random() * prizes.length)];
+  userData.balance += win;
+  await saveUserData();
+  updateUI();
+
+  toast(`Кейс открыт! Вы выиграли ${win} факелов!`);
+  setTimeout(() => { caseOpened = false; }, 2000);
+}
+
+function generateCode() {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let code = '';
+  for (let i = 0; i < 6; i++) {
+    code += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return code;
+}
+
+const wheelPrizes = [50, 10, 0, 20, 10, 0, 50, 10, 0, 20, 10, 0];
+
+async function spinWheel() {
+  if(!currentUser) return toast('Войдите', true);
+  if(isSpinning) return;
+  if(userData.balance < 10) return toast('Мало факелов (нужно 10)', true);
+
+  isSpinning = true;
+  userData.balance -= 10;
+  await saveUserData();
+  updateUI();
+
+  const wheel = $('wheel');
+  const resultEl = $('resultText');
+  resultEl.innerHTML = '';
+
+  const selectedIndex = Math.floor(Math.random() * wheelPrizes.length);
+  const isTshirt = Math.random() < 0.001;
+
+  const stopAngle = 360 - (selectedIndex * 30 + 15);
+  const randomSpins = 5 + Math.floor(Math.random() * 3);
+  wheelAngle += (360 * randomSpins) + stopAngle - (wheelAngle % 360);
+
+  wheel.style.transform = `rotate(${wheelAngle}deg)`;
+
+  const params = new URLSearchParams(window.location.search);
+  const ref = params.get('ref');
+  if(ref && !localStorage.getItem('ref_used')) {
+    localStorage.setItem('ref_used', 'true');
+    const refUserRef = window.FB.ref(window.FB.db, `fakel_users/${ref}/balance`);
+    const refUserSnap = await window.FB.get(refUserRef);
+    if(refUserSnap.exists()) {
+      const newBal = (refUserSnap.val() || 0) + 100;
+      await window.FB.set(refUserRef, newBal);
+      toast(`Вы пригласили ${ref} и он получил +100 факелов!`);
+    }
+  }
+
+  setTimeout(async () => {
+    isSpinning = false;
+
+    if (isTshirt) {
+      const code = generateCode();
+
+      if (fbReady) {
+        await window.FB.set(window.FB.ref(window.FB.db, `fakel_tshirts/${code}`), {
+          used: false,
+          created: Date.now(),
+          winner: currentUser.nickname
+        });
+      }
+
+      try {
+        await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+          name: currentUser.nickname,
+          message: code,
+          time: new Date().toLocaleString('ru-RU'),
+          to_email: adminEmail
+        });
+        console.log("Письмо отправлено!");
+      } catch (e) {
+        console.error("Ошибка почты:", e);
+      }
+
+      resultEl.innerHTML = `
+        <div style="color:#ffd700; font-size:1.1rem; margin-bottom:5px;">👕 Футболка!</div>
+        <div style="background:rgba(0,0,0,0.5); padding:5px 10px; border-radius:5px; display:inline-block;">
+          Переадресация...
+        </div>
+      `;
+      toast('ДЖЕКПОТ! Футболка!');
+
+      setTimeout(() => {
+        window.location.href = `/1/f?code=${code}`;
+      }, 1500);
+
+    } else {
+      let basePrize = wheelPrizes[selectedIndex];
+      userData.balance += basePrize;
+
+      if (basePrize > 0) {
+        resultEl.innerHTML = `+${basePrize} 🔥`;
+        toast(`+${basePrize} факелов!`);
+      } else {
+        resultEl.innerHTML = `Пусто 💀`;
+        toast('Не повезло');
+      }
+
+      await saveUserData();
+      updateUI();
+    }
+  }, 4200);
+}
+
+function toggleChat() {
+  const chat = $('chatContainer');
+  chat.classList.toggle('open');
+}
+
+function renderChat() {
+  const el = $('chatMessages');
+  if(!el) return;
+  el.innerHTML = firebaseChat.slice(-30).map(m => `
+    <div class="chat-msg ${m.user === currentUser?.nickname ? 'user' : ''}">
+      <span class="nick">${esc(m.user)}:</span> ${esc(m.text)}
+    </div>
+  `).join('');
+  el.scrollTop = el.scrollHeight;
+}
+
+async function sendChatMessage() {
+  const input = $('chatInput');
+  const text = input.value.trim();
+  if(!text) return;
+  if(!currentUser) return toast('Войдите', true);
+
+  await window.FB.push(window.FB.ref(window.FB.db, 'fakel_chat'), {
+    user: currentUser.nickname,
+    text: text,
+    time: Date.now()
+  });
+  input.value = '';
+}
+
+async function claimDaily() {
+  if(!currentUser) return toast('Войдите', true);
+  const now = Date.now();
+  const oneDay = 24 * 60 * 60 * 1000;
+  if(now - userData.lastClaim < oneDay) return toast('Завтра', true);
+
+  const timeSinceLast = now - userData.lastClaim;
+  if(timeSinceLast > oneDay * 2) userData.streak = 0;
+
+  userData.streak += 1;
+  userData.lastClaim = now;
+  const reward = 20 + (userData.streak * 5);
+  userData.balance += reward;
+
+  await saveUserData();
+  updateUI();
+  toast(`+${reward} 🔥 (Стрик: ${userData.streak})`);
+}
+
+function loadStream() {
+  if(!fbReady) return;
+  const ref = window.FB.ref(window.FB.db, 'fakel_stream');
+  window.FB.onValue(ref, (snap) => {
+    firebaseStream = snap.val() || { url: '', status: 'offline' };
+    renderStream();
+  });
+}
+
+function renderStream() {
+  const wrapper = $('streamWrapper');
+  const statusBadge = $('liveStatus');
+  if(!wrapper) return;
+
+  if(firebaseStream.status === 'online' && firebaseStream.url) {
+    statusBadge.className = 'live-badge online';
+    statusBadge.textContent = 'LIVE';
+    let embedUrl = firebaseStream.url;
+    if(embedUrl.includes('youtube.com/watch')) {
+      const id = embedUrl.split('v=')[1]?.split('&')[0];
+      if(id) embedUrl = `https://www.youtube.com/embed/${id}`;
+    }
+    if(embedUrl.includes('rutube.ru/video/')) {
+      const parts = embedUrl.split('/');
+      const id = parts[parts.length - 2] || parts[parts.length - 1];
+      embedUrl = `https://rutube.ru/play/embed/${id}/`;
+    }
+    wrapper.innerHTML = `<iframe src="${esc(embedUrl)}" allowfullscreen></iframe>`;
+  } else {
+    statusBadge.className = 'live-badge';
+    statusBadge.textContent = 'OFF';
+    wrapper.innerHTML = `<div class="stream-offline">💤 Ожидание...</div>`;
+  }
+}
+
+async function saveStream() {
+  const url = $('adminStreamUrl').value.trim();
+  const status = $('adminStreamStatus').value;
+  await window.FB.set(window.FB.ref(window.FB.db, 'fakel_stream'), { url, status });
+  toast('Сохранено');
+}
+
+function loadSupport() {
+  if(!currentUser || !fbReady) return;
+  const ref = window.FB.ref(window.FB.db, 'fakel_support');
+  window.FB.onValue(ref, (snap) => {
+    const data = snap.val() || {};
+    firebaseSupport = Object.entries(data).map(([id, msg]) => ({ id, ...msg })).filter(m => m.user === currentUser.nickname);
+    renderSupportMessages();
+  });
+}
+function renderSupportMessages() {
+  const el = $('supportMessages');
+  if(!el) return;
+  el.innerHTML = firebaseSupport.sort((a,b)=>a.time-b.time).map(m =>
+    `<div class="support-msg ${m.from === 'user' ? 'user' : 'admin'}">${esc(m.text)}</div>`
+  ).join('');
+  el.scrollTop = el.scrollHeight;
+}
+async function sendSupport() {
+  const input = $('supportInput');
+  const text = input.value.trim();
+  if(!text) return;
+  if(!currentUser) return toast('Войдите', true);
+  await window.FB.push(window.FB.ref(window.FB.db, 'fakel_support'), {
+    user: currentUser.nickname, from: 'user', text, time: Date.now()
+  });
+  input.value = '';
+}
+
+function loadRecords() {
+  if(!fbReady) return;
+  const ref = window.FB.ref(window.FB.db, 'fakel_records');
+  window.FB.onValue(ref, (snap) => {
+    const data = snap.val() || {};
+    firebaseRecords = Object.entries(data).map(([id, rec]) => ({ id, ...rec }));
+    renderRecords();
+  });
+}
+function renderRecords() {
+  const list = $('recordsList');
+  const adminList = $('adminRecordsList');
+  if(!list) return;
+  if(!firebaseRecords.length) {
+    list.innerHTML = '<div style="color:var(--text-muted);font-size:0.8rem;">Нет записей</div>';
+    if(adminList) adminList.innerHTML = '<div style="color:var(--text-muted);">Нет</div>';
+    return;
+  }
+  list.innerHTML = firebaseRecords.map(r => `
+    <div class="record-item">
+      <span style="font-weight:600">${esc(r.title)}</span>
+      <a href="${esc(r.url)}" target="_blank">Смотреть</a>
+    </div>
+  `).join('');
+  if(adminList) {
+    adminList.innerHTML = firebaseRecords.map(r => `
+      <div style="display:flex;justify-content:space-between;align-items:center;background:rgba(0,0,0,0.2);padding:6px;border-radius:6px;margin-bottom:5px;">
+        <span style="font-size:0.75rem">${esc(r.title)}</span>
+        <button class="btn btn-glass btn-sm" onclick="deleteRecord('${r.id}')" style="color:#ff3366;padding:2px 6px;">X</button>
+      </div>
+    `).join('');
+  }
+}
+async function addRecord() {
+  const title = $('adminRecTitle').value.trim();
+  const url = $('adminRecUrl').value.trim();
+  if(!title || !url) return toast('Заполните поля', true);
+  await window.FB.push(window.FB.ref(window.FB.db, 'fakel_records'), { title, url, time: Date.now() });
+  $('adminRecTitle').value = '';
+  $('adminRecUrl').value = '';
+  toast('Добавлено');
+}
+async function deleteRecord(id) {
+  if(!confirm('Удалить?')) return;
+  await window.FB.remove(window.FB.ref(window.FB.db, `fakel_records/${id}`));
+}
+
+async function checkTshirtCode() {
+  const code = $('tshirtCodeInput').value.trim().toUpperCase();
+  const res = $('tshirtCheckResult');
+  const btn = $('checkTshirtBtn');
+
+  if(!code) return toast('Введите код', true);
+
+  res.className = '';
+  res.style.display = 'none';
+  btn.disabled = true;
+  btn.textContent = 'Проверка...';
+
+  if(!fbReady) {
+    res.className = 'error';
+    res.innerHTML = 'Ошибка сети. Попробуйте позже.';
+    btn.disabled = false;
+    btn.textContent = 'Проверить';
+    return;
+  }
+
+  try {
+    const ref = window.FB.ref(window.FB.db, `fakel_tshirts/${code}`);
+    const snap = await window.FB.get(ref);
+
+    if(snap.exists()) {
+      const data = snap.val();
+      if(data.used) {
+        res.className = 'error';
+        res.innerHTML = '❌ Этот код УЖЕ ИСПОЛЬЗОВАН!';
+      } else {
+        const adminName = currentUser ? currentUser.nickname : 'Admin';
+        await window.FB.update(ref, { used: true, usedAt: Date.now(), usedBy: adminName });
+        res.className = 'success';
+        res.innerHTML = '✅ КОД ПОДТВЕРЖДЕН!<br>Можете выдать футболку.';
+      }
+    } else {
+      res.className = 'error';
+      res.innerHTML = '❌ Код не найден (Фейк).';
+    }
+  } catch (e) {
+    console.error(e);
+    res.className = 'error';
+    res.innerHTML = '❌ Ошибка БД. Проверьте консоль (F12).';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Проверить';
+  }
+}
+
+function switchAdminTab(tab) {
+  document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.admin-panel').forEach(p => p.classList.remove('active'));
+  event.target.classList.add('active');
+  $(`admin-panel-${tab}`).classList.add('active');
+
+  if(tab === 'users') loadAdminUsers();
+  if(tab === 'support') loadAdminSupport();
+  if(tab === 'admins') renderAdminAdmins();
+  if(tab === 'ads') renderAdminAds();
+  if(tab === 'settings') loadSettings();
+  if(tab === 'donations') loadAdminDonations();
+}
+function loadAdminUsers() {
+  if(!fbReady) return;
+  const ref = window.FB.ref(window.FB.db, 'fakel_users');
+  window.FB.onValue(ref, (snap) => {
+    const data = snap.val() || {};
+    firebaseUsers = data;
+    renderAdminUsers();
+  });
+}
+function renderAdminUsers() {
+  const el = $('adminUsersList');
+  if(!el) return;
+  el.innerHTML = Object.entries(firebaseUsers).map(([nick, data]) => `
+    <div style="display:flex;justify-content:space-between;align-items:center;background:rgba(0,0,0,0.2);padding:8px;border-radius:6px;margin-bottom:5px;">
+      <div style="font-size:0.75rem;">
+        <b>${esc(nick)}</b><br>
+        🔥 ${data.balance}
+      </div>
+      <div style="display:flex;gap:3px;">
+        <input type="number" id="give_${nick}" placeholder="+🔥" style="width:50px;padding:3px;border-radius:4px;border:1px solid #444;background:#111;color:#fff;font-size:0.7rem;">
+        <button class="btn btn-primary btn-sm" onclick="adminGive('${nick}')" style="padding:3px 6px;">OK</button>
+      </div>
+    </div>
+  `).join('');
+}
+async function adminGive(nick) {
+  const amount = Number($(`give_${nick}`).value);
+  if(!amount) return;
+  const ref = window.FB.ref(window.FB.db, `fakel_users/${nick}/balance`);
+  const snap = await window.FB.get(ref);
+  const newBal = (snap.val() || 0) + amount;
+  await window.FB.set(ref, newBal);
+  toast(`+${amount} для ${nick}`);
+}
+function loadAdminSupport() {
+  if(!fbReady) return;
+  const ref = window.FB.ref(window.FB.db, 'fakel_support');
+  window.FB.onValue(ref, (snap) => {
+    const data = snap.val() || {};
+    const msgs = Object.entries(data).map(([id, m]) => ({ id, ...m })).sort((a,b)=>a.time-b.time);
+    const users = [...new Set(msgs.filter(m => m.from === 'user').map(m => m.user))];
+    const el = $('adminSupportList');
+    if(!users.length) { el.innerHTML = '<div style="color:var(--text-muted);font-size:0.8rem;">Пусто</div>'; return; }
+    el.innerHTML = users.map(u => `
+      <div style="background:rgba(0,0,0,0.2);padding:8px;border-radius:6px;margin-bottom:5px;">
+        <div style="font-weight:600;font-size:0.8rem;margin-bottom:3px;">${esc(u)}</div>
+        <div style="max-height:60px;overflow-y:auto;font-size:0.7rem;margin-bottom:5px;color:var(--text-muted);">
+          ${msgs.filter(m => m.user === u).map(m => `<div>${m.from === 'user' ? 'U' : 'A'}: ${esc(m.text)}</div>`).join('')}
+        </div>
+        <input type="text" id="reply_${u}" placeholder="Ответ..." style="width:100%;padding:5px;border-radius:4px;border:1px solid #444;background:#111;color:#fff;font-size:0.7rem;margin-bottom:3px;">
+        <button class="btn btn-primary btn-sm" style="width:100%;padding:4px;" onclick="adminReply('${u}')">Отправить</button>
+      </div>
+    `).join('');
+  });
+}
+async function adminReply(nick) {
+  const text = $(`reply_${nick}`).value.trim();
+  if(!text) return;
+  await window.FB.push(window.FB.ref(window.FB.db, 'fakel_support'), {
+    user: nick, from: 'admin', text, time: Date.now()
+  });
+  $(`reply_${nick}`).value = '';
+  toast('Отправлено');
+}
+
+function renderAdminAdmins() {
+  const el = $('adminAdminsList');
+  if(!el) return;
+  el.innerHTML = firebaseAdmins.map(a => `
+    <div style="display:flex;justify-content:space-between;align-items:center;background:rgba(0,0,0,0.2);padding:8px;border-radius:6px;margin-bottom:5px;">
+      <span style="font-size:0.8rem;">👑 ${esc(a)}</span>
+      <button class="btn btn-danger btn-sm" onclick="removeAdmin('${a}')" style="padding:2px 6px;">Удалить</button>
+    </div>
+  `).join('') || '<div style="color:var(--text-muted);font-size:0.8rem;">Нет админов</div>';
+}
+async function addAdmin() {
+  const nick = $('newAdminNick').value.trim();
+  if(!nick) return;
+  if(firebaseAdmins.includes(nick)) return toast('Уже админ', true);
+
+  const newAdmins = [...firebaseAdmins, nick];
+  await window.FB.set(window.FB.ref(window.FB.db, 'fakel_admins'), newAdmins);
+  $('newAdminNick').value = '';
+  toast('Админ добавлен');
+}
+async function removeAdmin(nick) {
+  const newAdmins = firebaseAdmins.filter(a => a !== nick);
+  await window.FB.set(window.FB.ref(window.FB.db, 'fakel_admins'), newAdmins);
+  toast('Админ удален');
+}
+
+function renderAds() {
+  const leftCol = $('leftBanners');
+  const rightCol = $('rightBanners');
+  if(!leftCol || !rightCol) return;
+
+  const leftAds = firebaseAds.filter(a => a.side === 'left');
+  const rightAds = firebaseAds.filter(a => a.side === 'right');
+
+  leftCol.innerHTML = leftAds.map(a => `
+    <a href="${esc(a.link)}" target="_blank" class="banner-item">
+      <img src="${esc(a.img)}" alt="Ad">
+    </a>
+  `).join('');
+
+  rightCol.innerHTML = rightAds.map(a => `
+    <a href="${esc(a.link)}" target="_blank" class="banner-item">
+      <img src="${esc(a.img)}" alt="Ad">
+    </a>
+  `).join('');
+}
+
+function renderAdminAds() {
+  const el = $('adminAdsList');
+  if(!el) return;
+  el.innerHTML = firebaseAds.map(a => `
+    <div style="display:flex;justify-content:space-between;align-items:center;background:rgba(0,0,0,0.2);padding:8px;border-radius:6px;margin-bottom:5px;">
+      <div style="font-size:0.75rem;">
+        <b>${esc(a.side === 'left' ? 'Слева' : 'Справа')}</b><br>
+        ${esc(a.img.substring(0, 30))}...
+      </div>
+      <button class="btn btn-danger btn-sm" onclick="removeAd('${a.id}')" style="padding:2px 6px;">X</button>
+    </div>
+  `).join('');
+}
+
+async function addAd() {
+  const img = $('adImgUrl').value.trim();
+  const link = $('adLinkUrl').value.trim() || '#';
+  const side = $('adSide').value;
+  if(!img) return toast('Введите ссылку на картинку', true);
+
+  await window.FB.push(window.FB.ref(window.FB.db, 'fakel_ads'), { img, link, side, time: Date.now() });
+  $('adImgUrl').value = '';
+  $('adLinkUrl').value = '';
+  toast('Реклама добавлена');
+}
+
+async function removeAd(id) {
+  if(!confirm('Удалить баннер?')) return;
+  await window.FB.remove(window.FB.ref(window.FB.db, `fakel_ads/${id}`));
+  toast('Удалено');
+}
+
+async function saveEmailSetting() {
+  const email = $('adminEmailInput').value.trim();
+  if(!email || !email.includes('@')) return toast('Некорректная почта', true);
+
+  await window.FB.set(window.FB.ref(window.FB.db, 'fakel_settings/email'), email);
+  adminEmail = email;
+  toast('Почта сохранена!');
+}
+
+async function testEmail() {
+  const email = $('adminEmailInput').value.trim();
+  if(!email || !email.includes('@')) return toast('Введите корректную почту для теста', true);
+
+  const btn = $('testEmailBtn');
+  btn.disabled = true;
+  btn.textContent = 'Отправка...';
+
+  try {
+    await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+      name: 'Тестовый игрок',
+      message: 'TEST123',
+      time: new Date().toLocaleString('ru-RU'),
+      to_email: email
+    });
+    toast('Тестовое письмо отправлено! Проверьте почту.');
+    btn.textContent = '✅ Отправлено';
+    setTimeout(() => { btn.disabled = false; btn.textContent = '✉️ Отправить тест'; }, 3000);
+  } catch (e) {
+    console.error(e);
+    toast('Ошибка отправки! Проверьте консоль (F12).', true);
+    btn.textContent = '❌ Ошибка';
+    setTimeout(() => { btn.disabled = false; btn.textContent = '✉️ Отправить тест'; }, 3000);
+  }
+}
+
+/* ============================================================
+   💳 СИСТЕМА ДОНАТОВ (через @CyberDataX)
+   ============================================================ */
+
+function openDonateModal() {
+  if(!currentUser) return toast('Войдите', true);
+  openModal('donateModal');
+  loadMyDonations();
+}
+
+function pickDonateAmount(n) {
+  $('donateAmount').value = n;
+}
+
+async function createDonation() {
+  if(!currentUser) return toast('Войдите', true);
+
+  const amount = Number($('donateAmount').value);
+  const comment = $('donateComment').value.trim();
+
+  if(!amount || amount < 50) return toast('Минимальная сумма — 50 ₽', true);
+  if(amount > 100000) return toast('Максимум — 100000 ₽', true);
+
+  const checkRef = window.FB.ref(window.FB.db, 'fakel_donations');
+  const snap = await window.FB.get(checkRef);
+  if(snap.exists()) {
+    const all = Object.values(snap.val());
+    const myPending = all.filter(d => d.user === currentUser.nickname && d.status === 'pending');
+    if(myPending.length >= 3) {
+      return toast('У тебя уже 3 активные заявки. Дождись проверки.', true);
+    }
+  }
+
+  const donation = {
+    user: currentUser.nickname,
+    amount: amount,
+    factels: amount,
+    comment: comment,
+    status: 'pending',
+    created: Date.now(),
+    processedAt: null,
+    processedBy: null
+  };
+
+  await window.FB.push(window.FB.ref(window.FB.db, 'fakel_donations'), donation);
+  $('donateAmount').value = '';
+  $('donateComment').value = '';
+  toast('Заявка создана! Напиши @CyberDataX для оплаты.');
+  loadMyDonations();
+}
+
+function loadMyDonations() {
+  if(!currentUser || !fbReady) return;
+  const ref = window.FB.ref(window.FB.db, 'fakel_donations');
+  window.FB.onValue(ref, (snap) => {
+    const data = snap.val() || {};
+    const all = Object.entries(data).map(([id, d]) => ({ id, ...d }));
+    const mine = all
+      .filter(d => d.user === currentUser.nickname)
+      .sort((a,b) => b.created - a.created)
+      .slice(0, 10);
+
+    const el = $('myDonationsList');
+    if(!el) return;
+
+    if(!mine.length) {
+      el.innerHTML = '<div style="color:var(--text-muted);">Пока нет заявок</div>';
+      return;
+    }
+
+    const statusColors = {
+      pending: '#ffc107',
+      approved: '#00e676',
+      rejected: '#e52e71'
+    };
+    const statusLabels = {
+      pending: '⏳ На проверке',
+      approved: '✅ Зачислено',
+      rejected: '❌ Отклонено'
+    };
+
+    el.innerHTML = mine.map(d => `
+      <div style="background:rgba(0,0,0,0.2); padding:8px; border-radius:6px; margin-bottom:5px;">
+        <div style="display:flex; justify-content:space-between;">
+          <b>${d.factels} 🔥</b>
+          <span style="color:${statusColors[d.status]};">${statusLabels[d.status]}</span>
+        </div>
+        <div style="color:var(--text-muted); font-size:0.7rem; margin-top:3px;">
+          ${new Date(d.created).toLocaleString('ru-RU')}
+          ${d.comment ? ' • ' + esc(d.comment) : ''}
+        </div>
+      </div>
+    `).join('');
+  });
+}
+
+function loadAdminDonations() {
+  if(!fbReady) return;
+  const ref = window.FB.ref(window.FB.db, 'fakel_donations');
+  window.FB.onValue(ref, (snap) => {
+    const data = snap.val() || {};
+    firebaseDonations = Object.entries(data).map(([id, d]) => ({ id, ...d }));
+    renderAdminDonations();
+  });
+}
+
+function renderAdminDonations() {
+  const el = $('adminDonationsList');
+  if(!el) return;
+
+  const pending = firebaseDonations.filter(d => d.status === 'pending').sort((a,b) => a.created - b.created);
+  const processed = firebaseDonations.filter(d => d.status !== 'pending').sort((a,b) => (b.processedAt || 0) - (a.processedAt || 0)).slice(0, 20);
+
+  if(!pending.length && !processed.length) {
+    el.innerHTML = '<div style="color:var(--text-muted); font-size:0.8rem;">Заявок нет</div>';
+    return;
+  }
+
+  let html = '';
+
+  if(pending.length) {
+    html += `<div style="font-size:0.8rem; color:#ffc107; margin-bottom:6px;">⏳ Ожидают (${pending.length})</div>`;
+    html += pending.map(d => `
+      <div style="background:rgba(255,193,7,0.1); border:1px solid rgba(255,193,7,0.3); padding:8px; border-radius:6px; margin-bottom:6px;">
+        <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+          <b>${esc(d.user)}</b>
+          <b style="color:#ffc107;">${d.factels} 🔥 / ${d.amount} ₽</b>
+        </div>
+        ${d.comment ? `<div style="font-size:0.7rem; color:var(--text-muted); margin-bottom:4px;">Комментарий: ${esc(d.comment)}</div>` : ''}
+        <div style="font-size:0.65rem; color:var(--text-muted); margin-bottom:6px;">${new Date(d.created).toLocaleString('ru-RU')}</div>
+        <div style="display:flex; gap:4px;">
+          <button class="btn btn-primary btn-sm" style="flex:1; padding:5px;" onclick="approveDonation('${d.id}')">✅ Подтвердить</button>
+          <button class="btn btn-glass btn-sm" style="flex:1; padding:5px; color:#e52e71;" onclick="rejectDonation('${d.id}')">❌ Отклонить</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  if(processed.length) {
+    html += `<div style="font-size:0.8rem; color:var(--text-muted); margin:10px 0 6px;">История</div>`;
+    html += processed.map(d => `
+      <div style="background:rgba(0,0,0,0.2); padding:6px; border-radius:6px; margin-bottom:4px; font-size:0.75rem;">
+        <div style="display:flex; justify-content:space-between;">
+          <span><b>${esc(d.user)}</b> — ${d.factels} 🔥</span>
+          <span style="color:${d.status === 'approved' ? '#00e676' : '#e52e71'};">
+            ${d.status === 'approved' ? '✅' : '❌'}
+          </span>
+        </div>
+        <div style="color:var(--text-muted); font-size:0.65rem; margin-top:2px;">
+          ${d.processedBy ? 'Админ: ' + esc(d.processedBy) + ' • ' : ''}${d.processedAt ? new Date(d.processedAt).toLocaleString('ru-RU') : ''}
+        </div>
+      </div>
+    `).join('');
+  }
+
+  el.innerHTML = html;
+}
+
+async function approveDonation(id) {
+  if(!currentUser) return;
+  if(!confirm('Подтвердить заявку и зачислить факелы?')) return;
+
+  const donRef = window.FB.ref(window.FB.db, `fakel_donations/${id}`);
+  const snap = await window.FB.get(donRef);
+  if(!snap.exists()) return toast('Заявка не найдена', true);
+
+  const d = snap.val();
+  if(d.status !== 'pending') return toast('Заявка уже обработана', true);
+
+  const balRef = window.FB.ref(window.FB.db, `fakel_users/${d.user}/balance`);
+  const balSnap = await window.FB.get(balRef);
+  const newBal = (balSnap.val() || 0) + d.factels;
+  await window.FB.set(balRef, newBal);
+
+  await window.FB.update(donRef, {
+    status: 'approved',
+    processedAt: Date.now(),
+    processedBy: currentUser.nickname
+  });
+
+  toast(`✅ Зачислено ${d.factels} 🔥 для ${d.user}`);
+}
+
+async function rejectDonation(id) {
+  if(!currentUser) return;
+  if(!confirm('Отклонить заявку?')) return;
+
+  const donRef = window.FB.ref(window.FB.db, `fakel_donations/${id}`);
+  const snap = await window.FB.get(donRef);
+  if(!snap.exists()) return toast('Заявка не найдена', true);
+
+  const d = snap.val();
+  if(d.status !== 'pending') return toast('Заявка уже обработана', true);
+
+  await window.FB.update(donRef, {
+    status: 'rejected',
+    processedAt: Date.now(),
+    processedBy: currentUser.nickname
+  });
+
+  toast('Заявка отклонена');
+}
+
+/* ============================================================
+   ЗАПУСК
+   ============================================================ */
+
+window.addEventListener('firebase-ready', () => {
+  fbReady = true;
+
+  checkTshirtBanner();
+
+  loadRecords();
+  loadStream();
+  loadAdmins();
+  loadAds();
+  loadSettings();
+  loadChat();
+
+  const usersRef = window.FB.ref(window.FB.db, 'fakel_users');
+  window.FB.onValue(usersRef, (snap) => {
+    firebaseUsers = snap.val() || {};
+    renderLeaderboard();
+  });
+
+  window.FB.onAuthStateChanged(window.FB.auth, async (user) => {
+    if (user) {
+      const uid = user.uid;
+      const email = user.email;
+      const byUidRef = window.FB.ref(window.FB.db, `fakel_users_by_uid/${uid}`);
+      const byUidSnap = await window.FB.get(byUidRef);
+
+      if (byUidSnap.exists()) {
+        const nick = byUidSnap.val();
+        currentUser = { nickname: nick, uid: uid, email: email };
+        loadUserData(nick);
+        return;
+      }
+
+      const existingNick = await findUserByEmail(email);
+      if (existingNick) {
+        await window.FB.update(
+          window.FB.ref(window.FB.db, `fakel_users/${existingNick}`),
+          { uid: uid }
+        );
+        await window.FB.set(byUidRef, existingNick);
+        currentUser = { nickname: existingNick, uid: uid, email: email };
+        loadUserData(existingNick);
+        return;
+      }
+
+      const baseNick = email.split('@')[0];
+      const finalNick = await pickUniqueNick(baseNick);
+      const newUser = {
+        nickname: finalNick,
+        balance: 100,
+        streak: 0,
+        lastClaim: 0,
+        role: 'user',
+        created: Date.now(),
+        email: email,
+        uid: uid,
+        avatar: '🕊️',
+        status: 'none',
+        password: null,
+        vipUntil: 0,
+        premiumUntil: 0
+      };
+      await window.FB.set(window.FB.ref(window.FB.db, `fakel_users/${finalNick}`), newUser);
+      await window.FB.set(byUidRef, finalNick);
+      currentUser = { nickname: finalNick, uid: uid, email: email };
+      loadUserData(finalNick);
+    } else {
+      currentUser = null;
+      updateUI();
+    }
+  });
+});
+document.addEventListener('DOMContentLoaded', () => {
+  updateUI();
+});
+</script>
+</body>
+</html>
