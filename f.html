@@ -32,32 +32,17 @@ body {
   overflow-x: hidden;
 }
 
-#tshirtBanner {
-  display: none;
-  background: rgba(0,0,0,0.8);
-  border-bottom: 2px solid #ffd700;
-  padding: 20px;
-  text-align: center;
-  position: relative;
-  z-index: 101;
+/* РАДУЖНЫЕ ЭФФЕКТЫ */
+@keyframes rainbow-text {
+  0% { color: #ff0000; } 17% { color: #ff8c00; } 33% { color: #ffee00; }
+  50% { color: #00ff00; } 67% { color: #00bfff; } 83% { color: #8a2be2; } 100% { color: #ff0000; }
 }
+.rainbow-nick { animation: rainbow-text 3s linear infinite; font-weight: 800; }
+.rainbow-frame { border: 2px solid transparent; border-image: linear-gradient(45deg, red, orange, yellow, green, blue, indigo, violet); border-image-slice: 1; }
+
+#tshirtBanner { display: none; background: rgba(0,0,0,0.8); border-bottom: 2px solid #ffd700; padding: 20px; text-align: center; position: relative; z-index: 101; }
 #tshirtBanner.active { display: block; }
-.tshirt-code {
-  font-size: 2rem;
-  font-family: monospace;
-  font-weight: 800;
-  color: #ffd700;
-  letter-spacing: 5px;
-  background: rgba(0,0,0,0.5);
-  padding: 10px 20px;
-  border-radius: 12px;
-  border: 2px dashed #ffd700;
-  margin: 10px auto;
-  cursor: pointer;
-  display: inline-block;
-  transition: 0.3s;
-}
-.tshirt-code:hover { background: rgba(255, 215, 0, 0.1); }
+.tshirt-code { font-size: 2rem; font-family: monospace; font-weight: 800; color: #ffd700; letter-spacing: 5px; background: rgba(0,0,0,0.5); padding: 10px 20px; border-radius: 12px; border: 2px dashed #ffd700; margin: 10px auto; cursor: pointer; display: inline-block; transition: 0.3s; }
 
 header { display: flex; justify-content: space-between; align-items: center; padding: 15px 30px; background: var(--glass); backdrop-filter: blur(20px); border-bottom: 1px solid var(--glass-border); position: sticky; top: 0; z-index: 100; }
 .logo { font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 1.4rem; background: linear-gradient(45deg, #ff8a00, #e52e71); -webkit-background-clip: text; -webkit-text-fill-color: transparent; cursor: pointer; }
@@ -141,6 +126,18 @@ main { flex: 1; max-width: 1100px; display: grid; grid-template-columns: 2fr 1fr
 #tshirtCheckResult.success { background: rgba(0, 230, 118, 0.1); border: 1px solid #00e676; color: #00e676; display: block; }
 #tshirtCheckResult.error { background: rgba(229, 46, 113, 0.1); border: 1px solid #e52e71; color: #e52e71; display: block; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ЧАТ */
+.chat-container { position: fixed; bottom: 20px; right: 20px; width: 300px; height: 400px; background: #1a1825; border: 1px solid var(--glass-border); border-radius: 16px; display: none; flex-direction: column; z-index: 1500; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+.chat-container.open { display: flex; }
+.chat-header { padding: 10px; background: rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center; font-weight: 600; font-size: 0.9rem; border-bottom: 1px solid var(--glass-border); }
+.chat-messages { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 8px; }
+.chat-msg { padding: 6px 10px; border-radius: 8px; font-size: 0.8rem; background: rgba(255,255,255,0.05); max-width: 90%; word-break: break-word; }
+.chat-msg.user { align-self: flex-end; background: rgba(102, 126, 234, 0.3); }
+.chat-msg .nick { font-weight: bold; color: var(--gold-soft); margin-right: 4px; }
+.chat-input-row { display: flex; gap: 5px; padding: 10px; border-top: 1px solid var(--glass-border); }
+.chat-input-row input { flex: 1; padding: 8px; border-radius: 8px; border: 1px solid var(--glass-border); background: rgba(0,0,0,0.3); color: #fff; outline: none; font-size: 0.8rem; }
+.chat-input-row button { padding: 8px 12px; border-radius: 8px; border: none; background: var(--primary); color: #fff; cursor: pointer; }
 </style>
 
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
@@ -179,6 +176,35 @@ main { flex: 1; max-width: 1100px; display: grid; grid-template-columns: 2fr 1fr
           </div>
         </div>
 
+        <!-- Магазин и Кейсы -->
+        <div class="glass-card">
+          <div class="card-title">🎁 Кейсы и Магазин</div>
+          <div style="display:flex; gap:10px; margin-top:10px;">
+            <button class="btn btn-primary" onclick="openCase()">📦 Открыть кейс (500 🔥)</button>
+            <button class="btn btn-accent" onclick="buyStatus()">🌈 Радужный ник (1000 🔥)</button>
+            <button class="btn btn-glass" onclick="buyFrame()">🔥 Огненная рамка (500 🔥)</button>
+          </div>
+        </div>
+
+        <!-- Зал Славы -->
+        <div class="glass-card">
+          <div class="card-title">🏆 Зал Славы (Топ по балансу)</div>
+          <table class="donors-table" id="leaderboardTable">
+            <thead><tr><th>#</th><th>Игрок</th><th style="text-align:right;">Факелы</th></tr></thead>
+            <tbody><tr><td colspan="3" class="empty-state">Загрузка...</td></tr></tbody>
+          </table>
+        </div>
+
+        <!-- Реферальная система -->
+        <div class="glass-card">
+          <div class="card-title">🔗 Реферальная ссылка</div>
+          <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 10px;">Пригласи друга и получи <b>+100 🔥</b>, когда он сделает первый спин!</p>
+          <div style="display: flex; gap: 10px;">
+            <input type="text" id="refLinkInput" class="input-glass" readonly style="flex:1; margin:0;">
+            <button class="btn btn-primary" onclick="copyRefLink()">Копировать</button>
+          </div>
+        </div>
+
         <div class="glass-card">
           <div class="card-title">🎬 Записи</div>
           <div class="records-list" id="recordsList">
@@ -190,7 +216,7 @@ main { flex: 1; max-width: 1100px; display: grid; grid-template-columns: 2fr 1fr
       <div class="side-panel">
         <div class="glass-card">
           <div class="card-title">Рулетка</div>
-          <div class="card-subtitle">Крути и забирай призы (1 спин = 10 факелов)</div>
+          <div class="card-subtitle">1 спин = 10 факелов</div>
           <div class="wheel-area">
             <div class="wheel-container">
               <div class="pointer"></div>
@@ -260,6 +286,22 @@ main { flex: 1; max-width: 1100px; display: grid; grid-template-columns: 2fr 1fr
   </div>
 </div>
 
+<!-- ЧАТ -->
+<div class="chat-container" id="chatContainer">
+  <div class="chat-header">
+    <span>💬 Общий чат</span>
+    <button class="btn-ghost btn-sm" onclick="toggleChat()">✕</button>
+  </div>
+  <div class="chat-messages" id="chatMessages"></div>
+  <div class="chat-input-row">
+    <input type="text" id="chatInput" placeholder="Написать..." onkeydown="if(event.key==='Enter') sendChatMessage()">
+    <button onclick="sendChatMessage()">➤</button>
+  </div>
+</div>
+
+<!-- Кнопка чата -->
+<button class="btn btn-primary" style="position: fixed; bottom: 20px; left: 20px; z-index: 1400; border-radius: 50%; width: 50px; height: 50px;" onclick="toggleChat()">💬</button>
+
 <!-- МОДАЛКА ВХОДА -->
 <div class="modal-overlay" id="authModal">
   <div class="modal-content">
@@ -282,12 +324,18 @@ main { flex: 1; max-width: 1100px; display: grid; grid-template-columns: 2fr 1fr
   </div>
 </div>
 
-<!-- ПРОФИЛЬ (С ВОЗМОЖНОСТЬЮ СМЕНЫ НИКА) -->
+<!-- ПРОФИЛЬ (С АВАТАРКОЙ) -->
 <div class="modal-overlay" id="profileModal">
   <div class="modal-content">
     <button class="close-modal" onclick="closeModal('profileModal')">&times;</button>
     <h2>Профиль</h2>
     
+    <div class="form-group" style="margin-bottom: 15px;">
+      <label style="display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 5px;">Ссылка на аватарку</label>
+      <input type="text" class="input-glass" id="profileAvatarUrl" placeholder="https://... или эмодзи">
+    </div>
+    <button class="btn btn-primary" style="width:100%; margin-bottom: 15px;" onclick="saveAvatar()">Сохранить аватарку</button>
+
     <div class="form-group" style="margin-bottom: 15px;">
       <label style="display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 5px;">Твой никнейм</label>
       <input type="text" class="input-glass" id="profileNickInput" placeholder="Введите новый ник" maxlength="15">
@@ -422,7 +470,7 @@ emailjs.init(EMAILJS_PUBLIC_KEY);
 const $ = id => document.getElementById(id);
 let fbReady = false;
 let currentUser = null;
-let userData = { balance: 100, streak: 0, lastClaim: 0, role: 'user' };
+let userData = { balance: 100, streak: 0, lastClaim: 0, role: 'user', avatar: '🕊️', status: 'none' };
 let isSpinning = false;
 let wheelAngle = 0;
 let firebaseRecords = [];
@@ -431,7 +479,9 @@ let firebaseSupport = [];
 let firebaseAdmins = [];
 let firebaseAds = [];
 let firebaseStream = { url: '', status: 'offline' };
+let firebaseChat = [];
 let adminEmail = "dimaniktp@gmail.com"; // По умолчанию
+let caseOpened = false;
 
 // ПРОВЕРКА НА БАННЕР ФУТБОЛКИ
 function checkTshirtBanner() {
@@ -468,23 +518,20 @@ async function signInWithGoogle() {
     const result = await window.FB.signInWithPopup(window.FB.auth, window.FB.provider);
     const user = result.user;
     const email = user.email;
-    const nick = email.split('@')[0]; // Берем часть до @ как ник
+    const nick = email.split('@')[0];
     
     closeModal('authModal');
     toast(`Привет, ${nick}!`);
     
-    // Проверяем, есть ли юзер в базе
     const ref = window.FB.ref(window.FB.db, `fakel_users/${nick}`);
     const snap = await window.FB.get(ref);
     
     if(snap.exists()) {
-      // Если есть, подтягиваем данные
       currentUser = { nickname: nick };
       loadUserData(nick);
     } else {
-      // Если нет, создаем нового с 100 факелами
       const newUser = {
-        nickname: nick, balance: 100, streak: 0, lastClaim: 0, role: 'user', created: Date.now(), email: email
+        nickname: nick, balance: 100, streak: 0, lastClaim: 0, role: 'user', created: Date.now(), email: email, avatar: '🕊️', status: 'none'
       };
       await window.FB.set(ref, newUser);
       currentUser = { nickname: nick };
@@ -527,7 +574,11 @@ function logout() {
 async function loadUserData(nick) {
   const ref = window.FB.ref(window.FB.db, `fakel_users/${nick}`);
   window.FB.onValue(ref, (snap) => {
-    if(snap.exists()) { userData = snap.val(); updateUI(); }
+    if(snap.exists()) { 
+      userData = snap.val(); 
+      updateUI(); 
+      renderLeaderboard(); // Обновляем лидерборд при изменении данных
+    }
   });
 }
 async function saveUserData() {
@@ -543,14 +594,10 @@ async function saveNewNick() {
   
   const oldNick = currentUser.nickname;
   
-  // Проверяем, не занят ли новый ник
   const checkRef = window.FB.ref(window.FB.db, `fakel_users/${newNick}`);
   const checkSnap = await window.FB.get(checkRef);
-  if(checkSnap.exists()) {
-    return toast('Этот ник уже занят!', true);
-  }
+  if(checkSnap.exists()) return toast('Этот ник уже занят!', true);
 
-  // Переносим данные
   await window.FB.set(window.FB.ref(window.FB.db, `fakel_users/${newNick}`), userData);
   await window.FB.remove(window.FB.ref(window.FB.db, `fakel_users/${oldNick}`));
   
@@ -558,6 +605,17 @@ async function saveNewNick() {
   toast('Ник изменён!');
   closeModal('profileModal');
   loadUserData(newNick);
+}
+
+// СМЕНА АВАТАРКИ
+async function saveAvatar() {
+  const avatar = $('profileAvatarUrl').value.trim();
+  if(!avatar) return toast('Введите ссылку или эмодзи', true);
+  
+  userData.avatar = avatar;
+  await saveUserData();
+  toast('Аватарка обновлена!');
+  updateUI();
 }
 
 async function loadAdmins() {
@@ -587,9 +645,44 @@ async function loadSettings() {
       adminEmail = snap.val();
       $('adminEmailInput').value = adminEmail;
     } else {
-      $('adminEmailInput').value = "dimaniktp@gmail.com"; // дефолт
+      $('adminEmailInput').value = "dimaniktp@gmail.com";
     }
   });
+}
+
+async function loadChat() {
+  if(!fbReady) return;
+  const ref = window.FB.ref(window.FB.db, 'fakel_chat');
+  window.FB.onValue(ref, (snap) => {
+    const data = snap.val() || {};
+    firebaseChat = Object.entries(data).map(([id, msg]) => ({ id, ...msg })).sort((a,b) => a.time - b.time);
+    renderChat();
+  });
+}
+
+function renderLeaderboard() {
+  const tbody = document.querySelector('#leaderboardTable tbody');
+  const users = Object.entries(firebaseUsers).map(([nick, data]) => ({ nick, ...data }));
+  const sorted = users.sort((a,b) => b.balance - a.balance).slice(0, 10);
+  
+  if(!sorted.length) {
+    tbody.innerHTML = '<tr><td colspan="3" class="empty-state">Пока нет игроков</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = sorted.map((u, i) => `
+    <tr>
+      <td class="place">${i+1}</td>
+      <td>${renderAvatar(u.avatar)} ${u.status === 'rainbow' ? `<span class="rainbow-nick">${esc(u.nick)}</span>` : esc(u.nick)}</td>
+      <td class="donor-sum">${u.balance} 🔥</td>
+    </tr>
+  `).join('');
+}
+
+function renderAvatar(av) {
+  if(!av) return '🕊️';
+  if(av.startsWith('http')) return `<img src="${esc(av)}" style="width:24px;height:24px;border-radius:50%;object-fit:cover;vertical-align:middle;">`;
+  return esc(av);
 }
 
 function updateUI() {
@@ -603,11 +696,19 @@ function updateUI() {
     const isAdmin = userData.role === 'admin' || currentUser.nickname === 'SND' || firebaseAdmins.includes(currentUser.nickname);
     let adminBtn = isAdmin ? `<button class="btn btn-glass" onclick="openModal('adminModal')">⚙️</button>` : '';
     
+    const nickClass = userData.status === 'rainbow' ? 'rainbow-nick' : '';
+    const frameClass = userData.status === 'frame' ? 'rainbow-frame' : '';
+
     actions.innerHTML = `
       <div class="balance-pill">🔥 <span>${userData.balance}</span></div>
       <button class="btn btn-glass" onclick="openModal('supportModal')">💬</button>
       ${adminBtn}
-      <button class="btn btn-glass" onclick="openProfile()">${currentUser.nickname}</button>
+      <button class="btn btn-glass ${frameClass}" onclick="openProfile()">
+        <div style="display:flex; align-items:center; gap:5px;">
+          ${renderAvatar(userData.avatar)}
+          <span class="${nickClass}">${esc(currentUser.nickname)}</span>
+        </div>
+      </button>
     `;
     spinBtn.disabled = isSpinning || userData.balance < 10;
     streakCount.textContent = userData.streak;
@@ -623,7 +724,14 @@ function updateUI() {
       dailyBtn.disabled = false;
       dailyBtn.textContent = 'Поджечь';
     }
+
+    // Реферальная ссылка
+    if($('refLinkInput')) {
+      $('refLinkInput').value = `https://newlunarispro-dotcom.github.io/1/?ref=${currentUser.nickname}`;
+    }
+
     loadSupport();
+    loadChat();
   } else {
     actions.innerHTML = `<button class="btn btn-primary" onclick="openModal('authModal')">Войти</button>`;
     spinBtn.disabled = true;
@@ -639,6 +747,57 @@ function openProfile() {
   openModal('profileModal');
 }
 
+function copyRefLink() {
+  const input = $('refLinkInput');
+  input.select();
+  navigator.clipboard.writeText(input.value);
+  toast('Ссылка скопирована!');
+}
+
+// МАГАЗИН
+async function buyStatus() {
+  if(!currentUser) return toast('Войдите', true);
+  if(userData.balance < 1000) return toast('Мало факелов (нужно 1000)', true);
+  
+  userData.balance -= 1000;
+  userData.status = 'rainbow';
+  await saveUserData();
+  updateUI();
+  toast('Вы купили Радужный ник!');
+}
+
+async function buyFrame() {
+  if(!currentUser) return toast('Войдите', true);
+  if(userData.balance < 500) return toast('Мало факелов (нужно 500)', true);
+  
+  userData.balance -= 500;
+  userData.status = 'frame';
+  await saveUserData();
+  updateUI();
+  toast('Вы купили Огненную рамку!');
+}
+
+// КЕЙС
+async function openCase() {
+  if(!currentUser) return toast('Войдите', true);
+  if(userData.balance < 500) return toast('Мало факелов (нужно 500)', true);
+  if(caseOpened) return;
+  
+  caseOpened = true;
+  userData.balance -= 500;
+  await saveUserData();
+  updateUI();
+  
+  const prizes = [100, 250, 500, 1000, 5000];
+  const win = prizes[Math.floor(Math.random() * prizes.length)];
+  userData.balance += win;
+  await saveUserData();
+  updateUI();
+  
+  toast(`Кейс открыт! Вы выиграли ${win} факелов!`);
+  setTimeout(() => { caseOpened = false; }, 2000);
+}
+
 // ГЕНЕРАТОР КОДОВ
 function generateCode() {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -649,7 +808,7 @@ function generateCode() {
   return code;
 }
 
-// Массив призов (12 секторов)
+// РУЛЕТКА
 const wheelPrizes = [50, 10, 0, 20, 10, 0, 50, 10, 0, 20, 10, 0];
 
 async function spinWheel() {
@@ -667,8 +826,6 @@ async function spinWheel() {
   resultEl.innerHTML = '';
   
   const selectedIndex = Math.floor(Math.random() * wheelPrizes.length);
-  
-  // Шанс на футболку 0.1% (1 из 1000)
   const isTshirt = Math.random() < 0.001;
 
   const stopAngle = 360 - (selectedIndex * 30 + 15); 
@@ -676,6 +833,20 @@ async function spinWheel() {
   wheelAngle += (360 * randomSpins) + stopAngle - (wheelAngle % 360);
   
   wheel.style.transform = `rotate(${wheelAngle}deg)`;
+
+  // Проверка на реферала
+  const params = new URLSearchParams(window.location.search);
+  const ref = params.get('ref');
+  if(ref && !localStorage.getItem('ref_used')) {
+    localStorage.setItem('ref_used', 'true');
+    const refUserRef = window.FB.ref(window.FB.db, `fakel_users/${ref}/balance`);
+    const refUserSnap = await window.FB.get(refUserRef);
+    if(refUserSnap.exists()) {
+      const newBal = (refUserSnap.val() || 0) + 100;
+      await window.FB.set(refUserRef, newBal);
+      toast(`Вы пригласили ${ref} и он получил +100 факелов!`);
+    }
+  }
 
   setTimeout(async () => {
     isSpinning = false;
@@ -691,18 +862,16 @@ async function spinWheel() {
         });
       }
 
-      // ОТПРАВКА НА ПОЧТУ
       try {
         await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
           name: currentUser.nickname,
           message: code,
           time: new Date().toLocaleString('ru-RU'),
-          to_email: adminEmail // <--- ПЕРЕДАЕМ ПОЧТУ ИЗ НАСТРОЕК
+          to_email: adminEmail
         });
-        console.log("Письмо отправлено успешно!");
+        console.log("Письмо отправлено!");
       } catch (e) {
-        console.error("Ошибка отправки почты:", e);
-        toast("Ошибка отправки на почту!", true);
+        console.error("Ошибка почты:", e);
       }
 
       resultEl.innerHTML = `
@@ -733,6 +902,37 @@ async function spinWheel() {
       updateUI();
     }
   }, 4200);
+}
+
+// ЧАТ
+function toggleChat() {
+  const chat = $('chatContainer');
+  chat.classList.toggle('open');
+}
+
+function renderChat() {
+  const el = $('chatMessages');
+  if(!el) return;
+  el.innerHTML = firebaseChat.slice(-30).map(m => `
+    <div class="chat-msg ${m.user === currentUser?.nickname ? 'user' : ''}">
+      <span class="nick">${esc(m.user)}:</span> ${esc(m.text)}
+    </div>
+  `).join('');
+  el.scrollTop = el.scrollHeight;
+}
+
+async function sendChatMessage() {
+  const input = $('chatInput');
+  const text = input.value.trim();
+  if(!text) return;
+  if(!currentUser) return toast('Войдите', true);
+  
+  await window.FB.push(window.FB.ref(window.FB.db, 'fakel_chat'), {
+    user: currentUser.nickname,
+    text: text,
+    time: Date.now()
+  });
+  input.value = '';
 }
 
 async function claimDaily() {
@@ -1123,6 +1323,14 @@ window.addEventListener('firebase-ready', () => {
   loadAdmins();
   loadAds();
   loadSettings();
+  loadChat();
+
+  // Загружаем всех юзеров для лидерборда
+  const usersRef = window.FB.ref(window.FB.db, 'fakel_users');
+  window.FB.onValue(usersRef, (snap) => {
+    firebaseUsers = snap.val() || {};
+    renderLeaderboard();
+  });
 
   window.FB.onAuthStateChanged(window.FB.auth, (user) => {
     if (user) {
