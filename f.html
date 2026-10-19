@@ -179,10 +179,13 @@ main { flex: 1; max-width: 1100px; display: grid; grid-template-columns: 2fr 1fr
         <!-- Магазин и Кейсы -->
         <div class="glass-card">
           <div class="card-title">🎁 Кейсы и Магазин</div>
-          <div style="display:flex; gap:10px; margin-top:10px;">
+          <div style="display:flex; flex-direction: column; gap:10px; margin-top:10px;">
             <button class="btn btn-primary" onclick="openCase()">📦 Открыть кейс (500 🔥)</button>
-            <button class="btn btn-accent" onclick="buyStatus()">🌈 Радужный ник (1000 🔥)</button>
-            <button class="btn btn-glass" onclick="buyFrame()">🔥 Огненная рамка (500 🔥)</button>
+            <div style="display:flex; gap:10px;">
+              <button class="btn btn-accent" onclick="buyFrame()">🔥 Огненная рамка (500 🔥)</button>
+              <button class="btn btn-glass" onclick="buyVip()">💎 VIP (50 🔥/мес)</button>
+              <button class="btn btn-glass" onclick="buyPremium()">👑 Premium (150 🔥/мес)</button>
+            </div>
           </div>
         </div>
 
@@ -316,15 +319,18 @@ main { flex: 1; max-width: 1100px; display: grid; grid-template-columns: 2fr 1fr
     <div style="text-align: center; color: var(--text-muted); margin-bottom: 15px; font-size: 0.8rem;">— ИЛИ —</div>
     
     <div class="form-group" style="margin-bottom: 10px;">
-      <input type="text" class="input-glass" id="adminNickInput" placeholder="Ник админа" autocomplete="off" style="margin-bottom: 0;">
+      <input type="text" class="input-glass" id="adminNickInput" placeholder="Ник" autocomplete="off" style="margin-bottom: 0;">
     </div>
-    <button class="btn btn-accent" style="width:100%; padding: 15px; font-size: 1rem;" onclick="loginAsAdmin()">
-      Войти по нику (Админ)
+    <div class="form-group" style="margin-bottom: 10px;">
+      <input type="password" class="input-glass" id="adminPassInput" placeholder="Пароль" style="margin-bottom: 0;">
+    </div>
+    <button class="btn btn-accent" style="width:100%; padding: 15px; font-size: 1rem;" onclick="loginWithPassword()">
+      Войти
     </button>
   </div>
 </div>
 
-<!-- ПРОФИЛЬ (С АВАТАРКОЙ) -->
+<!-- ПРОФИЛЬ (С АВАТАРКОЙ И СМЕНОЙ ПАРОЛЯ) -->
 <div class="modal-overlay" id="profileModal">
   <div class="modal-content">
     <button class="close-modal" onclick="closeModal('profileModal')">&times;</button>
@@ -341,6 +347,17 @@ main { flex: 1; max-width: 1100px; display: grid; grid-template-columns: 2fr 1fr
       <input type="text" class="input-glass" id="profileNickInput" placeholder="Введите новый ник" maxlength="15">
     </div>
     <button class="btn btn-primary" style="width:100%; margin-bottom: 15px;" onclick="saveNewNick()">Сохранить ник</button>
+
+    <div class="form-group" style="margin-bottom: 15px;">
+      <label style="display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 5px;">Сменить пароль</label>
+      <input type="password" class="input-glass" id="profilePasswordInput" placeholder="Новый пароль">
+    </div>
+    <button class="btn btn-accent" style="width:100%; margin-bottom: 15px;" onclick="saveNewPassword()">Сменить пароль</button>
+
+    <!-- Кнопка включения радуги (только для админов) -->
+    <div id="adminRainbowBtn" style="display:none; margin-bottom: 15px;">
+      <button class="btn btn-success" style="width:100%;" onclick="toggleRainbow()">Включить/Выключить радугу (Админ)</button>
+    </div>
     
     <hr style="border: none; border-top: 1px solid rgba(255,255,255,0.1); margin: 15px 0;">
     
@@ -470,7 +487,7 @@ emailjs.init(EMAILJS_PUBLIC_KEY);
 const $ = id => document.getElementById(id);
 let fbReady = false;
 let currentUser = null;
-let userData = { balance: 100, streak: 0, lastClaim: 0, role: 'user', avatar: '🕊️', status: 'none' };
+let userData = { balance: 100, streak: 0, lastClaim: 0, role: 'user', avatar: '🕊️', status: 'none', password: '123456', vipUntil: 0, premiumUntil: 0 };
 let isSpinning = false;
 let wheelAngle = 0;
 let firebaseRecords = [];
@@ -531,7 +548,7 @@ async function signInWithGoogle() {
       loadUserData(nick);
     } else {
       const newUser = {
-        nickname: nick, balance: 100, streak: 0, lastClaim: 0, role: 'user', created: Date.now(), email: email, avatar: '🕊️', status: 'none'
+        nickname: nick, balance: 100, streak: 0, lastClaim: 0, role: 'user', created: Date.now(), email: email, avatar: '🕊️', status: 'none', password: '123456', vipUntil: 0, premiumUntil: 0
       };
       await window.FB.set(ref, newUser);
       currentUser = { nickname: nick };
@@ -544,19 +561,25 @@ async function signInWithGoogle() {
   }
 }
 
-// ВХОД ПО НИКУ (ДЛЯ АДМИНА)
-async function loginAsAdmin() {
+// ВХОД ПО ПАРОЛЮ
+async function loginWithPassword() {
   const nick = $('adminNickInput').value.trim();
-  if(!nick) return toast('Введите ник', true);
+  const pass = $('adminPassInput').value;
+  if(!nick || !pass) return toast('Введите ник и пароль', true);
   
   const ref = window.FB.ref(window.FB.db, `fakel_users/${nick}`);
   const snap = await window.FB.get(ref);
   
   if(snap.exists()) {
-    currentUser = { nickname: nick };
-    closeModal('authModal');
-    loadUserData(nick);
-    toast(`Привет, ${nick}!`);
+    const data = snap.val();
+    if(data.password === pass) {
+      currentUser = { nickname: nick };
+      closeModal('authModal');
+      loadUserData(nick);
+      toast(`Привет, ${nick}!`);
+    } else {
+      toast('Неверный пароль', true);
+    }
   } else {
     toast('Такого ника нет', true);
   }
@@ -577,7 +600,7 @@ async function loadUserData(nick) {
     if(snap.exists()) { 
       userData = snap.val(); 
       updateUI(); 
-      renderLeaderboard(); // Обновляем лидерборд при изменении данных
+      renderLeaderboard();
     }
   });
 }
@@ -616,6 +639,30 @@ async function saveAvatar() {
   await saveUserData();
   toast('Аватарка обновлена!');
   updateUI();
+}
+
+// СМЕНА ПАРОЛЯ
+async function saveNewPassword() {
+  const pass = $('profilePasswordInput').value.trim();
+  if(!pass) return toast('Введите новый пароль', true);
+  
+  userData.password = pass;
+  await saveUserData();
+  toast('Пароль изменён!');
+}
+
+// РАДУГА (ТОЛЬКО ДЛЯ АДМИНОВ)
+async function toggleRainbow() {
+  if(!currentUser) return;
+  if(userData.status === 'rainbow') {
+    userData.status = 'none';
+  } else {
+    userData.status = 'rainbow';
+  }
+  await saveUserData();
+  updateUI();
+  closeModal('profileModal');
+  toast('Статус изменён!');
 }
 
 async function loadAdmins() {
@@ -710,6 +757,13 @@ function updateUI() {
         </div>
       </button>
     `;
+
+    // Показываем кнопку радуги только админам
+    const adminRainbowBtn = $('adminRainbowBtn');
+    if(adminRainbowBtn) {
+      adminRainbowBtn.style.display = isAdmin ? 'block' : 'none';
+    }
+
     spinBtn.disabled = isSpinning || userData.balance < 10;
     streakCount.textContent = userData.streak;
     if(userData.streak > 0) streakIcon.classList.add('active');
@@ -725,7 +779,6 @@ function updateUI() {
       dailyBtn.textContent = 'Поджечь';
     }
 
-    // Реферальная ссылка
     if($('refLinkInput')) {
       $('refLinkInput').value = `https://newlunarispro-dotcom.github.io/1/?ref=${currentUser.nickname}`;
     }
@@ -738,6 +791,7 @@ function updateUI() {
     dailyBtn.disabled = true;
     streakCount.textContent = '0';
     streakIcon.classList.remove('active');
+    if($('adminRainbowBtn')) $('adminRainbowBtn').style.display = 'none';
   }
 }
 
@@ -755,17 +809,6 @@ function copyRefLink() {
 }
 
 // МАГАЗИН
-async function buyStatus() {
-  if(!currentUser) return toast('Войдите', true);
-  if(userData.balance < 1000) return toast('Мало факелов (нужно 1000)', true);
-  
-  userData.balance -= 1000;
-  userData.status = 'rainbow';
-  await saveUserData();
-  updateUI();
-  toast('Вы купили Радужный ник!');
-}
-
 async function buyFrame() {
   if(!currentUser) return toast('Войдите', true);
   if(userData.balance < 500) return toast('Мало факелов (нужно 500)', true);
@@ -775,6 +818,29 @@ async function buyFrame() {
   await saveUserData();
   updateUI();
   toast('Вы купили Огненную рамку!');
+}
+
+async function buyVip() {
+  if(!currentUser) return toast('Войдите', true);
+  if(userData.balance < 50) return toast('Мало факелов (нужно 50)', true);
+  
+  userData.balance -= 50;
+  userData.vipUntil = Date.now() + 30 * 24 * 60 * 60 * 1000;
+  await saveUserData();
+  updateUI();
+  toast('Вы купили VIP на месяц!');
+}
+
+async function buyPremium() {
+  if(!currentUser) return toast('Войдите', true);
+  if(userData.balance < 150) return toast('Мало факелов (нужно 150)', true);
+  
+  userData.balance -= 150;
+  userData.premiumUntil = Date.now() + 30 * 24 * 60 * 60 * 1000;
+  userData.status = 'rainbow'; // Премиум даёт радугу
+  await saveUserData();
+  updateUI();
+  toast('Вы купили Premium на месяц! Теперь у вас радужный ник!');
 }
 
 // КЕЙС
