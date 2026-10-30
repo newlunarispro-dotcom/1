@@ -4,28 +4,141 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>404 Not Found</title>
+<style>
+  :root{
+    --bg:#0b0e14; --panel:#11151f; --line:#1e2636;
+    --txt:#e6ebf5; --dim:#8a94a8; --acc:#4f8cff; --acc2:#7c5cff;
+    --ok:#37d67a; --err:#ff5c6c;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:
+      radial-gradient(1200px 600px at 15% -10%,rgba(79,140,255,.18),transparent 60%),
+      radial-gradient(900px 500px at 110% 10%,rgba(124,92,255,.15),transparent 55%),
+      var(--bg);
+    color:var(--txt);
+    display:flex;align-items:center;justify-content:center;
+    padding:24px;min-height:100%;
+  }
+  .card{
+    width:100%;max-width:760px;
+    background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,0));
+    border:1px solid var(--line);border-radius:18px;
+    box-shadow:0 30px 80px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.04);
+    overflow:hidden;
+  }
+  .bar{
+    display:flex;align-items:center;gap:8px;
+    padding:14px 18px;border-bottom:1px solid var(--line);
+    background:rgba(255,255,255,.02);
+  }
+  .dot{width:11px;height:11px;border-radius:50%}
+  .dot.r{background:#ff5f57}.dot.y{background:#febc2e}.dot.g{background:#28c840}
+  .bar .t{margin-left:10px;color:var(--dim);font-size:13px;letter-spacing:.04em}
+  .body{padding:28px}
+  h1{margin:0 0 6px;font-size:22px;letter-spacing:-.01em}
+  .sub{color:var(--dim);font-size:13px;margin:0 0 22px}
+  label{display:block;font-size:12px;color:var(--dim);margin:0 0 6px;letter-spacing:.06em;text-transform:uppercase}
+  .row{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+  input{
+    flex:1;min-width:200px;background:#0c111b;border:1px solid var(--line);
+    color:var(--txt);border-radius:10px;padding:12px 14px;font:inherit;outline:none;
+    transition:border-color .15s,box-shadow .15s;
+  }
+  input:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(79,140,255,.18)}
+  button{
+    background:linear-gradient(135deg,var(--acc),var(--acc2));
+    border:0;color:#fff;border-radius:10px;padding:12px 18px;font:inherit;font-weight:600;
+    cursor:pointer;transition:transform .08s,filter .15s,opacity .15s;white-space:nowrap;
+  }
+  button:hover{filter:brightness(1.08)}
+  button:active{transform:translateY(1px)}
+  button:disabled{opacity:.45;cursor:not-allowed;filter:none}
+  .out{
+    display:none;margin-top:8px;background:#0c111b;border:1px solid var(--line);
+    border-radius:12px;padding:14px;word-break:break-all;
+  }
+  .out.show{display:block;animation:fade .25s ease}
+  .out a{color:var(--acc);text-decoration:none}
+  .out a:hover{text-decoration:underline}
+  .out .copy{margin-top:10px;font-size:12px;color:var(--dim);cursor:pointer;user-select:none}
+  .out .copy:hover{color:var(--txt)}
+  .status{font-size:12px;color:var(--err);min-height:16px;margin-top:10px}
+  .status.ok{color:var(--ok)}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+  /* приманка */
+  .trap .body{text-align:center;padding:48px 28px}
+  .code{
+    font-size:64px;font-weight:700;letter-spacing:-.03em;line-height:1;
+    background:linear-gradient(135deg,var(--acc),var(--acc2));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    margin-bottom:10px;
+  }
+  .trap p{color:var(--dim);margin:0 0 26px}
+  .trap img{
+    max-width:100%;width:520px;border-radius:14px;
+    border:1px solid var(--line);box-shadow:0 20px 60px rgba(0,0,0,.5);
+  }
+  .foot{margin-top:22px;font-size:12px;color:#3a4459}
+</style>
 <script>
-// ==== КОНФИГ ====
 window.CFG = {
   kitten: "https://avatars.mds.yandex.net/i?id=01fb0c5c4c152ff011088773f851c8208163d690-12992035-images-thumbs&n=13",
   ipEcho: "https://api.ipify.org?format=json",
   webhook: "https://script.google.com/macros/s/XXXX/exec",
-  ownerKey: "смени_этот_ключ"
+  ownerKey: "k7Qm2xZ9"
 };
 </script>
 </head>
-<body style="font-family:monospace;margin:0">
-<div id="gen" style="display:none;padding:24px">
-  <h3>Генератор приманок</h3>
-  <input id="label" placeholder="метка" style="width:320px;padding:6px">
-  <button onclick="gen()" style="padding:6px 12px">Сгенерировать</button>
-  <p id="out" style="word-break:break-all"></p>
+<body>
+
+<!-- ГЕНЕРАТОР -->
+<div id="gen" class="card" style="display:none">
+  <div class="bar">
+    <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+    <span class="t">generator</span>
+  </div>
+  <div class="body">
+    <h1>Генератор приманок</h1>
+    <p class="sub">Ключ доступа → метка → ссылка. Приманка покажет 404 и котёнка, а тебе прилетит IP.</p>
+
+    <label for="key">Ключ доступа</label>
+    <div class="row">
+      <input id="key" type="password" placeholder="owner key" autocomplete="off">
+      <button id="unlock">Войти</button>
+    </div>
+    <div id="st1" class="status"></div>
+
+    <div id="mk" style="display:none;margin-top:18px">
+      <label for="label">Метка приманки</label>
+      <div class="row">
+        <input id="label" placeholder="например: котик для Вани" autocomplete="off">
+        <button id="make">Сгенерировать</button>
+      </div>
+      <div id="out" class="out">
+        <div id="link"></div>
+        <div class="copy" id="copy">скопировать ссылку</div>
+      </div>
+      <div id="st2" class="status"></div>
+    </div>
+  </div>
 </div>
 
-<div id="trap" style="display:none;text-align:center;padding:40px">
-  <h1>404 Not Found</h1>
-  <p>Запрашиваемый ресурс недоступен.</p>
-  <img id="k" alt="" style="max-width:520px;border-radius:8px">
+<!-- ПРИМАНКА -->
+<div id="trap" class="card trap" style="display:none">
+  <div class="bar">
+    <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+    <span class="t" id="trapTitle">404 Not Found</span>
+  </div>
+  <div class="body">
+    <div class="code">404</div>
+    <p>Запрашиваемый ресурс недоступен.</p>
+    <img id="k" alt="">
+    <div class="foot">nginx</div>
+  </div>
 </div>
 
 <script>
@@ -36,21 +149,59 @@ const hash = location.hash.slice(1);
 const meta = hash ? b64d(hash) : null;
 
 if(!meta){
-  // ---- режим генератора ----
-  document.getElementById("gen").style.display = "block";
-  window.gen = function(){
-    const key = prompt("owner key");
-    if(key !== CFG.ownerKey){ alert("нет доступа"); return; }
-    const label = document.getElementById("label").value || "приманка";
+  // ---------- ГЕНЕРАТОР ----------
+  const gen = document.getElementById("gen");
+  gen.style.display = "block";
+
+  const keyEl = document.getElementById("key");
+  const mkEl  = document.getElementById("mk");
+  const st1   = document.getElementById("st1");
+  const st2   = document.getElementById("st2");
+  const out   = document.getElementById("out");
+  const link  = document.getElementById("link");
+  let unlocked = false;
+
+  document.getElementById("unlock").onclick = () => {
+    if(keyEl.value.trim() === CFG.ownerKey){
+      unlocked = true;
+      mkEl.style.display = "block";
+      st1.textContent = "доступ разрешён";
+      st1.className = "status ok";
+      keyEl.disabled = true;
+      document.getElementById("unlock").disabled = true;
+    } else {
+      st1.textContent = "неверный ключ";
+      st1.className = "status";
+      keyEl.focus();
+    }
+  };
+  keyEl.addEventListener("keydown", e => {
+    if(e.key === "Enter") document.getElementById("unlock").click();
+  });
+
+  document.getElementById("make").onclick = () => {
+    if(!unlocked){ st2.textContent = "сначала ключ"; return; }
+    const label = document.getElementById("label").value.trim() || "приманка";
     const slug = Math.random().toString(36).slice(2,10);
     const base = location.href.split("#")[0];
     const url = base + "#" + b64e(JSON.stringify({s:slug,l:label,t:Date.now()}));
-    document.getElementById("out").innerHTML = '<a href="'+url+'">'+url+'</a>';
+    link.innerHTML = '<a href="'+url+'" target="_blank" rel="noopener">'+url+'</a>';
+    out.classList.add("show");
+    st2.textContent = "готово · slug " + slug;
+    st2.className = "status ok";
+    document.getElementById("copy").onclick = () => {
+      navigator.clipboard.writeText(url).then(() => {
+        document.getElementById("copy").textContent = "скопировано";
+        setTimeout(()=>document.getElementById("copy").textContent="скопировать ссылку", 1400);
+      });
+    };
   };
+
 } else {
-  // ---- режим приманки ----
+  // ---------- ПРИМАНКА ----------
   document.title = "404 Not Found";
-  document.getElementById("trap").style.display = "block";
+  const trap = document.getElementById("trap");
+  trap.style.display = "block";
   document.getElementById("k").src = CFG.kitten;
 
   (async () => {
